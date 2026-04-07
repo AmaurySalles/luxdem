@@ -1,0 +1,6 @@
+module x depends on,assets,db_model,domain_model,methodo,pages
+assets,No,No,No,No,No
+db_model,No,Yes,Yes,No,No
+domain_model,No,No,Yes,No,No
+methodo,No,Yes,Yes,Yes,No
+pages,Yes,Yes,Yes,Yes,Yes

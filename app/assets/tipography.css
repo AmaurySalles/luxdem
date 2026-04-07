@@ -1,0 +1,52 @@
+@font-face {
+    font-family: 'Averta';
+    src: url('fonts/Averta_Regular.otf') format('truetype');
+}
+
+
+@font-face {
+    font-family: 'Averta Bold';
+    src: url('fonts/Averta-ExtraBold.otf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Stag Sans Book';
+    src: url('fonts/Stag Sans-Book.otf') format('truetype');
+}
+
+
+/* Dash mantine conflicts */
+input:invalid {
+    outline: none !important;
+}
+
+
+a {
+    color: white
+}
+
+/* AG Grid table formatting */
+.ag-theme-material .ag-row {
+    font-family: Averta;
+}
+
+.ag-theme-quartz {
+    font-family: Averta;
+}
+
+.ag-theme-material .ag-header {
+    font-weight: bold;
+    font-family: Averta;
+    background-color: #0066A1;
+    height: 20px;
+}
+
+.ag-theme-quartz .ag-header-cell {
+    font-weight: bold;
+    color: #525252;
+    font-family: Averta;
+}
+
+.ag-theme-material .ag-header-cell {
+    color: #fff;
+}
