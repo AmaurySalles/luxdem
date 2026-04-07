@@ -1,0 +1,116 @@
+
+
+
+
+Retrieving dossier #2441
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/3d/2c/3088236_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2441/20250514_Depôt.pdf', 'draft_law_id__0': 35, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2441/20250514_RetraitRôleDesAffaires.pdf', 'draft_law_id__1': 35, 'title__1': '2441/01 - Retrait du rôle de la Chambre des Députés Dépêche du Président de la Chambre des Députés au Premier Ministre (30.11.1999)', 'url__2': 'https://wdocs-pub.chd.lu/docs/archive/3d/2c/3088236_pdf', 'draft_law_id__2': 35, 'title__2': 'Verbatim - Débat sur le dossier 2441 - Séance du 22.10.1980'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #2717
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/0e/0f/3077007_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2), (%(title__3)s, %(url__3)s, %(draft_law_id__3)s, 3)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2717/20250514_Depôt.pdf', 'draft_law_id__0': 47, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2717/20250513_RetraitRôleDesAffaires.pdf', 'draft_law_id__1': 47, 'title__1': '2717/03 - Retrait du rôle de la Chambre des Députés Dépêche du Président de la Chambre des Députés au Premier Ministre (17.3.1999)', 'url__2': 'https://wdocs-pub.chd.lu/docs/archive/0e/0f/3077007_pdf', 'draft_law_id__2': 47, 'title__2': 'Verbatim - Débat sur le dossier 2717 - Séance du 09.06.1983', 'url__3': 'https://wdocs-pub.chd.lu/docs/archive/0d/28/3052392_pdf', 'draft_law_id__3': 47, 'title__3': 'Verbatim - Débat sur le dossier 2717 - Séance du 16.03.1999'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #2858
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/0d/28/3052392_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2), (%(title__3)s, %(url__3)s, %(draft_law_id__3)s, 3), (%(title__4)s, %(url__4)s, %(draft_law_id__4)s, 4)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2858/20250514_Depôt.pdf', 'draft_law_id__0': 51, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2858/20250515_Avis.pdf', 'draft_law_id__1': 51, 'title__1': "2858/01 - Avis du Conseil d'Etat (10.07.1998)", 'url__2': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/2858/20250514_RetraitRôleDesAffaires.pdf', 'draft_law_id__2': 51, 'title__2': '2858/02 - Retrait du rôle de la Chambre des Députés - Dépêche du Président de la Chambre des Députés au Premier Ministre (13.10.1998)', 'url__3': 'https://wdocs-pub.chd.lu/docs/archive/3c/26/3079974_pdf', 'draft_law_id__3': 51, 'title__3': 'Verbatim - Débat sur le dossier 2858 - Séance du 20.12.1984', 'url__4': 'https://wdocs-pub.chd.lu/docs/archive/0d/28/3052392_pdf', 'draft_law_id__4': 51, 'title__4': 'Verbatim - Débat sur le dossier 2858 - Séance du 16.03.1999'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Retrieving dossier #2859
+
+
+
+Retrieving dossier #2979
+2026-03-28 19:34:31 | ERROR | 87 | scraper:parse_dossier:164        | Error parsing dossier https://www.chd.lu/fr/dossier/2979: HTTPSConnectionPool(host='www.chd.lu', port=443):
+2026-03-28 19:34:31 | ERROR | 87 | scraper:parse_dossier:164        |  Read timed out. (read timeout=15)
+
+
+Retrieving dossier #3046
+2026-03-28 19:43:03 | ERROR | 87 | scraper:parse_dossier:164        | Error parsing dossier https://www.chd.lu/fr/dossier/3046: HTTPSConnectionPool(host='www.chd.lu', port=443):
+2026-03-28 19:43:03 | ERROR | 87 | scraper:parse_dossier:164        |  Read timed out. (read timeout=15)
+
+
+Retrieving dossier #3060
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/29/34/3005044_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3060/20250514_Depôt.pdf', 'draft_law_id__0': 58, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3060/20250514_RetraitRôleDesAffaires.pdf', 'draft_law_id__1': 58, 'title__1': '3060/01 - Retrait du rôle de la Chambre des Députés  Dépêche du Président de la Chambre des Députés au Premier Ministre (15.2.2000)', 'url__2': 'https://wdocs-pub.chd.lu/docs/archive/29/34/3005044_pdf', 'draft_law_id__2': 58, 'title__2': 'Verbatim - Débat sur le dossier 3060 - Séance du 15.02.2000'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #3278
+    Success!
+Retrieving dossier #3279
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/03/02/3035330_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3279/20250513_Depôt.pdf', 'draft_law_id__0': 79, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3279/20250513_RetraitRôleDesAffaires.pdf', 'draft_law_id__1': 79, 'title__1': '3279/01 - Retrait du rôle de la Chambre des Députés - Dépêche du Président de la Chambre des Députés au Premier Ministre (13.10.1998)', 'url__2': 'https://wdocs-pub.chd.lu/docs/archive/03/02/3035330_pdf', 'draft_law_id__2': 79, 'title__2': 'Verbatim - Débat sur le dossier 3279 - Séance du 22.11.1988'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #3330
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/2b/03/3095235_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3330/20250515_Depôt.pdf', 'draft_law_id__0': 83, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3330/20250514_RetraitRôleDesAffaires.pdf', 'draft_law_id__1': 83, 'title__1': '3330/05 - Retrait du rôle de la Chambre des Députés Dépêche du Président de la Chambre des Députés au Premier Ministre (16.11.1999)', 'url__2': 'https://wdocs-pub.chd.lu/docs/archive/2b/03/3095235_pdf', 'draft_law_id__2': 83, 'title__2': 'Verbatim - Débat sur le dossier 3330 - Séance du 16.11.1999'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #3403
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/0d/28/3052392_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_i ... 168 characters truncated ... AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3403/20250515_Depôt.pdf', 'draft_law_id__0': 86, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3403/20250731_Avis_2.pdf', 'draft_law_id__1': 86, 'title__1': "3403/03 - Avis du Conseil d'Etat (10.07.1998)", 'url__2': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3403/20250731_Avis.pdf', 'draft_law_id__2': 86, 'title__2': "3403/01 - Avis du Conseil d'Etat (10.7.1998)", 'url__3': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3403/20250513_RetraitRôleDesAffaires.pdf', 'draft_law_id__3': 86, 'title__3': '3403/04 - Retrait du rôle de la Chambre des Députés Dépêche du Président de la Chambre des Députés au Premier Ministre (17.3.1999)', 'url__4': 'https://wdocs-pub.chd.lu/docs/archive/1e/34/3012532_pdf', 'draft_law_id__4': 86, 'title__4': 'Verbatim - Débat sur le dossier 3403 - Séance du 16.05.1990', 'url__5': 'https://wdocs-pub.chd.lu/docs/archive/0d/28/3052392_pdf', 'draft_law_id__5': 86, 'title__5': 'Verbatim - Débat sur le dossier 3403 - Séance du 16.03.1999'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #3442
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/1f/03/3012547_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2), (%(title__3)s, %(url__3)s, %(draft_law_id__3)s, 3), (%(title__4)s, %(url__4)s, %(draft_law_id__4)s, 4)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3442/20250513_Depôt.pdf', 'draft_law_id__0': 90, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3442/20250515_Avis_2.pdf', 'draft_law_id__1': 90, 'title__1': "3442/01 - Avis du Conseil d'Etat (16.11.1993)", 'url__2': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3442/20250515_Avis.pdf', 'draft_law_id__2': 90, 'title__2': '3442/02 - Poursuite de la procédure législative - Dépêche du Président de la Chambre des Députés au Premier Ministre (18.3.2010)', 'url__3': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3442/20250514_RetraitRôleDesAffaires.pdf', 'draft_law_id__3': 90, 'title__3': "3442/03 - Retrait du rôle des affaires - Dépêche du Président de la Chambre des Députés au Premier Ministre, Ministre d'Etat (1.4.2014)", 'url__4': 'https://wdocs-pub.chd.lu/docs/archive/1f/03/3012547_pdf', 'draft_law_id__4': 90, 'title__4': 'Verbatim - Débat sur le dossier 3442 - Séance du 11.10.1990'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Retrieving dossier #3443
+
+
+
+Retrieving dossier #3557
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/22/0e/3074190_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2), (%(title__3)s, %(url__3)s, %(draft_law_id__3)s, 3)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3557/20250514_Depôt.pdf', 'draft_law_id__0': 99, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3557/20250515_Avis.pdf', 'draft_law_id__1': 99, 'title__1': "3557/01 - Avis du Conseil d'Etat (24.11.1998)", 'url__2': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3557/20250514_RetraitRôleDesAffaires.pdf', 'draft_law_id__2': 99, 'title__2': '3557/02 - Retrait du rôle de la Chambre des Députés Dépêche du Président de la Chambre des Députés au Premier Ministre (17.3.1999)', 'url__3': 'https://wdocs-pub.chd.lu/docs/archive/22/0e/3074190_pdf', 'draft_law_id__3': 99, 'title__3': 'Verbatim - Débat sur le dossier 3557 - Séance du 22.10.1991'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+
+
+
+Retrieving dossier #3572
+Could not retrieve due to (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "resource_url_key"
+DETAIL:  Key (url)=(https://wdocs-pub.chd.lu/docs/archive/29/34/3005044_pdf) already exists.
+
+[SQL: INSERT INTO resource (title, url, draft_law_id) SELECT p0::VARCHAR, p1::VARCHAR, p2::INTEGER FROM (VALUES (%(title__0)s, %(url__0)s, %(draft_law_id__0)s, 0), (%(title__1)s, %(url__1)s, %(draft_law_id__1)s, 1), (%(title__2)s, %(url__2)s, %(draft_law_id__2)s, 2), (%(title__3)s, %(url__3)s, %(draft_law_id__3)s, 3)) AS imp_sen(p0, p1, p2, sen_counter) ORDER BY sen_counter RETURNING resource.id, resource.id AS id__1]
+[parameters: {'url__0': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3572/20250515_Depôt.pdf', 'draft_law_id__0': 104, 'title__0': 'Document de dépôt', 'url__1': 'https://wdocs-pub.chd.lu/docs/Dossiers_parlementaires/3572/20250513_RetraitRôleDesAffaires.pdf', 'draft_law_id__1': 104, 'title__1': '3572/01 - Retrait du rôle de la Chambre des Députés  Dépêche du Président de la Chambre des Députés au Premier Ministre (15.2.2000)', 'url__2': 'https://wdocs-pub.chd.lu/docs/archive/0e/1b/3097499_pdf', 'draft_law_id__2': 104, 'title__2': 'Verbatim - Débat sur le dossier 3572 - Séance du 19.02.1992', 'url__3': 'https://wdocs-pub.chd.lu/docs/archive/29/34/3005044_pdf', 'draft_law_id__3': 104, 'title__3': 'Verbatim - Débat sur le dossier 3572 - Séance du 15.02.2000'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Retrieving dossier #3573
