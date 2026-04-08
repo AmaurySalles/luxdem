@@ -1,5 +1,4 @@
 # === Step 2: Parse PDF with pdfplumber ===
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pdfplumber
 from pathlib import Path
 
@@ -24,22 +23,3 @@ def parse_pdf_with_pdfplumber(pdf_path: Path) -> str:
                         full_text += " | ".join(str(cell) if cell else "" for cell in row) + "\n"
     
     return full_text.strip()
-
-
-def chunk_text(full_text: str, metadata: dict, chunk_size: int = 1000, chunk_overlap: int = 100) -> list[dict]:
-    """Split text into chunks with metadata."""
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap,
-        separators=["\n\n", "\n", ". ", " ", ""],
-    )
-    text_chunks = splitter.split_text(full_text)
-
-    chunks_with_metadata = [
-        {
-            "page_content": chunk,
-            "metadata": {**metadata, "chunk_index": i, "chunk_count": len(text_chunks)},
-        }
-        for i, chunk in enumerate(text_chunks)
-    ]
-    return chunks_with_metadata
