@@ -1,12 +1,13 @@
 # === Step 5: Ollama Embeddings Setup ===
 
-
-from langchain_community.embeddings import OllamaEmbeddings
+import os
 import requests
+from langchain_community.embeddings import OllamaEmbeddings
 
 # === Configuration ===
-OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_EMBEDDING_MODEL = "mistral"
+# Read env var OLLAMA_BASE_URL; default to localhost:11434 if not set
+OLLAMA_BASE_URL = os.getenv("http://localhost:11434") 
+OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL","mistral")
 
 def get_ollama_embeddings():
     """Initialize Ollama embeddings (Mistral model)."""
