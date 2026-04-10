@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional
 from enum import Enum
 
-class LawStatus(str, Enum):
+class DossierStatus(str, Enum):
     Vide = "Vide"
     Cree = "Créé" 
     Retire = "Retiré"
