@@ -26,8 +26,8 @@ from bs4 import BeautifulSoup
 import requests
 
 from app.db_model import Resource
-from app.db_model.tables.draft_law import DraftLaw
-from app.domain_model import LawStatus, LawType
+from app.db_model.tables.dossier import Dossier
+from app.domain_model import DossierStatus
 
 log = logger_get(__name__)
 
@@ -79,22 +79,22 @@ def find_published_badge(soup: BeautifulSoup) -> List[str]:
     """
     Finds all badges in the page and returns a list of their text.
     """
-    return LawStatus.Publie if soup.find_all("span", class_="badge badge-validated mr-8") else None
+    return DossierStatus.Publie if soup.find_all("span", class_="badge badge-validated mr-8") else None
 
 
-def find_law_status(soup: BeautifulSoup) -> LawStatus | None:
+def find_dossier_status(soup: BeautifulSoup) -> DossierStatus | None:
     """
-    Finds the law status in the page and returns it.
+    Finds the dossier status in the page and returns it.
     """
     if law_status := get_description_list_info("Statut", soup):
-        return LawStatus(law_status)
+        return DossierStatus(law_status)
     if published_badge := find_published_badge(soup):
-        return LawStatus.Publie
+        return DossierStatus.Publie
     return None
 
-def find_law_deposit_date(soup: BeautifulSoup) -> datetime.datetime | None:
+def find_dossier_deposit_date(soup: BeautifulSoup) -> datetime.datetime | None:
     """
-    Finds the law deposit date in the page and returns it.
+    Finds the dossier deposit date in the page and returns it.
     """
     return convert_date_to_datetime(get_description_list_info("Date de dépôt", soup))
 
@@ -123,8 +123,8 @@ def find_doc_download_url(soup: BeautifulSoup) -> str | None:
     return resources
 
 
-def parse_dossier(url: str) -> DraftLaw | None:
-    """Parse a dossier detail page and extract required fields.
+def scrape_dossier(url: str) -> Dossier | None:
+    """Scrape a dossier detail page and extract required fields.
 
     Returns a dict with keys:
       law_number, law_type, law_deposit_date, law_evacuation_date,
@@ -138,25 +138,25 @@ def parse_dossier(url: str) -> DraftLaw | None:
             log.error(f"No main content found for URL: {url}")
             return None
 
-        if not (law_number := text_of(body, ".chd-pageTitleHeader__title")):
+        if not (dossier_number := text_of(body, ".chd-pageTitleHeader__title")):
             log.error(f"No law number found for URL: {url}")
             return None
 
         right_info_column = find_right_info_column(body)
         activities = find_activities(body)
 
-        return DraftLaw(
-            law_number=int(law_number),
-            law_title=text_of(body, ".chd-wysiwyg.text-large"),
+        return Dossier(
+            number=int(dossier_number),
+            title=text_of(body, ".chd-wysiwyg.text-large"),
 
-            law_type=get_description_list_info("Type", right_info_column),
-            law_status=find_law_status(right_info_column),
+            type=get_description_list_info("Type", right_info_column),
+            status=find_dossier_status(right_info_column),
 
-            law_deposit_date=find_law_deposit_date(right_info_column),
-            law_evacuation_date=None,
+            deposit_date=find_dossier_deposit_date(right_info_column),
+            evacuation_date=None,
             
-            law_content=None,
-            law_authors=get_description_list_info("Auteur", right_info_column),
+            content=None,
+            authors=get_description_list_info("Auteur", right_info_column),
             resources=find_doc_download_url(soup)
         )
     

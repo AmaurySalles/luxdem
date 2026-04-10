@@ -10,11 +10,14 @@ from ecodev_core import JwtAuth
 from ecodev_core import Token
 from fastapi import Depends
 from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from sqladmin import Admin
+from sqlmodel import Session
 
-from app.admin import ProjectAdmin
+# from app.rag import DraftLawChatService
 
 
 app = FastAPI()
@@ -26,14 +29,30 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-# ADMIN GUIDANCE #
+# draft_law_chat_service = DraftLawChatService()
 
-# The line below is only necessary if wanting to provide POs with an admin view on the DB
-# If not the case, remove it alongside its imports (e.g. sqladmin).
 
-# ADMIN #
-admin = Admin(app, engine, authentication_backend=JwtAuth(secret_key=AUTH.secret_key))
-admin.add_view(ProjectAdmin)
+# class DraftLawChatRequest(BaseModel):
+#     question: str
+#     top_k: int | None = None
+
+
+# class DraftLawChatSource(BaseModel):
+#     source_id: str
+#     law_id: int | None = None
+#     law_number: str
+#     law_title: str
+#     law_status: str
+#     text: str
+#     score: float
+
+
+# class DraftLawChatApiResponse(BaseModel):
+#     answer: str
+#     indexed_law_count: int
+#     indexed_chunk_count: int
+#     sources: list[DraftLawChatSource]
+
 # ROUTE GUIDANCE #
 
 # Add API App routes below via:
@@ -56,6 +75,45 @@ def login_route(
     Route allowing users to log in.
     """
     return attempt_to_log(user.username, user.password, session)
+
+
+# @app.post("/draft-law-chat", response_model=DraftLawChatApiResponse)
+# def draft_law_chat_route(payload: DraftLawChatRequest):
+#     try:
+#         with Session(engine) as session:
+#             response = draft_law_chat_service.answer_question(
+#                 session=session,
+#                 question=payload.question,
+#                 top_k=payload.top_k,
+#             )
+#     except ValueError as exc:
+#         raise HTTPException(status_code=400, detail=str(exc)) from exc
+#     except RuntimeError as exc:
+#         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+#     return DraftLawChatApiResponse(
+#         answer=response.answer,
+#         indexed_law_count=response.indexed_law_count,
+#         indexed_chunk_count=response.indexed_chunk_count,
+#         sources=[
+#             DraftLawChatSource(
+#                 source_id=source.source_id,
+#                 law_id=source.law_id,
+#                 law_number=source.law_number,
+#                 law_title=source.law_title,
+#                 law_status=source.law_status,
+#                 text=source.text,
+#                 score=source.score,
+#             )
+#             for source in response.sources
+#         ],
+#     )
+
+
+# @app.post("/draft-law-chat/index")
+# def draft_law_chat_index_route():
+#     with Session(engine) as session:
+#         return draft_law_chat_service.index_stats(session)
 
 
 if __name__ == '__main__':

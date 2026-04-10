@@ -6,12 +6,12 @@ models.
 """
 from app.domain_model.plotly_theme import PLOTLY_TOOLS
 from app.domain_model.doc_type import DocType
-from app.domain_model.law_status import LawStatus
-from app.domain_model.law_type import LawType
+from app.domain_model.dossier_status import DossierStatus
+from app.domain_model.dossier_type import DossierType
 
 __all__ = [
     'PLOTLY_TOOLS'
     "DocType",
-    "LawStatus",
-    "LawType",
+    "DossierStatus",
+    "DossierType",
 ]
