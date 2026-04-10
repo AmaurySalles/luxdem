@@ -1,94 +1,170 @@
 services:
-# BEGIN luxdem
-  luxdem:
-    image: luxdem:latest
-    restart: always
-    container_name: luxdem
-    command: gunicorn app.dash_app:server --workers 4 --worker-class gevent  --bind 0.0.0.0:80
+  # ==================== DATABASE ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: luxdem_postgres
     environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-luxdem_password}
+      POSTGRES_DB: ${POSTGRES_DB:-luxdem}
       TZ: Europe/Paris
+    ports:
+      - "5432:5432"
     volumes:
-      - ./data:/app/data
-      - ./app:/app/app
-      - ./config:/app/config
-      - ./secrets:/app/secrets
-    env_file:
-      - ./.env
-    labels:
-      # Enable Traefik for this specific "backend" service
-      - traefik.enable=true
-      # Define the port inside of the Docker service to use
-      - traefik.http.services.luxdem.loadbalancer.server.port=80
-      # Make Traefik use this domain in HTTP
-      - traefik.http.routers.luxdem-http.entrypoints=http
-      - traefik.http.routers.luxdem-http.rule=Host(`${dash_url}`)
-      # Use the traefik-network network (declared below)
-      - traefik.docker.network=traefik-network
-      # Make Traefik use this domain in HTTPS
-      - traefik.http.routers.luxdem-https.entrypoints=https
-      - traefik.http.routers.luxdem-https.rule=Host(`${dash_url}`)
-      - traefik.http.routers.luxdem-https.tls=true
-      # Use the "le" (Let's Encrypt) resolver
-      - traefik.http.routers.luxdem-https.tls.certresolver=le
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      # Middleware to redirect HTTP to HTTPS
-      - traefik.http.routers.luxdem-http.middlewares=https-redirect
-      - traefik.http.routers.luxdem-https.middlewares=secured
+      - postgres_data:/var/lib/postgresql/data # Persists DB data
     networks:
       - app-network
-      # Use the public network created to be shared between Traefik and
-      # any other service that needs to be publicly available with HTTPS
-      - traefik-network
-# END luxdem
-# BEGIN luxdem_backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================== PGADMIN ====================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: luxdem_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_password}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      TZ: Europe/Paris
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin # Persists pgAdmin config
+    depends_on:
+      postgres:
+        condition: service_healthy # Wait for DB to be ready
+    networks:
+      - app-network
+
+  # ==================== OLLAMA ====================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: luxdem_ollama
+    environment:
+      OLLAMA_HOST: "0.0.0.0:11434"
+      TZ: Europe/Paris
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama # Persists downloaded models (e.g. mistral, gemini...)
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # ==================== CHROMA ====================
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    container_name: luxdem_chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /chroma/data
+      TZ: Europe/Paris
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/data
+    networks:
+      - app-network
+
+  # ==================== FASTAPI BACKEND ====================
   luxdem_backend:
-    image: luxdem:latest
-    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: luxdem_backend
-    command: gunicorn app.app:app --workers 4 --worker-class gevent  --bind 0.0.0.0:80
     environment:
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-luxdem}
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-luxdem_password}
+      
+      # Ollama
+      OLLAMA_BASE_URL: http://ollama:11434 # Service name, not localhost
+      OLLAMA_EMBEDDING_MODEL: mistral
+      
+      # Chroma (if using local persistence)
+      CHROMA_PERSIST_DIR: /app/vector_db
+      # If using containerized Chroma, use: http://chroma:8000
+      
+      # FastAPI Config
+      FASTAPI_ENV: development
+      LOG_LEVEL: INFO
       TZ: Europe/Paris
-    labels:
-      # Enable Traefik for this specific "backend" service
-      - traefik.enable=true
-      # Define the port inside of the Docker service to use
-      - traefik.http.services.luxdem-api.loadbalancer.server.port=80
-      # Make Traefik use this domain in HTTP
-      - traefik.http.routers.luxdem-api-http.entrypoints=http
-      - traefik.http.routers.luxdem-api-http.rule=Host(`${fastapi_url}`)
-      # Use the traefik-network network (declared below)
-      - traefik.docker.network=traefik-network
-      # Make Traefik use this domain in HTTPS
-      - traefik.http.routers.luxdem-api-https.entrypoints=https
-      - traefik.http.routers.luxdem-api-https.rule=Host(`${fastapi_url}`)
-      - traefik.http.routers.luxdem-api-https.tls=true
-      # Use the "le" (Let's Encrypt) resolver
-      - traefik.http.routers.luxdem-api-https.tls.certresolver=le
-      # https-redirect middleware to redirect HTTP to HTTPS
-      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
-      # Middleware to redirect HTTP to HTTPS
-      - traefik.http.routers.luxdem-api-http.middlewares=https-redirect
-      - traefik.http.routers.luxdem-api-https.middlewares=secured
+    
     volumes:
-      - ./data:/app/data
       - ./app:/app/app
       - ./config:/app/config
       - ./secrets:/app/secrets
-    env_file:
-      - ./.env
+      - ./vector_db:/app/vector_db
+      - ./data:/app/data
+    
+    depends_on:
+      postgres:
+        condition: service_healthy # Wait for DB
+      ollama:
+        condition: service_started # Wait for Ollama to start
+    
     networks:
       - app-network
-      # Use the public network created to be shared between Traefik and
-      # any other service that needs to be publicly available with HTTPS
-      - traefik-network
-# END luxdem_backend
-# NETWORKS
+    
+    command: >
+      gunicorn app.app:app
+      --bind 0.0.0.0:8000
+      --workers 4
+      --worker-class uvicorn.workers.UvicornWorker
+      --timeout 120
+      --access-logfile -
+      --error-logfile -
+
+  # ==================== DASH FRONTEND ====================
+  luxdem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: luxdem_frontend
+    environment:
+      # FastAPI Backend URL (internal service name)
+      FASTAPI_URL: http://luxdem_backend:8000
+      
+      # Other configs
+      DASH_ENV: development
+      LOG_LEVEL: INFO
+      TZ: Europe/Paris
+    
+    volumes:
+      - ./app:/app/app
+      - ./config:/app/config
+      - ./secrets:/app/secrets
+      - ./assets:/app/assets
+
+    depends_on:
+      postgres:
+        condition: service_healthy # Wait for DB to be ready
+    
+    networks:
+      - app-network
+    
+    command: >
+      python -m gunicorn app.dash_app:server
+      --bind 0.0.0.0:8050
+      --workers 2
+      --worker-class sync
+      --timeout 120
+      --access-logfile -
+      --error-logfile -
+
 networks:
   app-network:
-   name: ${app_network:-app-network}
-   external: true
-  traefik-network:
-    external: true
+    driver: bridge
+    name: app-network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  ollama_data:
+  chroma_data:  
