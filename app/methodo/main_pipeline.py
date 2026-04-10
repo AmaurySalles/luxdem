@@ -10,7 +10,7 @@ from app.methodo.chunk import extract_and_chunk_text
 from app.db_model.tables.resource import Resource
 from app.methodo.download import download_pdf
 from app.methodo.json import save_normalized_json
-from app.methodo.ollama import verify_ollama_running
+from app.methodo.embeddings import verify_embedding_provider
 from app.db_model.retrievers import retrieve_all_resources
 
 from ecodev_core import engine, logger_get
@@ -18,11 +18,6 @@ from ecodev_core import engine, logger_get
 from app.methodo.parsing.plumber import chunk_text
 
 log = logger_get(__name__)
-
-# === Configuration ===
-OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_EMBEDDING_MODEL = "mistral"
-
 
 def pipeline_with_plumber():
     """
@@ -44,14 +39,14 @@ def pipeline_with_plumber():
             print(f"[5/6] Initializing Chroma vector store...")
             vectorstore = get_create_chroma_vectorstore()
             print(f"[6/6] Embedding and storing chunks in Chroma...")
-            embed_and_store_in_chroma(parsed_chunks, vectorstore)            
+            embed_and_store_in_chroma(parsed_chunks, vectorstore)
 
 
 # === Example Usage ===
 if __name__ == "__main__":
-    if not verify_ollama_running():
-        print("\n⚠️  Please start Ollama first: ollama serve")
-        print(f"   Then pull the model: ollama pull {OLLAMA_EMBEDDING_MODEL}")
+    if not verify_embedding_provider():
+        print("\n⚠️  Configure a remote embedding provider before running the pipeline.")
+        print("   Required env vars: EMBEDDING_PROVIDER=voyage, EMBEDDING_MODEL, VOYAGE_API_KEY.")
         exit(1)
 
     # pdf_urls = [

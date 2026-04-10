@@ -7,22 +7,18 @@ from datetime import datetime
 import requests
 import pdfplumber
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import OllamaEmbeddings
 from langchain_chroma import Chroma
-from langchain_core.documents import Document
+
+from app.methodo.chroma import embed_and_store_in_chroma, get_create_chroma_vectorstore
+from app.methodo.embeddings import verify_embedding_provider
 
 
 # === Configuration ===
-OLLAMA_BASE_URL = "http://localhost:11434"
-OLLAMA_EMBEDDING_MODEL = "mistral"
-
 DATA_DIR = Path("data")
 DOWNLOADS_DIR = Path("downloads")
-VECTOR_DB_DIR = Path("vector_db")
 
 DATA_DIR.mkdir(exist_ok=True)
 DOWNLOADS_DIR.mkdir(exist_ok=True)
-VECTOR_DB_DIR.mkdir(exist_ok=True)
 
 
 # === Step 1: Download PDF ===
@@ -107,55 +103,9 @@ def chunk_text(full_text: str, metadata: Dict, chunk_size: int = 1000, chunk_ove
     return chunks_with_metadata
 
 
-# === Step 5: Ollama Embeddings Setup ===
-def get_ollama_embeddings():
-    """Initialize Ollama embeddings (Mistral model)."""
-    embeddings = OllamaEmbeddings(
-        base_url=OLLAMA_BASE_URL,
-        model=OLLAMA_EMBEDDING_MODEL,
-    )
-    return embeddings
-
-
-def verify_ollama_running() -> bool:
-    """Check if Ollama is running and model is available."""
-    try:
-        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=5)
-        models = response.json().get("models", [])
-        model_names = [m["name"].split(":")[0] for m in models]
-        if OLLAMA_EMBEDDING_MODEL in model_names:
-            print(f"✓ Ollama is running with {OLLAMA_EMBEDDING_MODEL} model available")
-            return True
-        else:
-            print(f"✗ {OLLAMA_EMBEDDING_MODEL} not found. Available: {model_names}")
-            return False
-    except Exception as e:
-        print(f"✗ Ollama not reachable at {OLLAMA_BASE_URL}: {e}")
-        return False
-
-
-# === Step 6: Embed and store in Chroma ===
-def embed_and_store_in_chroma(chunks: List[Dict], vectorstore: Chroma) -> None:
-    """Embed chunks and store in Chroma vector database."""
-    documents = [
-        Document(page_content=chunk["page_content"], metadata=chunk["metadata"])
-        for chunk in chunks
-    ]
-    
-    print(f"   → Embedding {len(documents)} chunks with Ollama...")
-    vectorstore.add_documents(documents)
-    print(f"   → Stored in Chroma: {VECTOR_DB_DIR}")
-
-
 def get_or_create_chroma_vectorstore() -> Chroma:
     """Initialize or load Chroma vector store."""
-    embeddings = get_ollama_embeddings()
-    vectorstore = Chroma(
-        persist_directory=str(VECTOR_DB_DIR),
-        embedding_function=embeddings,
-        collection_name="housing_docs"
-    )
-    return vectorstore
+    return get_create_chroma_vectorstore()
 
 
 def query_vectorstore(vectorstore: Chroma, query: str, k: int = 3) -> List[Dict]:
@@ -209,9 +159,8 @@ def process_pdf_url_full(pdf_url: str) -> Chroma:
 
 # === Example Usage ===
 if __name__ == "__main__":
-    if not verify_ollama_running():
-        print("\n⚠️  Please start Ollama first: ollama serve")
-        print(f"   Then pull the model: ollama pull {OLLAMA_EMBEDDING_MODEL}")
+    if not verify_embedding_provider():
+        print("\n⚠️  Configure EMBEDDING_PROVIDER, EMBEDDING_MODEL and VOYAGE_API_KEY first.")
         exit(1)
 
     pdf_urls = [
