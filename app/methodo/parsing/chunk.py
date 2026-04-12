@@ -1,14 +1,11 @@
+"""Extract full text from parsed data and split into chunks."""
 
-# === Step 4: Extract and Chunk Text ===
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List, Dict
 
 def extract_and_chunk_text(parsed_data: Dict, metadata: Dict, chunk_size: int = 1000, chunk_overlap: int = 100) -> List[Dict]:
-    """Extract full text from parsed data and split into chunks."""
-    # Assuming parsed_data has a 'full_text' key or similar; adjust based on Reducto output
     full_text = parsed_data.get("full_text", "")
     if not full_text:
-        # If structured, reconstruct text from pages or sections
         full_text = "\n".join([page.get("content", "") for page in parsed_data.get("pages", [])])
     
     splitter = RecursiveCharacterTextSplitter(
