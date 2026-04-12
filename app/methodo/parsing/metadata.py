@@ -5,7 +5,7 @@ from app.db_model.tables.resource import Resource
 
 def get_resource_metadata(resource: Resource) -> dict[str, Any]:
     if resource.dossier is None:
-        raise ValueError("Resource is not linked to a dossier")
+        raise ValueError("Resource has no dossier")
     
     return {
         "number": resource.dossier.number,
