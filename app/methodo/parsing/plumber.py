@@ -1,12 +1,23 @@
 # === Step 2: Parse PDF with pdfplumber ===
+from typing import Any
+from app.methodo.parsing.download import download_pdf
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import pdfplumber
 from pathlib import Path
 
-def parse_pdf_with_pdfplumber(pdf_path: Path) -> str:
+def parse_with_pdfplumber(url: str, metadata: dict[str, Any]) -> dict:
+    """
+    Parse PDF using pdfplumber and return structured JSON.
+    """
+    print(f"[1/4] Downloading and parsing PDF with PDF plumber: {url}")
+    parsed_str = plumber_parse_from_url(url)
+    print(f"[2/4] Extract text and chunks")
+    parsed_chunks = chunk_text(parsed_str, metadata)
+    return parsed_chunks
+
+def plumber_parse_from_url(url: str) -> str:
     """Extract text from PDF using pdfplumber."""
-    full_text = ""
-    
+    pdf_path = download_pdf(url)
     with pdfplumber.open(pdf_path) as pdf:
         num_pages = len(pdf.pages)
         print(f"   → Extracting text from {num_pages} pages...")

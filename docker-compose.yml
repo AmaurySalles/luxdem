@@ -3,10 +3,9 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: luxdem_postgres
+    env_file:
+      - ./.env
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-luxdem_password}
-      POSTGRES_DB: ${POSTGRES_DB:-luxdem}
       TZ: Europe/Paris
     ports:
       - "5432:5432"
@@ -24,13 +23,12 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: luxdem_pgadmin
+    env_file:
+      - ./.env
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin_password}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
       TZ: Europe/Paris
     ports:
-      - "5050:80"
+      - "5051:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin # Persists pgAdmin config
     depends_on:
@@ -41,15 +39,22 @@ services:
 
   # ==================== OLLAMA ====================
   ollama:
-    image: ollama/ollama:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+      args:
+        EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-mistral}
+    image: luxdem_ollama:latest
     container_name: luxdem_ollama
+    env_file:
+      - ./.env
     environment:
       OLLAMA_HOST: "0.0.0.0:11434"
       TZ: Europe/Paris
     ports:
-      - "11434:11434"
+      - "${ollama_port:-11434}:11434"
     volumes:
-      - ollama_data:/root/.ollama # Persists downloaded models (e.g. mistral, gemini...)
+      - ollama_data:/root/.ollama
     networks:
       - app-network
     restart: unless-stopped
@@ -58,9 +63,9 @@ services:
   chroma:
     image: ghcr.io/chroma-core/chroma:latest
     container_name: luxdem_chroma
+    env_file:
+      - ./.env
     environment:
-      IS_PERSISTENT: "TRUE"
-      PERSIST_DIRECTORY: /chroma/data
       TZ: Europe/Paris
     ports:
       - "8000:8000"
@@ -71,29 +76,12 @@ services:
 
   # ==================== FASTAPI BACKEND ====================
   luxdem_backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: luxdem:latest
     container_name: luxdem_backend
+    restart: always
+    env_file:
+      - ./.env
     environment:
-      # Database
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: ${POSTGRES_DB:-luxdem}
-      DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-luxdem_password}
-      
-      # Ollama
-      OLLAMA_BASE_URL: http://ollama:11434 # Service name, not localhost
-      OLLAMA_EMBEDDING_MODEL: mistral
-      
-      # Chroma (if using local persistence)
-      CHROMA_PERSIST_DIR: /app/vector_db
-      # If using containerized Chroma, use: http://chroma:8000
-      
-      # FastAPI Config
-      FASTAPI_ENV: development
-      LOG_LEVEL: INFO
       TZ: Europe/Paris
     
     volumes:
@@ -122,11 +110,9 @@ services:
       --error-logfile -
 
   # ==================== DASH FRONTEND ====================
-  luxdem:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  luxdem-frontend:
     container_name: luxdem_frontend
+    image: luxdem:latest
     environment:
       # FastAPI Backend URL (internal service name)
       FASTAPI_URL: http://luxdem_backend:8000

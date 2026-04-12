@@ -22,3 +22,11 @@ smtp:
 dash_settings:
   debug: false
   gunicorn_setup: true
+
+api_keys:
+  reductoai: null
+  claude: null
+
+ollama:
+  embedding_model: mistral
+  base_url: http://127.0.0.1:11434

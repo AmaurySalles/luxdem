@@ -3,11 +3,8 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from app.methodo.ollama import get_ollama_embeddings
 from pathlib import Path
-import requests
+from app.constants import EMBEDDINGS_DIR
 
-# === Configuration ===
-VECTOR_DB_DIR = Path("vector_db")
-VECTOR_DB_DIR.mkdir(exist_ok=True)
 
 
 def embed_and_store_in_chroma(chunks: list[dict], vectorstore: Chroma) -> None:
@@ -19,16 +16,16 @@ def embed_and_store_in_chroma(chunks: list[dict], vectorstore: Chroma) -> None:
     
     print(f"   → Embedding {len(documents)} chunks with Ollama...")
     vectorstore.add_documents(documents)
-    print(f"   → Stored in Chroma: {VECTOR_DB_DIR}")
+    print(f"   → Stored in Chroma: {EMBEDDINGS_DIR}")
 
 
-def get_create_chroma_vectorstore() -> Chroma:
+def get_create_chroma_vectorstore(model='mistral') -> Chroma:
     """Initialize or load Chroma vector store."""
-    embeddings = get_ollama_embeddings()
+    embeddings = get_ollama_embeddings(model)
     vectorstore = Chroma(
-        persist_directory=str(VECTOR_DB_DIR),
+        persist_directory=str(EMBEDDINGS_DIR),
         embedding_function=embeddings,
-        collection_name="housing_docs"
+        collection_name="dossier_docs"
     )
     return vectorstore
 

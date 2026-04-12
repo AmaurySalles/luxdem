@@ -18,16 +18,18 @@ Usage:
 from ecodev_core import logger_get
 import datetime
 import json
-import time 
+import time
 from typing import List
 from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 import requests
+from sqlmodel import Session
 
 from app.db_model import Resource
 from app.db_model.tables.dossier import Dossier
 from app.domain_model import DossierStatus
+from app.db_model.inserters.dossier_inserters import upsert_dossier
 
 log = logger_get(__name__)
 
@@ -41,6 +43,77 @@ except Exception:
 
 BASE_URL = "https://www.chd.lu"
 SEARCH_PATH = "/fr/searchfolders"
+
+
+def scrape_chd_lu_for_dossiers(session: Session) -> list[dict[str, Exception]]:
+    """
+    Scrape a dossier detail page and extract required fields.
+    """
+    summary = []
+    for dossier_number in range (8_000, 8_100):
+        time.sleep(0.1)
+        try:
+            log.info(f'Retrieving dossier #{dossier_number}')
+            url = urljoin(BASE_URL, f"/fr/dossier/{dossier_number}")
+
+            if (dossier := scrape_dossier(url)) is not None:
+                upsert_dossier(session, dossier)
+                summary.append({dossier_number: {
+                    "status": 'success',
+                    "url": url,
+                    "error": None}
+                })
+
+        except Exception as error:
+            summary.append({dossier_number: {
+                "status": 'failed',
+                "url": url,
+                "error": error}
+            })
+
+    return summary
+
+
+def scrape_dossier(url: str) -> Dossier | None:
+    """Scrape a dossier detail page and extract required fields.
+
+    Returns a dict with keys:
+      law_number, law_type, law_deposit_date, law_evacuation_date,
+      law_status, law_title, law_content, law_authors, source_url
+    """
+    try:
+        session = requests.Session()
+        r = session.get(url, timeout=15)
+        soup = BeautifulSoup(r.text, PARSER)
+        if not (body := soup.find(id="main-content")):
+            log.error(f"No main content found for URL: {url}")
+            return None
+
+        if not (dossier_number := text_of(body, ".chd-pageTitleHeader__title")):
+            log.error(f"No dossier number found for URL: {url}")
+            return None
+
+        right_info_column = find_right_info_column(body)
+        activities = find_activities(body)
+
+        return Dossier(
+            number=int(dossier_number),
+            title=text_of(body, ".chd-wysiwyg.text-large"),
+
+            type=get_description_list_info("Type", right_info_column),
+            status=find_dossier_status(right_info_column),
+
+            deposit_date=find_dossier_deposit_date(right_info_column),
+            evacuation_date=None,
+            
+            content=None,
+            authors=get_description_list_info("Auteur", right_info_column),
+            resources=find_doc_download_url(soup)
+        )
+    
+    except Exception as e:
+        log.error(f"Error parsing dossier {url}: {e}")
+        return None
 
 
 def text_of(soup: BeautifulSoup, selector: str) -> str | None:
@@ -123,46 +196,6 @@ def find_doc_download_url(soup: BeautifulSoup) -> str | None:
     return resources
 
 
-def scrape_dossier(url: str) -> Dossier | None:
-    """Scrape a dossier detail page and extract required fields.
-
-    Returns a dict with keys:
-      law_number, law_type, law_deposit_date, law_evacuation_date,
-      law_status, law_title, law_content, law_authors, source_url
-    """
-    try:
-        session = requests.Session()
-        r = session.get(url, timeout=15)
-        soup = BeautifulSoup(r.text, PARSER)
-        if not (body := soup.find(id="main-content")):
-            log.error(f"No main content found for URL: {url}")
-            return None
-
-        if not (dossier_number := text_of(body, ".chd-pageTitleHeader__title")):
-            log.error(f"No law number found for URL: {url}")
-            return None
-
-        right_info_column = find_right_info_column(body)
-        activities = find_activities(body)
-
-        return Dossier(
-            number=int(dossier_number),
-            title=text_of(body, ".chd-wysiwyg.text-large"),
-
-            type=get_description_list_info("Type", right_info_column),
-            status=find_dossier_status(right_info_column),
-
-            deposit_date=find_dossier_deposit_date(right_info_column),
-            evacuation_date=None,
-            
-            content=None,
-            authors=get_description_list_info("Auteur", right_info_column),
-            resources=find_doc_download_url(soup)
-        )
-    
-    except Exception as e:
-        log.error(f"Error parsing dossier {url}: {e}")
-        return None
 
 
 

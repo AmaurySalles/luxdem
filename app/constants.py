@@ -3,7 +3,7 @@ Global useful constants
 """
 import string
 from pathlib import Path
-
+from reducto import Reducto
 from ecodev_core import SETTINGS
 
 
@@ -14,7 +14,7 @@ PATH VARIABLES
 """
 DATA_DIR = Path('/app/data')
 ASSETS_DIR = Path('/app/app/assets')
-
+EMBEDDINGS_DIR = DATA_DIR / "embeddings"
 
 """
 MAIN URL CONSTANTS
