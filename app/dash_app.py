@@ -11,6 +11,7 @@ from ecodev_core import engine
 from ecodev_core import logger_get
 from ecodev_core import SETTINGS
 from ecodev_core import upsert_app_users
+from app.methodo.main_pipeline import dossier_pipeline
 from ecodev_front import dash_base_layout
 from flask import Flask
 from sqlmodel import Session
@@ -28,6 +29,10 @@ from app.pages.registry import add_modules_to_registry
 from app.pages.registry import add_pages_to_registry
 
 logging.getLogger('asyncio').setLevel(logging.WARNING)
+logging.getLogger('reducto').setLevel(logging.WARNING)
+logging.getLogger('chromadb').setLevel(logging.WARNING)
+logging.getLogger('httpcore').setLevel(logging.WARNING)
+
 log = logger_get(__name__)
 
 
