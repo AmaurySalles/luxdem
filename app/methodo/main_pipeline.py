@@ -52,3 +52,26 @@ def dossier_pipeline(session: Session,
         log.info(f"[3/3] Embedding and storing in Chroma")
         embed_and_store_in_chroma(parsed_chunks, vectorstore)
         log.info(f"   → Stored in Chroma: {EMBEDDINGS_DIR}")
+
+
+
+def get_resource_metadata(resource: Resource) -> dict[str, Any]:
+    """
+    Get the metadata for a resource.
+    """
+    if resource.dossier is None:
+        raise ValueError("Resource has no dossier")
+    
+    return {
+        "doc_type": "dossier",
+        "number": resource.dossier.number,
+        "title": resource.dossier.title,
+        "summary": resource.dossier.content,
+        "authors": resource.dossier.authors,
+        "deposit_date": str(resource.dossier.deposit_date) if resource.dossier.deposit_date else None,
+        "evacuation_date": str(resource.dossier.evacuation_date) if resource.dossier.evacuation_date else None,
+        "status": resource.dossier.status.value if resource.dossier.status else None,
+        "type": resource.dossier.type,
+        "source_url": resource.url,
+    }
+
