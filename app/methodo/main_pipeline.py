@@ -19,9 +19,10 @@ from ecodev_core import SETTINGS
 from app.constants import EMBEDDINGS_DIR
 from app.methodo.parsing.plumber import parse_with_pdfplumber
 
-log = logger_get(__name__)
 
-"""Configuration"""
+
+""""Establish connection to logger and configuration embedding model"""
+log = logger_get(__name__)
 OLLAMA_EMBEDDING_MODEL = SETTINGS.ollama.embedding_model
 
 """Implement Main Pipeline"""
