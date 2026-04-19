@@ -15,3 +15,4 @@ pdfplumber==0.11.*
 reductoai==0.22.*
 requests>=2.31,<3
 scikit-learn>=1.4,<2
+anthropic>=0.40,<1

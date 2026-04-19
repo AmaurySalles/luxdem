@@ -10,6 +10,7 @@ from sqlmodel import SQLModel, Field, Relationship
 
 if TYPE_CHECKING:
     from app.db_model.tables.resource import Resource
+    from app.db_model.tables.dossier_summary import DossierSummary
 
 
 class Dossier(SQLModel, table=True):
@@ -25,4 +26,5 @@ class Dossier(SQLModel, table=True):
     content: Optional[str] = Field(default=None)
     authors: Optional[str] = Field(default=None)
     resources: list['Resource'] = Relationship(back_populates="dossier")
+    ai_summary: Optional['DossierSummary'] = Relationship(back_populates="dossier")
    

@@ -61,13 +61,14 @@ def get_resource_metadata(resource: Resource) -> dict[str, Any]:
         raise ValueError("Resource has no dossier")
     
     return {
+        "doc_type": "dossier",
         "number": resource.dossier.number,
         "title": resource.dossier.title,
         "summary": resource.dossier.content,
         "authors": resource.dossier.authors,
-        "deposit_date": resource.dossier.deposit_date,
-        "evacuation_date": resource.dossier.evacuation_date,
-        "status": resource.dossier.status,
+        "deposit_date": str(resource.dossier.deposit_date) if resource.dossier.deposit_date else None,
+        "evacuation_date": str(resource.dossier.evacuation_date) if resource.dossier.evacuation_date else None,
+        "status": resource.dossier.status.value if resource.dossier.status else None,
         "type": resource.dossier.type,
         "source_url": resource.url,
     }
