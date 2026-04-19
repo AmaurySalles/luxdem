@@ -1,0 +1,30 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Full Stack",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up"],
+      "port": 8050,
+      "autoPort": false
+    },
+    {
+      "name": "Backend (FastAPI)",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up", "luxdem_backend", "postgres", "ollama", "chroma"],
+      "port": 8000
+    },
+    {
+      "name": "Frontend (Dash)",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up", "luxdem-frontend", "postgres"],
+      "port": 8050
+    },
+    {
+      "name": "Infrastructure (postgres + pgadmin + ollama + chroma)",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "up", "postgres", "pgadmin", "ollama", "chroma"],
+      "port": 5432
+    }
+  ]
+}
