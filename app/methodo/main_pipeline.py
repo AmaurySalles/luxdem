@@ -18,9 +18,10 @@ from app.db_model.tables.resource import Resource
 
 from app.constants import EMBEDDINGS_DIR
 
-log = logger_get(__name__)
 
-"""Configuration"""
+
+""""Establish connection to logger and configuration embedding model"""
+log = logger_get(__name__)
 OLLAMA_EMBEDDING_MODEL = SETTINGS.ollama.embedding_model
 
 """Implement Main Pipeline"""
