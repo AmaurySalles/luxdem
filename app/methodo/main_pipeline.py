@@ -55,6 +55,3 @@ def dossier_pipeline(session: Session,
         log.info(f"[4/4] Embedding and storing metadata + chunks in Chroma")
         embed_and_store_in_chroma(parsed_chunks, vectorstore)    
         log.info(f"   → Stored in Chroma: {EMBEDDINGS_DIR}")
-
-
-
