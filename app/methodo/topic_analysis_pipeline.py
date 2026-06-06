@@ -10,7 +10,7 @@ from sqlmodel import Session
 
 from app.db_model.retrievers.dossier_retriever import retrieve_dossiers_by_numbers
 from app.db_model.retrievers.onh_retriever import retrieve_onh_summary
-from app.db_model.tables.onh_publication import OntPublication
+from app.db_model.tables.onh_publication import OnhPublication
 from app.methodo.analyzer import TopicAnalysisResult, generate_analysis
 from app.methodo.chroma import get_create_chroma_vectorstore, query_vectorstore
 from app.methodo.claude import get_claude_client
@@ -63,16 +63,14 @@ def topic_analysis_pipeline(
     onh_ids = _deduplicate_metadata(onh_results, "onh_id")
     onh_candidates = []
     for onh_id in onh_ids:
-        pub = session.get(OntPublication, int(onh_id))
-        if pub is None:
-            log.warning(f"ONH publication {onh_id} not found in DB")
-            continue
-        summary = get_or_generate_onh_summary(session, vectorstore, client, pub)
+        pub = session.get(OnhPublication, int(onh_id))
+        if pub.ai_summary is None:
+            pub.ai_summary = get_or_generate_onh_summary(session, vectorstore, client, pub)
         onh_candidates.append({
             "onh_id": pub.id,
             "title": pub.title,
             "category": pub.category or "etude",
-            "summary": summary,
+            "summary": pub.ai_summary,
         })
 
     # === Step 4: Rerank ===

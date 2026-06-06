@@ -27,5 +27,5 @@ api_keys:
   claude: null
 
 ollama:
-  embedding_model: mistral
-  base_url: http://127.0.0.1:11434
+  embedding_model: nomic-embed-text
+  base_url: http://ollama:11434

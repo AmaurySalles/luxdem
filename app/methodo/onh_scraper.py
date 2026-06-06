@@ -9,11 +9,14 @@ from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
+import urllib3
 from bs4 import BeautifulSoup
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from ecodev_core import logger_get
 from sqlmodel import Session
 
-from app.db_model.tables.onh_publication import OntPublication
+from app.db_model.tables.onh_publication import OnhPublication
 from app.db_model.retrievers.onh_retriever import upsert_onh_publication
 
 log = logger_get(__name__)
@@ -30,17 +33,29 @@ BROWSER_HEADERS = {
     ),
     "Accept-Language": "fr-LU,fr;q=0.9,en;q=0.8",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Referer": "https://logement.public.lu/",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-Fetch-User": "?1",
 }
 
 
-def scrape_onh_publications(session: Session) -> list[OntPublication]:
+def scrape_onh_publications(session: Session) -> list[OnhPublication]:
     """Scrape ONH publication index and persist metadata to DB."""
     listing_url = urljoin(ONH_BASE, ONH_PUBLICATIONS_PATH)
     log.info(f"Scraping ONH publications from {listing_url}")
 
+    http = requests.Session()
+    http.headers.update(BROWSER_HEADERS)
+
     try:
-        resp = requests.get(listing_url, headers=BROWSER_HEADERS, timeout=20)
+        # Visit homepage first to obtain session cookies before hitting the listing
+        http.get(ONH_BASE, timeout=20, verify=False)
+        http.headers["Referer"] = ONH_BASE
+        resp = http.get(listing_url, timeout=20, verify=False)
         resp.raise_for_status()
     except requests.HTTPError as e:
         log.error(f"Failed to fetch ONH listing (HTTP {e.response.status_code}). "
@@ -58,7 +73,7 @@ def scrape_onh_publications(session: Session) -> list[OntPublication]:
         pdf_url = href if href.startswith("http") else urljoin(ONH_BASE, href)
         title = link.get_text(strip=True) or Path(href).stem
 
-        pub = OntPublication(
+        pub = OnhPublication(
             title=title,
             url=pdf_url,
             listing_url=listing_url,
@@ -72,7 +87,7 @@ def scrape_onh_publications(session: Session) -> list[OntPublication]:
     return publications
 
 
-def ingest_onh_pdfs_from_dir(session: Session, pdf_dir: Path) -> list[OntPublication]:
+def ingest_onh_pdfs_from_dir(session: Session, pdf_dir: Path) -> list[OnhPublication]:
     """Manual fallback: ingest PDFs placed in pdf_dir by the user."""
     pdf_dir = Path(pdf_dir)
     if not pdf_dir.exists():
@@ -81,7 +96,7 @@ def ingest_onh_pdfs_from_dir(session: Session, pdf_dir: Path) -> list[OntPublica
 
     publications = []
     for pdf_path in sorted(pdf_dir.glob("*.pdf")):
-        pub = OntPublication(
+        pub = OnhPublication(
             title=pdf_path.stem.replace("_", " ").replace("-", " "),
             url=pdf_path.as_uri(),
             listing_url=str(pdf_dir),

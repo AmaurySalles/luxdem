@@ -27,14 +27,14 @@ setup:		##@setup Install the pre-commit
 	pip install pre-commit
 	pre-commit install
 
-launch-jupyter:            ##@docker Launch a jupyter notebook from a fresh container
-	docker exec luxdem_backend jupyter notebook --no-browser --ip 0.0.0.0 --allow-root --port 5000
+jupyter-launch:            ##@docker Launch a jupyter notebook from a fresh container
+	docker exec -it luxdem_backend jupyter notebook --no-browser --ip 0.0.0.0 --allow-root --port 8888
 
 prod-launch:            ##@docker Launch production containers
 	docker compose -f docker-compose.yml up -d
 
 prod-build:            ##@docker build production image
-	docker build --tag luxdem . -
+	docker build --tag luxdem . 
 
 dev-build:            ##@docker build development image
 	docker build --tag luxdem . -f Dockerfile-dev --no-cache

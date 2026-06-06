@@ -16,11 +16,12 @@ def parse_with_pdfplumber(url: str, metadata: dict[str, Any]) -> dict:
 
 def plumber_parse_from_url(url: str) -> str:
     """Extract text from PDF using pdfplumber."""
-    pdf_path = download_pdf(url)
+    local = Path(url)
+    pdf_path = local if local.exists() else download_pdf(url)
     with pdfplumber.open(pdf_path) as pdf:
         num_pages = len(pdf.pages)
         print(f"   → Extracting text from {num_pages} pages...")
-        
+        full_text = ""
         for i, page in enumerate(pdf.pages, start=1):
             text = page.extract_text() or ""
             full_text += f"\n--- Page {i} ---\n{text}\n"
