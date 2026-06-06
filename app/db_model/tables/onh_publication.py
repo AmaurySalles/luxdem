@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from app.db_model.tables.onh_summary import OntSummary
+    from app.db_model.tables.onh_summary import OnhSummary
 
 
-class OntPublication(SQLModel, table=True):
+class OnhPublication(SQLModel, table=True):
     __tablename__ = "onh_publication"
 
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -17,4 +17,4 @@ class OntPublication(SQLModel, table=True):
     published_date: Optional[date] = Field(default=None)
     category: Optional[str] = Field(default=None)
 
-    ai_summary: Optional["OntSummary"] = Relationship(back_populates="publication")
+    ai_summary: Optional["OnhSummary"] = Relationship(back_populates="publication")

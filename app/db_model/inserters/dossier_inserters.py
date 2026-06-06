@@ -2,20 +2,18 @@
 File containing the function to insert a dossier into the database.
 """
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 from ecodev_core import engine
 from app.db_model.tables.dossier import Dossier
 from app.domain_model import DossierType, DossierStatus
 
-def upsert_dossier(session: Session,dossier: Dossier):
+def upsert_dossier(session: Session, dossier: Dossier):
     """
     Upserts a dossier into the database.
-    If the dossier already exists, it will be updated.
+    If the dossier already exists (by number), it will be skipped.
     Otherwise, it will be inserted.
     """
-    session.add(
-        existing_dossier.update(**dossier.model_dump(exclude_unset=True))
-        if (existing_dossier := session.get(Dossier, dossier.id))
-        else dossier
-    )
-    session.commit()
+    existing = session.exec(select(Dossier).where(Dossier.number == str(dossier.number))).first()
+    if not existing:
+        session.add(dossier)
+        session.commit()

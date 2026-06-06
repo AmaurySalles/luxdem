@@ -25,8 +25,8 @@ dash_settings:
 
 api_keys:
   reductoai: null
-  claude: null
+  claude: YOUR_ANTHROPIC_API_KEY_HERE
 
 ollama:
-  embedding_model: mistral
-  base_url: http://127.0.0.1:11434
+  embedding_model: nomic-embed-text
+  base_url: http://ollama:11434

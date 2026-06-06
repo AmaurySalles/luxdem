@@ -44,7 +44,9 @@ services:
       dockerfile: Dockerfile.ollama
       args:
         EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-mistral}
-    image: luxdem_ollama:latest
+    
+    image: ollama/ollama:latest
+   
     container_name: luxdem_ollama
     env_file:
       - ./.env
@@ -54,7 +56,7 @@ services:
     ports:
       - "${ollama_port:-11434}:11434"
     volumes:
-      - ollama_data:/root/.ollama
+     - ~/.ollama:/root/.ollama
     networks:
       - app-network
     restart: unless-stopped
@@ -91,12 +93,15 @@ services:
       - ./vector_db:/app/vector_db
       - ./data:/app/data
     
+    ports:
+      - "8888:8888"
+
     depends_on:
       postgres:
         condition: service_healthy # Wait for DB
       ollama:
         condition: service_started # Wait for Ollama to start
-    
+
     networks:
       - app-network
     

@@ -13,7 +13,7 @@ from app.db_model.retrievers.dossier_retriever import (
 )
 from app.db_model.retrievers.onh_retriever import persist_onh_summary, retrieve_onh_summary
 from app.db_model.tables.dossier import Dossier
-from app.db_model.tables.onh_publication import OntPublication
+from app.db_model.tables.onh_publication import OnhPublication
 from app.methodo.claude import CLAUDE_MODEL
 
 log = logger_get(__name__)
@@ -104,7 +104,7 @@ def get_or_generate_onh_summary(
     session: Session,
     vectorstore: Chroma,
     client: anthropic.Anthropic,
-    publication: OntPublication,
+    publication: OnhPublication,
 ) -> str:
     cached = retrieve_onh_summary(session, publication.id)
     if cached:

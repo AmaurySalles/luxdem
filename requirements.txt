@@ -1,5 +1,6 @@
 bcrypt==4.*
 BeautifulSoup4==4.14.3
+docling==2.*
 ecodev-core==0.*
 ecodev-front==0.*
 gunicorn == 22.*
@@ -10,9 +11,9 @@ langchain-community>=0.2.19,<0.3
 langchain-core>=0.2.43,<0.3
 langchain-text-splitters>=0.2.4,<0.3
 langsmith>=0.1.112,<0.2
+numpy==1.*
 ollama==0.6.*
-pdfplumber==0.11.*
-reductoai==0.22.*
 requests>=2.31,<3
 scikit-learn>=1.4,<2
 anthropic>=0.40,<1
+jupyter>=1.0,<2
