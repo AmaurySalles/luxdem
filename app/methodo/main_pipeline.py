@@ -18,13 +18,10 @@ from app.db_model.tables.resource import Resource
 
 from app.constants import EMBEDDINGS_DIR
 
-
-
-""""Establish connection to logger and configuration embedding model"""
 log = logger_get(__name__)
 OLLAMA_EMBEDDING_MODEL = SETTINGS.ollama.embedding_model
 
-"""Implement Main Pipeline"""
+
 def dossier_pipeline(session: Session,
                      embedding_model: str = OLLAMA_EMBEDDING_MODEL,
                      limit: int | None = None):
