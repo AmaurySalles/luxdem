@@ -28,7 +28,7 @@ setup:		##@setup Install the pre-commit
 	pre-commit install
 
 jupyter-launch:            ##@docker Launch a jupyter notebook from a fresh container
-	docker exec -it luxdem_backend jupyter notebook --no-browser --ip 0.0.0.0 --allow-root --port 8888
+	docker exec -it luxdem_backend jupyter notebook --no-browser --ip 0.0.0.0 --allow-root --port 5000
 
 prod-launch:            ##@docker Launch production containers
 	docker compose -f docker-compose.yml up -d
