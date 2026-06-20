@@ -41,4 +41,4 @@ docs/
 *.DS_Store
 
 # Claude
-./claude/plans/
+.claude/plans/
