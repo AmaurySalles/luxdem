@@ -29,7 +29,7 @@ from app.pages.registry import add_modules_to_registry
 from app.pages.registry import add_pages_to_registry
 
 logging.getLogger('asyncio').setLevel(logging.WARNING)
-logging.getLogger('reducto').setLevel(logging.WARNING)
+logging.getLogger('docling').setLevel(logging.WARNING)
 logging.getLogger('chromadb').setLevel(logging.WARNING)
 logging.getLogger('httpcore').setLevel(logging.WARNING)
 

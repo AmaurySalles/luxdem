@@ -24,8 +24,7 @@ dash_settings:
   gunicorn_setup: false
 
 api_keys:
-  reductoai: null
-  claude: YOUR_ANTHROPIC_API_KEY_HERE
+  claude: null
 
 ollama:
   embedding_model: nomic-embed-text
