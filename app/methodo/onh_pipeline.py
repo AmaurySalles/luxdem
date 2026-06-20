@@ -1,6 +1,7 @@
 """
 Pipeline to download, parse, and embed ONH publications into Chroma.
 """
+import hashlib
 from pathlib import Path
 
 from ecodev_core import logger_get
@@ -27,10 +28,15 @@ def onh_pipeline(session: Session,
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
 
     for pub in publications:
+        source = pub.url.removeprefix("file://") if pub.url.startswith("file://") else pub.url
+        first_id = hashlib.md5(f"{pub.url}::0".encode()).hexdigest()
+        if vectorstore.get(ids=[first_id])["ids"]:
+            log.info(f"Already embedded, skipping: {pub.title}")
+            continue
+
         log.info(f"Processing ONH publication: {pub.title}")
         metadata = _get_onh_metadata(pub)
         try:
-            source = pub.url.removeprefix("file://") if pub.url.startswith("file://") else pub.url
             chunks = parse_with_docling(source, metadata)
             log.info(f"   → {len(chunks)} chunks")
             embed_and_store_in_chroma(chunks, vectorstore)

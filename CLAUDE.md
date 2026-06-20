@@ -81,3 +81,4 @@ The pre-commit `check_dependencies` hook runs inside the container and requires 
 
 @.claude/ARCHITECTURE.md
 @.claude/TESTING.md
+@.claude/DECISIONS.md
