@@ -18,7 +18,11 @@ Living record of architectural and operational choices for this project. Each en
 
 ## 2026-06 — Idempotent embedding pipelines via Chroma ID check
 
+<<<<<<< HEAD
 **Commit**: `d525999` — "claude doc" (`git show d525999`)
+=======
+**Commits**: `app/methodo/main_pipeline.py`, `app/methodo/onh_pipeline.py` — pending commit as of 2026-06-20.
+>>>>>>> d525999 (claude doc)
 
 **Decision**: Before embedding each document, check whether its first chunk ID already exists in Chroma. Skip if found.
 
@@ -83,10 +87,13 @@ Three parsers exist; they serve different purposes:
 
 | Parser | Location | Mode | When to use |
 |---|---|---|---|
-| **Docling** | `parsing/docling_parser.py` | Local model, MPS/CPU |  Open source parser with good OCRs (to parse images, tables, layout). Used in both `dossier_pipeline` and `onh_pipeline`. |
+| **Docling** | `parsing/docling_parser.py` | Local model, MPS/CPU | Primary. Best structure extraction (tables, layout). Used in both `dossier_pipeline` and `onh_pipeline`. |
+| **pdfplumber** | `parsing/plumber.py` | Local, no model | Lightweight fallback for simple text-heavy PDFs. No GPU, no model download. |
+| **Reducto** | `parsing/reducto.py` | Cloud API (paid) | High-quality OCR for scanned documents with poor text layers. Uses agentic text cleanup and structured chunking. Only when Docling quality is insufficient. |
 
-**Why Docling**: it produces semantically meaningful chunks (respects document structure, headings, tables) which improves retrieval quality downstream. The model download (~1–2 GB) is a one-time cost cached at `~/.cache/docling` (or similar).
+**Why Docling is primary**: it produces semantically meaningful chunks (respects document structure, headings, tables) which improves retrieval quality downstream. The model download (~1–2 GB) is a one-time cost cached at `~/.cache/docling` (or similar).
 
+**pdfplumber note**: lives in `requirements-dev.txt` (not `requirements.txt`) because it was originally added as a dev tool. The Docker dev image installs both files (`pip install -r requirements.txt -r requirements-dev.txt`), as does `local-venv`. A future cleanup could move it to `requirements.txt` since it is imported by production code (`app/methodo/__init__.py`).
 
 ---
 
