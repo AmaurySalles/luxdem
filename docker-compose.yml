@@ -1,79 +1,4 @@
-services:
-  # ==================== DATABASE ====================
-  postgres:
-    image: postgres:15-alpine
-    container_name: luxdem_postgres
-    env_file:
-      - ./.env
-    environment:
-      TZ: Europe/Paris
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data # Persists DB data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ==================== PGADMIN ====================
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: luxdem_pgadmin
-    env_file:
-      - ./.env
-    environment:
-      TZ: Europe/Paris
-    ports:
-      - "5051:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin # Persists pgAdmin config
-    depends_on:
-      postgres:
-        condition: service_healthy # Wait for DB to be ready
-    networks:
-      - app-network
-
-  # ==================== OLLAMA ====================
-  ollama:
-    build:
-      context: .
-      dockerfile: Dockerfile.ollama
-      args:
-        EMBEDDING_MODEL: ${OLLAMA_EMBEDDING_MODEL:-mistral}
-    image: luxdem_ollama:latest
-    container_name: luxdem_ollama
-    env_file:
-      - ./.env
-    environment:
-      OLLAMA_HOST: "0.0.0.0:11434"
-      TZ: Europe/Paris
-    ports:
-      - "${ollama_port:-11434}:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  # ==================== CHROMA ====================
-  chroma:
-    image: ghcr.io/chroma-core/chroma:latest
-    container_name: luxdem_chroma
-    env_file:
-      - ./.env
-    environment:
-      TZ: Europe/Paris
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/chroma/data
-    networks:
-      - app-network
-
+services: 
   # ==================== FASTAPI BACKEND ====================
   luxdem_backend:
     image: luxdem:latest
@@ -83,19 +8,34 @@ services:
       - ./.env
     environment:
       TZ: Europe/Paris
+    labels:
+      # Enable Traefik for this specific "backend" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.fitboard-api.loadbalancer.server.port=80
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.fitboard-api-http.entrypoints=http
+      - traefik.http.routers.fitboard-api-http.rule=Host(`${fastapi_url}`)
+      # Use the traefik-network network (declared below)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.fitboard-api-https.entrypoints=https
+      - traefik.http.routers.fitboard-api-https.rule=Host(`${fastapi_url}`)
+      - traefik.http.routers.fitboard-api-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.fitboard-api-https.tls.certresolver=le
+      # https-redirect middleware to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.fitboard-api-http.middlewares=https-redirect
+      - traefik.http.routers.fitboard-api-https.middlewares=secured
     
     volumes:
+      - ./data:/app/data
       - ./app:/app/app
       - ./config:/app/config
       - ./secrets:/app/secrets
-      - ./vector_db:/app/vector_db
-      - ./data:/app/data
-    
-    depends_on:
-      postgres:
-        condition: service_healthy # Wait for DB
-      ollama:
-        condition: service_started # Wait for Ollama to start
     
     networks:
       - app-network
@@ -122,16 +62,35 @@ services:
       LOG_LEVEL: INFO
       TZ: Europe/Paris
     
+    labels:
+      # Enable Traefik for this specific "backend" service
+      - traefik.enable=true
+      # Define the port inside of the Docker service to use
+      - traefik.http.services.fitboard.loadbalancer.server.port=80
+      # Make Traefik use this domain in HTTP
+      - traefik.http.routers.fitboard-http.entrypoints=http
+      - traefik.http.routers.fitboard-http.rule=Host(`${dash_url}`)
+      # Use the traefik-network network (declared below)
+      - traefik.docker.network=traefik-network
+      # Make Traefik use this domain in HTTPS
+      - traefik.http.routers.fitboard-https.entrypoints=https
+      - traefik.http.routers.fitboard-https.rule=Host(`${dash_url}`)
+      - traefik.http.routers.fitboard-https.tls=true
+      # Use the "le" (Let's Encrypt) resolver
+      - traefik.http.routers.fitboard-https.tls.certresolver=le
+      # https-redirect middleware to redirect HTTP to HTTPS
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+      # Middleware to redirect HTTP to HTTPS
+      - traefik.http.routers.fitboard-http.middlewares=https-redirect
+      - traefik.http.routers.fitboard-https.middlewares=secured
+    
     volumes:
+      - ./data:/app/data
       - ./app:/app/app
       - ./config:/app/config
       - ./secrets:/app/secrets
-      - ./assets:/app/assets
 
-    depends_on:
-      postgres:
-        condition: service_healthy # Wait for DB to be ready
-    
     networks:
       - app-network
     
@@ -144,13 +103,10 @@ services:
       --access-logfile -
       --error-logfile -
 
+# ==================== NETWORKS ====================
 networks:
   app-network:
-    driver: bridge
-    name: app-network
-
-volumes:
-  postgres_data:
-  pgadmin_data:
-  ollama_data:
-  chroma_data:  
+   name: ${app_network:-app-network}
+   external: true
+  traefik-network:
+    external: true
