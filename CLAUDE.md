@@ -76,3 +76,8 @@ Dash pages are registered centrally: define a `Page` object, add it to `app/page
 Pre-commit enforces: `autopep8` (max line length 100), `flake8`, `mypy` (`--ignore-missing-imports`), `reorder-python-imports`, `autoflake`, trailing whitespace, LF line endings, and double-quote string fixer (single quotes → double quotes). Run `pre-commit run --all-files` to check before committing.
 
 The pre-commit `check_dependencies` hook runs inside the container and requires it to be up.
+
+## Reference docs
+
+@.claude/ARCHITECTURE.md
+@.claude/TESTING.md
