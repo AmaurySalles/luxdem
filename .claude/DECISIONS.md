@@ -18,11 +18,7 @@ Living record of architectural and operational choices for this project. Each en
 
 ## 2026-06 — Idempotent embedding pipelines via Chroma ID check
 
-<<<<<<< HEAD
 **Commit**: `d525999` — "claude doc" (`git show d525999`)
-=======
-**Commits**: `app/methodo/main_pipeline.py`, `app/methodo/onh_pipeline.py` — pending commit as of 2026-06-20.
->>>>>>> d525999 (claude doc)
 
 **Decision**: Before embedding each document, check whether its first chunk ID already exists in Chroma. Skip if found.
 
