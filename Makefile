@@ -20,6 +20,15 @@ HELP_DESCRIPTION = \
     print "\n"; }
 
 
+# Variables for local (native macOS) runs — not used by Docker targets above
+VENV := .venv
+PROJECT_ROOT := $(shell pwd)
+# Absolute path required because LOCAL_ENV changes CWD to /tmp
+PYTHON := $(PROJECT_ROOT)/$(VENV)/bin/python
+# Run from /tmp so pydantic_settings does not auto-load the project .env (Docker Compose vars),
+# which would cause ecodev_core.DeploymentSetting to fail with extra_forbidden errors.
+LOCAL_ENV := cd /tmp && base_path=$(PROJECT_ROOT) PYTHONPATH=$(PROJECT_ROOT) environment=local
+
 help:		## Show this help.
 	@perl -e '$(HELP_DESCRIPTION)' $(MAKEFILE_LIST)
 
@@ -47,3 +56,27 @@ scrape-dossiers:		##scrape-dossiers Scrape chd.lu for dossiers metadata
 
 insert-dossier-embedings:		##insert-dossier-embedings Insert dossier embedings into the database
 	docker exec luxdem_backend python3 -m app.typer_app insert-dossier-embedings-command
+
+local-venv:  ##@local Create .venv with MPS PyTorch + project requirements (omits CPU-only torch index used in Dockerfile-dev)
+	python3.13 -m venv $(VENV)
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install torch torchvision
+	$(PYTHON) -m pip install -r requirements.txt -r requirements-dev.txt
+
+local-verify:  ##@local Verify MPS is available and run a Docling smoke-test import (first run downloads models ~1-2 GB)
+	$(LOCAL_ENV) $(PYTHON) -c "import torch; assert torch.backends.mps.is_available(), 'MPS not available'; print('MPS OK')"
+	$(LOCAL_ENV) $(PYTHON) -c "from app.methodo.parsing.docling_parser import parse_with_docling; print('Docling import OK')"
+
+local-test-parse:  ##@local Parse a single PDF with Docling on MPS (usage: make local-test-parse URL=https://example.com/file.pdf)
+	cd /tmp && base_path=$(PROJECT_ROOT) PYTHONPATH=$(PROJECT_ROOT) environment=local \
+	  $(PYTHON) -c "\
+from app.methodo.parsing.docling_parser import parse_with_docling; \
+chunks = parse_with_docling('$(URL)', {}); \
+print(f'\n--- {len(chunks)} chunks ---'); \
+[print(f'[{i}] {c[\"page_content\"][:200]}') for i, c in enumerate(chunks[:5])]"
+
+local-embed-dossiers:  ##@local Run dossier embedding pipeline natively (requires Ollama on 127.0.0.1:11434 and DB reachable)
+	$(LOCAL_ENV) $(PYTHON) -m app.typer_app insert-dossier-embedings-command
+
+local-embed-onh:  ##@local Run ONH embedding pipeline natively (requires Ollama on 127.0.0.1:11434 and DB reachable)
+	$(LOCAL_ENV) $(PYTHON) -m app.typer_app embed-onh-command

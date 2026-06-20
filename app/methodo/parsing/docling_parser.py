@@ -2,23 +2,62 @@
 
 from typing import Any
 
-from docling.document_converter import DocumentConverter
+import torch
 from docling.chunking import HybridChunker
-from ecodev_core import logger_get
+from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
+from docling.datamodel.base_models import InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions
+from docling.document_converter import DocumentConverter, PdfFormatOption
+from ecodev_core import SETTINGS, logger_get
 
 log = logger_get(__name__)
 
-# Singletons — models load once per process
-_converter = DocumentConverter()
+_converter: DocumentConverter | None = None
 _chunker = HybridChunker()
 
 
+def _read_docling_config() -> tuple[str, int]:
+    docling = getattr(SETTINGS, "docling", None)
+    accelerator = getattr(docling, "accelerator", "auto") if docling else "auto"
+    num_threads = getattr(docling, "num_threads", 8) if docling else 8
+    return accelerator, num_threads
+
+
+def _resolve_device(name: str) -> AcceleratorDevice:
+    if name == "mps":
+        if torch.backends.mps.is_available():
+            return AcceleratorDevice.MPS
+        log.warning("MPS requested but not available; falling back to CPU")
+        return AcceleratorDevice.CPU
+    if name == "cpu":
+        return AcceleratorDevice.CPU
+    return AcceleratorDevice.AUTO
+
+
+def _create_converter() -> DocumentConverter:
+    accelerator_name, num_threads = _read_docling_config()
+    device = _resolve_device(accelerator_name)
+    log.info(f"Docling using accelerator={device.value} (num_threads={num_threads})")
+    pipeline_options = PdfPipelineOptions(
+        accelerator_options=AcceleratorOptions(device=device, num_threads=num_threads)
+    )
+    return DocumentConverter(
+        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)}
+    )
+
+
+def _get_converter() -> DocumentConverter:
+    global _converter
+    if _converter is None:
+        _converter = _create_converter()
+    return _converter
+
+
 def parse_with_docling(source: str, metadata: dict[str, Any]) -> list[dict[str, Any]]:
-    """Parse a PDF from a URL or local path and return structured chunks."""
-    log.info(f'Parsing with Docling: {source}')
-    result = _converter.convert(source)
+    log.info(f"Parsing with Docling: {source}")
+    result = _get_converter().convert(source)
     chunks = list(_chunker.chunk(result.document))
-    log.info(f'Docling produced {len(chunks)} chunks')
+    log.info(f"Docling produced {len(chunks)} chunks")
     return [
         {
             "page_content": chunk.text,
