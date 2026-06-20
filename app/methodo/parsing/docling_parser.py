@@ -9,7 +9,10 @@ from docling.datamodel.accelerator_options import AcceleratorDevice, Accelerator
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
+<<<<<<< HEAD
 from docling_core.types.doc import DocItemLabel
+=======
+>>>>>>> 2cd4605 (docling local)
 from ecodev_core import SETTINGS, logger_get
 
 log = logger_get(__name__)
