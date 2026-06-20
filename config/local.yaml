@@ -28,4 +28,8 @@ api_keys:
 
 ollama:
   embedding_model: nomic-embed-text
-  base_url: http://ollama:11434
+  base_url: http://127.0.0.1:11434  # Docker uses http://ollama:11434
+
+docling:
+  accelerator: mps   # auto | cpu | mps
+  num_threads: 8
