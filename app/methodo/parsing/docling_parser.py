@@ -13,7 +13,9 @@ from ecodev_core import SETTINGS, logger_get
 log = logger_get(__name__)
 
 _converter: DocumentConverter | None = None
-_chunker = HybridChunker()
+# nomic-embed-text has an 8192-token context; using its tokenizer avoids false
+# "sequence too long" warnings from the default BAAI tokenizer (512-token limit).
+_chunker = HybridChunker(tokenizer="nomic-ai/nomic-embed-text-v1", max_tokens=512)
 
 
 def _read_docling_config() -> tuple[str, int]:

@@ -51,7 +51,7 @@ In dev (`docker-compose.override.yml`), both use `uvicorn` with `--reload`. In p
 The full pipeline to get from raw web sources to a topic analysis runs in order:
 
 1. **Scrape** (`app/methodo/scraper.py`, `onh_scraper.py`) — fetch dossier/ONH metadata and store in Postgres via SQLModel.
-2. **Parse** (`app/methodo/parsing/`) — download PDFs and parse with Docling (`docling_parser.py`); fallbacks via `pdfplumber.py`. Produces text chunks with metadata dicts.
+2. **Parse** (`app/methodo/parsing/`) — download PDFs and parse with Docling (`docling_parser.py`); Produces text chunks with metadata dicts.
 3. **Embed** (`app/methodo/chroma.py`) — chunks are embedded with Ollama (`nomic-embed-text` by default) and stored in Chroma at `data/embeddings/`. All documents are in a single collection `dossier_docs`, distinguished by `doc_type` metadata (`"dossier"`, `"onh"`, `"coalition"`).
 4. **Summarize** (`app/methodo/summarizer.py`) — Claude generates per-document summaries that are cached in `DossierSummary` / `OnhSummary` DB tables. Run `summarize-laws-command` to pre-warm the cache.
 5. **Rerank** (`app/methodo/reranker.py`) — Claude scores each candidate document for relevance to the query topic.

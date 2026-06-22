@@ -14,6 +14,9 @@ from sqlmodel import Session
 from app.methodo.scraper import BASE_URL, scrape_chd_lu_for_dossiers, scrape_dossier
 from app.methodo.main_pipeline import dossier_pipeline, OLLAMA_EMBEDDING_MODEL
 
+import logging
+logging.getLogger('docling').setLevel(logging.WARNING)
+logging.getLogger('httpcore').setLevel(logging.WARNING)
 
 typer_app = typer.Typer()
 log = logger_get(__name__)
@@ -31,12 +34,14 @@ def scrape_chd_lu_for_dossier_command() -> None:
 
 @safe_clt
 @typer_app.command()
-def insert_dossier_embedings_command() -> None:
+def insert_dossier_embedings_command(
+    limit: int = typer.Option(None, help="Max number of resources to embed (default: all)"),
+) -> None:
     """
     Insert dossier embedings into the database
     """
     with Session(engine) as session:
-        dossier_pipeline(session)
+        dossier_pipeline(session, limit=limit)
 
 
 @safe_clt

@@ -1,75 +1,4 @@
 services:
-  # ==================== DATABASE ====================
-  postgres:
-    image: postgres:15-alpine
-    container_name: luxdem_postgres
-    env_file:
-      - ./.env
-    environment:
-      TZ: Europe/Paris
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data # Persists DB data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ==================== PGADMIN ====================
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: luxdem_pgadmin
-    env_file:
-      - ./.env
-    environment:
-      TZ: Europe/Paris
-    ports:
-      - "5051:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin # Persists pgAdmin config
-    depends_on:
-      postgres:
-        condition: service_healthy # Wait for DB to be ready
-    networks:
-      - app-network
-
-  # ==================== OLLAMA ====================
-  ollama:
-    image: ollama/ollama:latest
-    container_name: luxdem_ollama
-    env_file:
-      - ./.env
-    environment:
-      OLLAMA_HOST: "0.0.0.0:11434"
-      TZ: Europe/Paris
-    ports:
-      - "${ollama_port:-11434}:11434"
-    volumes:
-      - ~/.ollama:/root/.ollama
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  # ==================== CHROMA ====================
-  chroma:
-    image: ghcr.io/chroma-core/chroma:latest
-    container_name: luxdem_chroma
-    env_file:
-      - ./.env
-    environment:
-      TZ: Europe/Paris
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/chroma/data
-    networks:
-      - app-network
-
-
   # ==================== FASTAPI BACKEND ====================
   luxdem_backend:
     image: luxdem:latest
@@ -113,13 +42,6 @@ services:
     ports:
       - "8888:8888"
 
-    depends_on:
-      postgres:
-        condition: service_healthy # Wait for DB
-      ollama:
-        condition: service_started # Wait for Ollama to start
-
-
     networks:
       - app-network
     
@@ -134,7 +56,7 @@ services:
 
   # ==================== DASH FRONTEND ====================
   luxdem-frontend:
-    container_name: luxdem_frontend
+    container_name: luxdem
     image: luxdem:latest
     environment:
       # FastAPI Backend URL (internal service name)
