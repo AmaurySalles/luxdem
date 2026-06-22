@@ -20,7 +20,7 @@ OLLAMA_EMBEDDING_MODEL = SETTINGS.ollama.embedding_model
 
 def dossier_pipeline(session: Session,
                      embedding_model: str = OLLAMA_EMBEDDING_MODEL,
-                     limit: int = 5):
+                     limit: int | None = None):
     documents_depot = retrieve_all_resources(session, title='Document de dépôt', limit=limit)
 
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)

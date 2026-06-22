@@ -51,7 +51,7 @@ services:
 
   # ==================== DASH FRONTEND ====================
   luxdem-frontend:
-    container_name: luxdem_frontend
+    container_name: luxdem
     image: luxdem:latest
     environment:
       # FastAPI Backend URL (internal service name)
