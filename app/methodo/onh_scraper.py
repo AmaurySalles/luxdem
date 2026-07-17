@@ -89,7 +89,7 @@ def scrape_onh_publications(session: Session) -> list[OnhPublication]:
 
 def ingest_onh_pdfs_from_dir(session: Session, pdf_dir: Path) -> list[OnhPublication]:
     """Manual fallback: ingest PDFs placed in pdf_dir by the user."""
-    pdf_dir = Path(pdf_dir)
+    pdf_dir = Path(pdf_dir).resolve()
     if not pdf_dir.exists():
         log.error(f"Directory not found: {pdf_dir}")
         return []
