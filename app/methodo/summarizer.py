@@ -37,6 +37,10 @@ Write in English. Be precise and factual."""
 
 def retrieve_chunks_for_doc(vectorstore: Chroma, where_filter: dict, max_chunks: int = 30) -> list[str]:
     """Fetch all Chroma chunks matching the metadata filter."""
+    if len(where_filter) > 1:
+        # Chroma's `where` requires exactly one operator key; AND multiple
+        # equality filters explicitly via `$and`.
+        where_filter = {"$and": [{k: v} for k, v in where_filter.items()]}
     result = vectorstore.get(where=where_filter)
     docs = result.get("documents", [])
     return docs[:max_chunks]
