@@ -1,10 +1,10 @@
 """
-Summarizes law and ONH publication content using Claude.
+Summarizes law and ONH publication content using a local LLM (Ollama).
 Summaries are cached in the DB; Chroma chunks are used as source material.
 """
-import anthropic
 from ecodev_core import logger_get
 from langchain_chroma import Chroma
+from ollama import Client
 from sqlmodel import Session
 
 from app.db_model.retrievers.dossier_retriever import (
@@ -14,7 +14,7 @@ from app.db_model.retrievers.dossier_retriever import (
 from app.db_model.retrievers.onh_retriever import persist_onh_summary, retrieve_onh_summary
 from app.db_model.tables.dossier import Dossier
 from app.db_model.tables.onh_publication import OnhPublication
-from app.methodo.claude import CLAUDE_MODEL
+from app.methodo.local_llm import LOCAL_LLM_MODEL, chat_completion
 
 log = logger_get(__name__)
 
@@ -46,46 +46,28 @@ def retrieve_chunks_for_doc(vectorstore: Chroma, where_filter: dict, max_chunks:
     return docs[:max_chunks]
 
 
-def summarize_law(client: anthropic.Anthropic, dossier_number: str, dossier_title: str, chunks: list[str]) -> str:
+def summarize_law(client: Client, dossier_number: str, dossier_title: str, chunks: list[str]) -> str:
     chunks_text = "\n\n---\n\n".join(chunks)
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=1024,
-        system=[{
-            "type": "text",
-            "text": _LAW_SYSTEM_PROMPT,
-            "cache_control": {"type": "ephemeral"},
-        }],
-        messages=[{
-            "role": "user",
-            "content": f"Dossier #{dossier_number}: {dossier_title}\n\n{chunks_text}",
-        }],
+    return chat_completion(
+        client,
+        _LAW_SYSTEM_PROMPT,
+        f"Dossier #{dossier_number}: {dossier_title}\n\n{chunks_text}",
     )
-    return response.content[0].text
 
 
-def summarize_onh_publication(client: anthropic.Anthropic, title: str, chunks: list[str]) -> str:
+def summarize_onh_publication(client: Client, title: str, chunks: list[str]) -> str:
     chunks_text = "\n\n---\n\n".join(chunks)
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=1024,
-        system=[{
-            "type": "text",
-            "text": _ONH_SYSTEM_PROMPT,
-            "cache_control": {"type": "ephemeral"},
-        }],
-        messages=[{
-            "role": "user",
-            "content": f"Publication: {title}\n\n{chunks_text}",
-        }],
+    return chat_completion(
+        client,
+        _ONH_SYSTEM_PROMPT,
+        f"Publication: {title}\n\n{chunks_text}",
     )
-    return response.content[0].text
 
 
 def get_or_generate_law_summary(
     session: Session,
     vectorstore: Chroma,
-    client: anthropic.Anthropic,
+    client: Client,
     dossier: Dossier,
 ) -> str:
     cached = retrieve_dossier_summary(session, dossier.id)
@@ -100,14 +82,14 @@ def get_or_generate_law_summary(
         chunks = [dossier.title]
 
     summary = summarize_law(client, dossier.number, dossier.title, chunks)
-    persist_dossier_summary(session, dossier.id, summary, CLAUDE_MODEL)
+    persist_dossier_summary(session, dossier.id, summary, LOCAL_LLM_MODEL)
     return summary
 
 
 def get_or_generate_onh_summary(
     session: Session,
     vectorstore: Chroma,
-    client: anthropic.Anthropic,
+    client: Client,
     publication: OnhPublication,
 ) -> str:
     cached = retrieve_onh_summary(session, publication.id)
@@ -122,5 +104,5 @@ def get_or_generate_onh_summary(
         chunks = [publication.title]
 
     summary = summarize_onh_publication(client, publication.title, chunks)
-    persist_onh_summary(session, publication.id, summary, CLAUDE_MODEL)
+    persist_onh_summary(session, publication.id, summary, LOCAL_LLM_MODEL)
     return summary

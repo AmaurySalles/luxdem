@@ -106,16 +106,16 @@ def summarize_laws_command(
     limit: int = typer.Option(None, help="Max number of dossiers to summarize"),
 ) -> None:
     """
-    Pre-generate and cache Claude summaries for all dossiers that don't have one yet.
+    Pre-generate and cache local-LLM summaries for all dossiers that don't have one yet.
     Run this before analyze_topic_command to avoid on-demand generation delays.
     """
     from app.methodo.chroma import get_create_chroma_vectorstore
-    from app.methodo.claude import get_claude_client
+    from app.methodo.local_llm import get_local_llm_client
     from app.methodo.summarizer import get_or_generate_law_summary
     from app.db_model.tables.dossier import Dossier
     from sqlmodel import select
 
-    client = get_claude_client()
+    client = get_local_llm_client()
     with Session(engine) as session:
         vectorstore = get_create_chroma_vectorstore(model=OLLAMA_EMBEDDING_MODEL)
         query = select(Dossier)

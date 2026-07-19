@@ -3,7 +3,7 @@ Orchestrates the full topic analysis pipeline:
 1. Semantic search across dossiers, ONH reports, and coalition agreement
 2. Summarize each matched document (DB-cached)
 3. Rerank by relevance to topic
-4. Generate structured analysis via Claude
+4. Generate structured analysis via a local LLM
 """
 from ecodev_core import logger_get
 from sqlmodel import Session
@@ -13,7 +13,7 @@ from app.db_model.retrievers.onh_retriever import retrieve_onh_summary
 from app.db_model.tables.onh_publication import OnhPublication
 from app.methodo.analyzer import TopicAnalysisResult, generate_analysis
 from app.methodo.chroma import get_create_chroma_vectorstore, query_vectorstore
-from app.methodo.claude import get_claude_client
+from app.methodo.local_llm import get_local_llm_client
 from app.methodo.main_pipeline import OLLAMA_EMBEDDING_MODEL
 from app.methodo.reranker import rerank_laws, rerank_onh
 from app.methodo.summarizer import (
@@ -35,7 +35,7 @@ def topic_analysis_pipeline(
     embedding_model: str = OLLAMA_EMBEDDING_MODEL,
 ) -> TopicAnalysisResult:
     log.info(f"Starting topic analysis: '{topic}'")
-    client = get_claude_client()
+    client = get_local_llm_client()
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
 
     # === Step 1: Parallel semantic search across all three doc types ===
