@@ -15,6 +15,13 @@ from app.methodo.parsing.docling_parser import parse_with_docling
 
 log = logger_get(__name__)
 
+# logement-en-chiffre stat-infographic pages produce isolated chunks of raw
+# numbers/labels with no sentence structure (~40 words); every prose chunk
+# across sampled ONH reports runs 60+ words, so this threshold drops the
+# unattributable infographic/front-matter noise while keeping all narrative
+# content (see issue #12).
+ONH_MIN_CHUNK_WORDS = 50
+
 
 def onh_pipeline(session: Session,
                  embedding_model: str = OLLAMA_EMBEDDING_MODEL,
@@ -37,7 +44,7 @@ def onh_pipeline(session: Session,
         log.info(f"Processing ONH publication: {pub.title}")
         metadata = _get_onh_metadata(pub)
         try:
-            chunks = parse_with_docling(source, metadata)
+            chunks = parse_with_docling(source, metadata, min_chunk_words=ONH_MIN_CHUNK_WORDS)
             log.info(f"   → {len(chunks)} chunks")
             embed_and_store_in_chroma(chunks, vectorstore)
         except Exception as e:

@@ -55,15 +55,23 @@ def _get_converter() -> DocumentConverter:
     return _converter
 
 
-def parse_with_docling(source: str, metadata: dict[str, Any]) -> list[dict[str, Any]]:
+def parse_with_docling(source: str, metadata: dict[str, Any],
+                       min_chunk_words: int | None = None) -> list[dict[str, Any]]:
     log.info(f"Parsing with Docling: {source}")
     result = _get_converter().convert(source)
     chunks = list(_chunker.chunk(result.document))
     log.info(f"Docling produced {len(chunks)} chunks")
+    if min_chunk_words is not None:
+        texts = [c.text for c in chunks if len(c.text.split()) >= min_chunk_words]
+        dropped = len(chunks) - len(texts)
+        if dropped:
+            log.info(f"   → dropped {dropped} low-signal chunk(s) (< {min_chunk_words} words)")
+    else:
+        texts = [c.text for c in chunks]
     return [
         {
-            "page_content": chunk.text,
-            "metadata": {**metadata, "chunk_index": i, "chunk_count": len(chunks)},
+            "page_content": text,
+            "metadata": {**metadata, "chunk_index": i, "chunk_count": len(texts)},
         }
-        for i, chunk in enumerate(chunks)
+        for i, text in enumerate(texts)
     ]
