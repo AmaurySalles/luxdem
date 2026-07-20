@@ -28,7 +28,7 @@ api_keys:
 
 ollama:
   embedding_model: nomic-embed-text
-  chat_model: mistral-nemo
+  chat_model: qwen2.5:14b
   base_url: null
 
 docling:

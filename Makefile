@@ -83,3 +83,9 @@ local-embed-dossiers:  ##@local Run dossier embedding pipeline natively (require
 
 local-embed-onh:  ##@local Run ONH embedding pipeline natively (requires Ollama on 127.0.0.1:11434 and DB reachable)
 	$(LOCAL_ENV) $(PYTHON) -m app.typer_app embed-onh-command
+
+local-summarize-laws:  ##@local Pre-generate law summaries natively (requires Ollama on 127.0.0.1:11434 and DB reachable)
+	$(LOCAL_ENV) $(PYTHON) -m app.typer_app summarize-laws-command
+
+local-analyze-topic:  ##@local Run topic analysis natively (usage: make local-analyze-topic TOPIC="logement abordable")
+	$(LOCAL_ENV) $(PYTHON) -m app.typer_app analyze-topic-command "$(TOPIC)" --json

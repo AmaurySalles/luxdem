@@ -64,13 +64,12 @@ def topic_analysis_pipeline(
     onh_candidates = []
     for onh_id in onh_ids:
         pub = session.get(OnhPublication, int(onh_id))
-        if pub.ai_summary is None:
-            pub.ai_summary = get_or_generate_onh_summary(session, vectorstore, client, pub)
+        summary = get_or_generate_onh_summary(session, vectorstore, client, pub)
         onh_candidates.append({
             "onh_id": pub.id,
             "title": pub.title,
             "category": pub.category or "etude",
-            "summary": pub.ai_summary,
+            "summary": summary,
         })
 
     # === Step 4: Rerank ===

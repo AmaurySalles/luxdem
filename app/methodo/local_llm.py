@@ -29,5 +29,9 @@ def chat_completion(
             {"role": "user", "content": user_message},
         ],
         format="json" if json_mode else None,
+        # Ollama's default num_ctx (2048-4096) truncates prompts stuffing several
+        # document summaries together (e.g. reranking 7 laws at once), which can
+        # leave no budget left to generate a response at all.
+        options={"num_ctx": 16384},
     )
     return response["message"]["content"]
