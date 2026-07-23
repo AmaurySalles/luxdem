@@ -29,6 +29,9 @@ def chat_completion(
             {"role": "user", "content": user_message},
         ],
         format="json" if json_mode else None,
+        # Thinking models (e.g. qwen3.5) emit a reasoning preamble by default,
+        # which slows generation and can leak into the JSON we parse below.
+        think=False,
         # Ollama's default num_ctx (2048-4096) truncates prompts stuffing several
         # document summaries together (e.g. reranking 7 laws at once), which can
         # leave no budget left to generate a response at all.
