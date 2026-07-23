@@ -20,6 +20,7 @@ EMBEDDINGS_DIR = DATA_DIR / "embeddings"
 MAIN URL CONSTANTS
 """
 MAIN_PAGE_URL = '/'
+FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://127.0.0.1:8025").rstrip("/")
 
 """
 LINKS CONSTANTS
