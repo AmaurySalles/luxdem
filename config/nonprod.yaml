@@ -31,6 +31,6 @@ ollama:
   chat_model: qwen3.5:latest 
   base_url: null
 
-docling:
+docling: 
   accelerator: cpu
   num_threads: 8
