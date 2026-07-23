@@ -69,7 +69,7 @@ def topic_analysis_pipeline(
             "onh_id": pub.id,
             "title": pub.title,
             "category": pub.category or "etude",
-            "summary": pub.ai_summary,
+            "summary": summary,
         })
 
     # === Step 4: Rerank ===
