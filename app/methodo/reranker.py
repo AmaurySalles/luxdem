@@ -1,13 +1,13 @@
 """
-Reranks candidate laws and ONH publications by relevance to a given topic using Claude.
+Reranks candidate laws and ONH publications by relevance to a given topic using a local LLM.
 """
 import json
 
-import anthropic
 from ecodev_core import logger_get
+from ollama import Client
 from pydantic import BaseModel
 
-from app.methodo.claude import CLAUDE_MODEL
+from app.methodo.local_llm import chat_completion
 
 log = logger_get(__name__)
 
@@ -41,7 +41,7 @@ Sort the array by relevance_score descending."""
 
 
 def rerank_laws(
-    client: anthropic.Anthropic,
+    client: Client,
     topic: str,
     candidates: list[dict],
     top_k: int = 5,
@@ -55,14 +55,7 @@ def rerank_laws(
     )
     user_msg = f"Topic: {topic}\n\nCandidates:\n{candidate_text}"
 
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=2048,
-        system=[{"type": "text", "text": _RERANK_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
-        messages=[{"role": "user", "content": user_msg}],
-    )
-
-    raw = response.content[0].text
+    raw = chat_completion(client, _RERANK_SYSTEM_PROMPT, user_msg, json_mode=True)
     ranked_indices = _parse_ranked_json(raw)
 
     results = []
@@ -81,7 +74,7 @@ def rerank_laws(
 
 
 def rerank_onh(
-    client: anthropic.Anthropic,
+    client: Client,
     topic: str,
     candidates: list[dict],
     top_k: int = 3,
@@ -95,14 +88,7 @@ def rerank_onh(
     )
     user_msg = f"Topic: {topic}\n\nONH Research Publications:\n{candidate_text}"
 
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=2048,
-        system=[{"type": "text", "text": _RERANK_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
-        messages=[{"role": "user", "content": user_msg}],
-    )
-
-    raw = response.content[0].text
+    raw = chat_completion(client, _RERANK_SYSTEM_PROMPT, user_msg, json_mode=True)
     ranked_indices = _parse_ranked_json(raw)
 
     results = []
