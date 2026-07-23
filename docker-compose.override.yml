@@ -8,6 +8,7 @@ services:
       - ./tests:/app/tests
     environment:
       environment: nonprod
+      FASTAPI_URL: http://luxdem_backend:80
   luxdem_backend:
     ports:
       - ${app_port:-8000}:80
