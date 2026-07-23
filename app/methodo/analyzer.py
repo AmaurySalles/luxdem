@@ -1,16 +1,16 @@
 """
-Generates a structured policy analysis using Claude, cross-referencing:
+Generates a structured policy analysis using a local LLM, cross-referencing:
 - Coalition agreement promises (KPI baseline)
 - Enacted/in-progress/rejected laws
 - ONH empirical research findings
 """
 import json
 
-import anthropic
 from ecodev_core import logger_get
+from ollama import Client
 from pydantic import BaseModel
 
-from app.methodo.claude import CLAUDE_MODEL
+from app.methodo.local_llm import chat_completion
 from app.methodo.reranker import RankedLaw, RankedOnh
 
 log = logger_get(__name__)
@@ -49,7 +49,7 @@ Return ONLY a valid JSON object with these exact fields:
 
 
 def generate_analysis(
-    client: anthropic.Anthropic,
+    client: Client,
     topic: str,
     coalition_chunks: list[str],
     ranked_laws: list[RankedLaw],
@@ -57,14 +57,7 @@ def generate_analysis(
 ) -> TopicAnalysisResult:
     user_msg = _build_analysis_prompt(topic, coalition_chunks, ranked_laws, ranked_onh)
 
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        max_tokens=4096,
-        system=[{"type": "text", "text": _ANALYSIS_SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
-        messages=[{"role": "user", "content": user_msg}],
-    )
-
-    raw = response.content[0].text
+    raw = chat_completion(client, _ANALYSIS_SYSTEM_PROMPT, user_msg, json_mode=True)
     parsed = _parse_analysis_json(raw)
 
     return TopicAnalysisResult(
