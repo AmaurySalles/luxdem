@@ -28,6 +28,7 @@ api_keys:
 
 ollama:
   embedding_model: nomic-embed-text
+  chat_model: qwen3.5:latest 
   base_url: http://127.0.0.1:11434
 
 docling:
