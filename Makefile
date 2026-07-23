@@ -86,3 +86,7 @@ local-embed-onh:  ##@local Run ONH embedding pipeline natively (requires Ollama 
 
 local-summarize-laws:  ##@local Generate dossier summaries natively via the local Ollama.app (config/local.yaml chat_model), bypassing luxdem_backend and luxdem_ollama (requires Ollama on 127.0.0.1:11434 and DB reachable; optional LIMIT=N)
 	$(LOCAL_ENV) $(PYTHON) -m app.typer_app summarize-laws-command $(if $(LIMIT),--limit $(LIMIT))
+
+local-analyze-topic:  ##@local Run topic analysis natively (usage: make local-analyze-topic TOPIC="logement abordable")
+	$(LOCAL_ENV) $(PYTHON) -m app.typer_app analyze-topic-command "$(TOPIC)" --json
+
