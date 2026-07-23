@@ -36,14 +36,17 @@ Write in English. Be precise and factual."""
 
 
 def retrieve_chunks_for_doc(vectorstore: Chroma, where_filter: dict, max_chunks: int = 30) -> list[str]:
-    """Fetch all Chroma chunks matching the metadata filter."""
+    """Fetch all Chroma chunks matching the metadata filter, ordered by chunk_index."""
     if len(where_filter) > 1:
         # Chroma's `where` requires exactly one operator key; AND multiple
         # equality filters explicitly via `$and`.
         where_filter = {"$and": [{k: v} for k, v in where_filter.items()]}
     result = vectorstore.get(where=where_filter)
     docs = result.get("documents", [])
-    return docs[:max_chunks]
+    metadatas = result.get("metadatas", [])
+    # Chroma's `get()` does not guarantee documents come back in chunk order.
+    ordered = sorted(zip(docs, metadatas), key=lambda pair: pair[1].get("chunk_index", 0))
+    return [doc for doc, _ in ordered][:max_chunks]
 
 
 def summarize_law(client: Client, dossier_number: str, dossier_title: str, chunks: list[str]) -> str:
