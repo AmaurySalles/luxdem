@@ -17,6 +17,7 @@ from ecodev_front import URL
 from app.constants import MAIN_PAGE_URL
 from app.pages.common import display_app_header
 from app.pages.common import main_footer
+from app.pages.page_topic_analysis.page_topic_analysis import PAGE_TOPIC_ANALYSIS
 
 
 PAGE_MAIN = Page(
@@ -43,6 +44,6 @@ def get_main_page(url_pathname: str, href: str) -> tuple[list[dmc.Box], list[dmc
 
     page = dmc.Stack([
         dmc.Text("""Hello World""", ta='center', fz=13, mb=10, fs='italic', c='green.4'),
-
+        dmc.Center(dmc.Anchor('Topic analysis', href=PAGE_TOPIC_ANALYSIS.url, fw=600)),
     ])
     return page, display_app_header(), main_footer()
