@@ -5,6 +5,7 @@ import hashlib
 from pathlib import Path
 
 from ecodev_core import logger_get
+from langchain_chroma import Chroma
 from sqlmodel import Session
 
 from app.db_model.retrievers.onh_retriever import retrieve_onh_publications
@@ -61,11 +62,22 @@ def coalition_agreement_pipeline(pdf_path: Path,
         "title": "Accord de coalition 2023-2028",
     }
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
+    _delete_coalition_chunks(vectorstore)
     # skip the cover page + table of contents (page 3 is where chapters start)
     chunks = parse_with_docling(str(pdf_path), metadata, content_start_page=3)
     log.info(f"   → {len(chunks)} chunks")
     embed_and_store_in_chroma(chunks, vectorstore)
     log.info("Coalition agreement embedded successfully.")
+
+
+def _delete_coalition_chunks(vectorstore: Chroma) -> None:
+    """Delete existing doc_type="coalition" chunks before re-ingesting."""
+    # chunk ids are index-based (not content-hashed), so re-chunking that shifts
+    # chunk_index boundaries would otherwise leave stale chunks behind
+    existing = vectorstore.get(where={"doc_type": "coalition"})["ids"]
+    if existing:
+        log.info(f"   → Deleting {len(existing)} existing coalition chunks")
+        vectorstore.delete(ids=existing)
 
 
 def _get_onh_metadata(pub: OnhPublication) -> dict:
