@@ -61,7 +61,8 @@ def coalition_agreement_pipeline(pdf_path: Path,
         "title": "Accord de coalition 2023-2028",
     }
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
-    chunks = parse_with_docling(str(pdf_path), metadata)
+    # skip the cover page + table of contents (page 3 is where chapters start)
+    chunks = parse_with_docling(str(pdf_path), metadata, content_start_page=3)
     log.info(f"   → {len(chunks)} chunks")
     embed_and_store_in_chroma(chunks, vectorstore)
     log.info("Coalition agreement embedded successfully.")
