@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 class Resource(SQLModel, table=True):
     """
-    A resource is an external document related to the dossier.
+    A resource is a document (typically PDF) related to a unique dossier.
     """
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str

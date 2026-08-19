@@ -1,4 +1,5 @@
-# === Step 2: Parse PDF with pdfplumber ===
+"""Parse PDF using Plumber."""
+
 from typing import Any
 from app.methodo.parsing.download import download_pdf
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -6,12 +7,10 @@ import pdfplumber
 from pathlib import Path
 
 def parse_with_pdfplumber(url: str, metadata: dict[str, Any]) -> dict:
-    """
-    Parse PDF using pdfplumber and return structured JSON.
-    """
-    print(f"[1/4] Downloading and parsing PDF with PDF plumber: {url}")
+    """Parse PDF using pdfplumber and return structured JSON."""
+    print(f"Downloading and parsing PDF with PDF plumber: {url}")
     parsed_str = plumber_parse_from_url(url)
-    print(f"[2/4] Extract text and chunks")
+    print(f"Extract text and chunks")
     parsed_chunks = chunk_text(parsed_str, metadata)
     return parsed_chunks
 
@@ -26,7 +25,7 @@ def plumber_parse_from_url(url: str) -> str:
             text = page.extract_text() or ""
             full_text += f"\n--- Page {i} ---\n{text}\n"
             
-            # Extract tables if present
+            """ Extract tables if present."""
             tables = page.extract_tables()
             if tables:
                 for table in tables:
