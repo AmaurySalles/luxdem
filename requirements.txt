@@ -1,7 +1,13 @@
 bcrypt==4.*
 BeautifulSoup4==4.14.3
 docling==2.*
-easyocr==1.*
+# Pinned: transformers<5 doesn't recognize the rt_detr_v2 architecture Docling's
+# layout model (docling-layout-heron) now ships with, so every parse fails outright.
+# NB: pulls tokenizers>=0.21, which is past chromadb 0.5.23's declared <=0.20.3 ceiling
+# (pip warns on install) — verified harmless in practice since we always pass an
+# explicit OllamaEmbeddings function and never hit chromadb's own tokenizer-based
+# default embedder.
+transformers>=5.15,<6
 ecodev-core==0.*
 ecodev-front==0.*
 gunicorn == 22.*
@@ -12,13 +18,11 @@ langchain-community>=0.2.19,<0.3
 langchain-core>=0.2.43,<0.3
 langchain-text-splitters>=0.2.4,<0.3
 langsmith>=0.1.112,<0.2
+numpy==1.*
 ollama==0.6.*
-pdfplumber==0.11.*
-reductoai==0.22.*
 requests>=2.31,<3
 scikit-learn>=1.4,<2
 anthropic>=0.40,<1
 jupyter>=1.0,<2
 torch
 docling_core
-transformers

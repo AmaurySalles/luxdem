@@ -20,8 +20,8 @@ smtp:
   email_password: null
 
 dash_settings:
-  debug: false
-  gunicorn_setup: true
+  debug: true
+  gunicorn_setup: false
 
 api_keys:
   claude: null
@@ -29,8 +29,8 @@ api_keys:
 ollama:
   embedding_model: nomic-embed-text
   chat_model: qwen3.5:latest 
-  base_url: http://127.0.0.1:11434
+  base_url: null
 
-docling:
+docling: 
   accelerator: cpu
   num_threads: 8

@@ -36,3 +36,9 @@ app/assets/collapse-devtools.js
 
 # docs
 docs/
+
+# Mac
+*.DS_Store
+
+# Claude
+.claude/plans/

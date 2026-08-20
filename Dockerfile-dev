@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     python3-dev \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up virtual environment
@@ -23,7 +24,9 @@ RUN python3 -m pip install --upgrade pip
 # Copy requirements and install all required packages into venv
 COPY ./requirements.txt /requirements.txt
 COPY ./requirements-dev.txt /requirements-dev.txt
-RUN pip install --no-cache-dir -r /requirements.txt -r /requirements-dev.txt && \
+# CPU-only PyTorch keeps the image smaller in Docker (no GPU in container on Mac)
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r /requirements.txt -r /requirements-dev.txt && \
     pip install --upgrade --force-reinstall notebook
 
 #########
@@ -31,13 +34,32 @@ RUN pip install --no-cache-dir -r /requirements.txt -r /requirements-dev.txt && 
 #########
 FROM python:3.13-slim
 
+# Runtime deps for Docling (OpenMP, OpenCV/libGL for table/OCR models)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# transformers>=5's rt_detr_v2 layout model (docling-layout-heron) tries to JIT-compile
+# via torch.compile/Inductor, which needs a C++ compiler this minimal runtime stage
+# doesn't have (only the builder stage does). Disabling dynamo avoids pulling in a full
+# compiler toolchain just for this; it's also faster (no JIT warm-up per conversion).
+ENV TORCHDYNAMO_DISABLE=1
+
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# OpenCV's cv2/typing can shadow stdlib typing in uvicorn --reload spawn workers.
+RUN python -c "import site; open(site.getsitepackages()[0] + '/sitecustomize.py', 'w').write('import typing\n')"
+
 # Add and switch to non-root user
 RUN adduser --disabled-password --gecos '' appuser
 USER appuser
+
+# Pre-download Docling models at build time so first parse is not slow
+RUN python -c "from docling.document_converter import DocumentConverter; DocumentConverter()"
 
 # Copy application code as non-root
 WORKDIR /app

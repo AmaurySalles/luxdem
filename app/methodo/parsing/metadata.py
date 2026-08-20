@@ -8,6 +8,7 @@ def get_resource_metadata(resource: Resource) -> dict[str, Any]:
         raise ValueError("Resource is not linked to a dossier")
     
     return {
+        "doc_type": "dossier",
         "number": resource.dossier.number,
         "title": resource.dossier.title,
         "summary": resource.dossier.content,

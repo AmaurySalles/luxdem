@@ -24,7 +24,10 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 import requests
-from sqlmodel import Session
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from sqlmodel import Session, select
 
 from app.db_model import Resource
 from app.db_model.tables.dossier import Dossier
@@ -45,31 +48,43 @@ BASE_URL = "https://www.chd.lu"
 SEARCH_PATH = "/fr/searchfolders"
 
 
-def scrape_chd_lu_for_dossiers(session: Session) -> list[dict[str, Exception]]:
+def scrape_chd_lu_for_dossiers(session: Session, start: int = 8_000, max_consecutive_misses: int = 20) -> list[dict[str, Exception]]:
     """
-    Scrape a dossier detail page and extract required fields.
+    Scrape dossier detail pages from chd.lu starting at `start`.
+    Stops automatically after `max_consecutive_misses` consecutive missing dossiers,
+    which indicates the end of existing dossiers has been reached.
     """
     summary = []
-    for dossier_number in range (8_000, 8_100):
-        time.sleep(0.1)
-        try:
-            log.info(f'Retrieving dossier #{dossier_number}')
-            url = urljoin(BASE_URL, f"/fr/dossier/{dossier_number}")
+    consecutive_misses = 0
+    dossier_number = start
 
+    while True:
+        time.sleep(0.1)
+        url = urljoin(BASE_URL, f"/fr/dossier/{dossier_number}")
+        try:
+            if session.exec(select(Dossier).where(Dossier.number == str(dossier_number))).first():
+                log.debug(f'Skipping dossier #{dossier_number} (already in DB)')
+                consecutive_misses = 0
+                dossier_number += 1
+                continue
+            log.info(f'Retrieving dossier #{dossier_number}')
             if (dossier := scrape_dossier(url)) is not None:
                 upsert_dossier(session, dossier)
-                summary.append({dossier_number: {
-                    "status": 'success',
-                    "url": url,
-                    "error": None}
-                })
-
+                summary.append({dossier_number: {"status": 'success', "url": url, "error": None}})
+                consecutive_misses = 0
+            else:
+                consecutive_misses += 1
+                if consecutive_misses >= max_consecutive_misses:
+                    log.info(f"Stopping after {max_consecutive_misses} consecutive missing dossiers at #{dossier_number}")
+                    break
         except Exception as error:
-            summary.append({dossier_number: {
-                "status": 'failed',
-                "url": url,
-                "error": error}
-            })
+            summary.append({dossier_number: {"status": 'failed', "url": url, "error": error}})
+            consecutive_misses += 1
+            if consecutive_misses >= max_consecutive_misses:
+                log.info(f"Stopping after {max_consecutive_misses} consecutive errors at #{dossier_number}")
+                break
+
+        dossier_number += 1
 
     return summary
 
@@ -83,7 +98,7 @@ def scrape_dossier(url: str) -> Dossier | None:
     """
     try:
         session = requests.Session()
-        r = session.get(url, timeout=15)
+        r = session.get(url, timeout=30, verify=False)
         soup = BeautifulSoup(r.text, PARSER)
         if not (body := soup.find(id="main-content")):
             log.error(f"No main content found for URL: {url}")
