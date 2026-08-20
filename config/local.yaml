@@ -24,7 +24,6 @@ dash_settings:
   gunicorn_setup: false
 
 api_keys:
-  reductoai: null
   claude: null
 
 ollama:

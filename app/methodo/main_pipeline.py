@@ -5,7 +5,6 @@ By resource, we mean any type of file related to the dossier
 
 from typing import Any
 from sqlmodel import Session
-from app.methodo.parsing.reducto import parse_with_reducto
 
 from app.methodo.chroma import get_create_chroma_vectorstore
 from app.methodo.chroma import embed_and_store_in_chroma
@@ -42,10 +41,7 @@ def dossier_pipeline(session: Session,
         metadata = get_resource_metadata(item)
         
         log.info(f"[2/4] Parsing and creating chunks for dossier")
-        if with_reducto:
-            parsed_chunks = parse_with_reducto(item.url, metadata)
-        else:
-            parsed_chunks = parse_with_pdfplumber(item.url, metadata)
+        parsed_chunks = parse_with_pdfplumber(item.url, metadata)
         
         log.info(f"   → Created {len(parsed_chunks)} chunks")
 
