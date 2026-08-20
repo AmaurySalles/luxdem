@@ -13,6 +13,7 @@ from sqlmodel import Session
 
 from app.methodo.scraper import BASE_URL, scrape_chd_lu_for_dossiers, scrape_dossier
 from app.methodo.main_pipeline import dossier_pipeline, OLLAMA_EMBEDDING_MODEL
+from app.constants import DATA_DIR
 
 import logging
 logging.getLogger('docling').setLevel(logging.WARNING)
@@ -88,15 +89,14 @@ def embed_onh_command(
 
 @safe_clt
 @typer_app.command()
-def ingest_coalition_agreement_command(
-    pdf_path: Path = typer.Argument(..., help="Path to the coalition agreement PDF"),
-) -> None:
+def ingest_coalition_agreement_command() -> None:
     """
     Parse and embed the coalition agreement 2023-2028 PDF into Chroma (run once).
     This document provides the KPI baseline for policy analysis.
     """
+    pdf_path = DATA_DIR / 'accord-coalition.pdf'
     from app.methodo.onh_pipeline import coalition_agreement_pipeline
-    coalition_agreement_pipeline(pdf_path)
+    coalition_agreement_pipeline(Path(pdf_path))
     typer.echo("Coalition agreement ingested successfully.")
 
 
