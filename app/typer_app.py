@@ -130,33 +130,6 @@ def summarize_laws_command(
 
 @safe_clt
 @typer_app.command()
-def summarize_onh_command(
-    limit: int = typer.Option(None, help="Max number of ONH publications to summarize"),
-) -> None:
-    """
-    Pre-generate and cache local-LLM summaries for all ONH publications that don't have one yet.
-    """
-    from app.methodo.chroma import get_create_chroma_vectorstore
-    from app.methodo.local_llm import get_local_llm_client
-    from app.methodo.summarizer import get_or_generate_onh_summary
-    from app.db_model.tables.onh_publication import OnhPublication
-    from sqlmodel import select
-
-    client = get_local_llm_client()
-    with Session(engine) as session:
-        vectorstore = get_create_chroma_vectorstore(model=OLLAMA_EMBEDDING_MODEL)
-        query = select(OnhPublication)
-        if limit:
-            query = query.limit(limit)
-        publications = list(session.exec(query).all())
-        typer.echo(f"Summarizing {len(publications)} ONH publications...")
-        for i, pub in enumerate(publications, 1):
-            summary = get_or_generate_onh_summary(session, vectorstore, client, pub)
-            typer.echo(f"[{i}/{len(publications)}] {pub.title}: {len(summary)} chars")
-
-
-@safe_clt
-@typer_app.command()
 def analyze_topic_command(
     topic: str = typer.Argument(..., help="Topic to analyze, e.g. 'logement abordable'"),
     k_laws: int = typer.Option(5, help="Number of top laws to include"),
