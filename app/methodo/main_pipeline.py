@@ -6,6 +6,7 @@ By resource, we mean any type of file related to the dossier
 import hashlib
 
 from sqlmodel import Session
+
 from ecodev_core import logger_get, SETTINGS, engine 
 
 from app.methodo.chroma import get_create_chroma_vectorstore
@@ -14,8 +15,6 @@ from app.methodo.parsing.docling_parser import parse_with_docling
 from app.methodo.parsing.metadata import get_resource_metadata
 from app.db_model.retrievers import retrieve_all_resources
 from app.db_model.tables.resource import Resource
-
-
 from app.constants import EMBEDDINGS_DIR
 
 log = logger_get(__name__)
@@ -49,26 +48,3 @@ def dossier_pipeline(session: Session,
         log.info(f"[3/3] Embedding and storing in Chroma")
         embed_and_store_in_chroma(parsed_chunks, vectorstore)
         log.info(f"   → Stored in Chroma: {EMBEDDINGS_DIR}")
-
-
-
-def get_resource_metadata(resource: Resource) -> dict[str, Any]:
-    """
-    Get the metadata for a resource.
-    """
-    if resource.dossier is None:
-        raise ValueError("Resource has no dossier")
-    
-    return {
-        "doc_type": "dossier",
-        "number": resource.dossier.number,
-        "title": resource.dossier.title,
-        "summary": resource.dossier.content,
-        "authors": resource.dossier.authors,
-        "deposit_date": str(resource.dossier.deposit_date) if resource.dossier.deposit_date else None,
-        "evacuation_date": str(resource.dossier.evacuation_date) if resource.dossier.evacuation_date else None,
-        "status": resource.dossier.status.value if resource.dossier.status else None,
-        "type": resource.dossier.type,
-        "source_url": resource.url,
-    }
-

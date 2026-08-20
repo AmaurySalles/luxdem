@@ -66,5 +66,3 @@ def query_vectorstore(vectorstore: Chroma, query: str, k: int = 3) -> list[dict]
 #         {"rank": i, "content": doc.page_content, "metadata": doc.metadata}
 #         for i, doc in enumerate(results, start=1)
 #  ]
-
-

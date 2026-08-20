@@ -89,15 +89,14 @@ def embed_onh_command(
 
 @safe_clt
 @typer_app.command()
-def ingest_coalition_agreement_command(
-    pdf_path: Path = typer.Argument(..., help="Path to the coalition agreement PDF"),
-) -> None:
+def ingest_coalition_agreement_command() -> None:
     """
     Parse and embed the coalition agreement 2023-2028 PDF into Chroma (run once).
     This document provides the KPI baseline for policy analysis.
     """
+    pdf_path = DATA_DIR / 'accord-coalition.pdf'
     from app.methodo.onh_pipeline import coalition_agreement_pipeline
-    coalition_agreement_pipeline(pdf_path)
+    coalition_agreement_pipeline(Path(pdf_path))
     typer.echo("Coalition agreement ingested successfully.")
 
 
