@@ -38,6 +38,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+# transformers>=5's rt_detr_v2 layout model (docling-layout-heron) tries to JIT-compile
+# via torch.compile/Inductor, which needs a C++ compiler this minimal runtime stage
+# doesn't have (only the builder stage does). Disabling dynamo avoids pulling in a full
+# compiler toolchain just for this; it's also faster (no JIT warm-up per conversion).
+ENV TORCHDYNAMO_DISABLE=1
+
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
