@@ -60,6 +60,10 @@ insert-dossier-embedings:		##insert-dossier-embedings Insert dossier embedings i
 insert-onh-from-dir:		##insert-dossier-embedings Insert dossier embedings into the database
 	docker exec luxdem_backend python3 -m app.typer_app ingest-onh-from-dir-command
 
+insert-coalition-doc:
+	docker exec luxdem_backend python3 -m app.typer_app ingest-coalition-agreement-command
+
+
 local-venv:  ##@local Create .venv with MPS PyTorch + project requirements (omits CPU-only torch index used in Dockerfile-dev)
 	python3.13 -m venv $(VENV)
 	$(PYTHON) -m pip install --upgrade pip
