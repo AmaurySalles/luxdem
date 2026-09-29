@@ -1,6 +1,7 @@
 """Parse PDF using Docling (local, no API)."""
 
 from collections import Counter
+from dataclasses import dataclass
 from typing import Any
 
 import torch
@@ -69,6 +70,73 @@ def _get_converter() -> DocumentConverter:
     if _converter is None:
         _converter = _create_converter()
     return _converter
+
+
+@dataclass
+class _MergedMeta:
+    doc_items: list[Any]
+    headings: list[str]
+
+
+@dataclass
+class _MergedChunk:
+    text: str
+    meta: _MergedMeta
+
+
+def _merge_table_shredded_chunks(chunks: list[Any]) -> list[Any]:
+    """HybridChunker splits a table doc_item across multiple chunks when it
+    doesn't fit its 512-token budget, falling through to a table-blind
+    plain-text splitter (docling.chunking.HybridChunker._split_by_doc_items).
+    Re-merge any chunks that share a table doc_item, chaining transitively
+    (a shredded table's chunks may also touch another shredded table), so no
+    table ends up split across separate Chroma chunks.
+    """
+    table_item_to_indices: dict[str, list[int]] = {}
+    for i, chunk in enumerate(chunks):
+        for item in chunk.meta.doc_items:
+            if item.label == DocItemLabel.TABLE:
+                table_item_to_indices.setdefault(item.self_ref, []).append(i)
+
+    groups: dict[int, set[int]] = {}
+    for indices in table_item_to_indices.values():
+        idxs = sorted(set(indices))
+        if len(idxs) <= 1:
+            continue
+        merged = set(idxs)
+        for i in idxs:
+            merged |= groups.get(i, set())
+        for i in merged:
+            groups[i] = merged
+
+    seen_keys: set[tuple[int, ...]] = set()
+    group_start_to_group: dict[int, list[int]] = {}
+    for idxs in groups.values():
+        key = tuple(sorted(idxs))
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        group_start_to_group[key[0]] = list(key)
+
+    absorbed = {i for group in group_start_to_group.values() for i in group[1:]}
+
+    result = []
+    for i, chunk in enumerate(chunks):
+        if i in absorbed:
+            continue
+        group = group_start_to_group.get(i)
+        if group is None:
+            result.append(chunk)
+            continue
+        parts = [chunks[j] for j in group]
+        result.append(_MergedChunk(
+            text="\n".join(p.text for p in parts),
+            meta=_MergedMeta(
+                doc_items=[item for p in parts for item in p.meta.doc_items],
+                headings=list(parts[0].meta.headings or []),
+            ),
+        ))
+    return result
 
 
 def _is_content_section_header(item: Any, content_start_page: int) -> bool:
@@ -160,8 +228,8 @@ def parse_with_docling(source: str, metadata: dict[str, Any],
     log.info(f"Parsing with Docling: {source}")
     result = _get_converter().convert(source)
     tag_of_ref = _build_heading_map(result.document, content_start_page)
-    chunks = list(_chunker.chunk(result.document))
-    log.info(f"Docling produced {len(chunks)} chunks")
+    chunks = _merge_table_shredded_chunks(list(_chunker.chunk(result.document)))
+    log.info(f"Docling produced {len(chunks)} chunks (table-shredded chunks merged)")
     if min_chunk_words is not None:
         kept = [c for c in chunks if len(c.text.split()) >= min_chunk_words]
         dropped = len(chunks) - len(kept)
