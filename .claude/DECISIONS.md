@@ -4,6 +4,30 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-10 — Table-shredded chunking fix: merge, not reconfigure
+
+**Issues**: [#28](https://github.com/AmaurySalles/luxdem/issues/28) (investigation), [#31](https://github.com/AmaurySalles/luxdem/issues/31) (implementation), PR [#33](https://github.com/AmaurySalles/luxdem/pull/33)
+
+**Decision**: `docling_parser.py` now merges chunks that got split across a table boundary, via `_merge_table_shredded_chunks()`, run right after `HybridChunker.chunk()`.
+
+**Why**: 49% of chunks in a diagnosis sample had a table split across multiple chunks. The cause is Docling's `HybridChunker`: when a table doesn't fit its 512-token budget, it falls through to a plain-text splitter with no table awareness. Docling's table recognition itself (`TableFormerMode.ACCURATE`) was already correct — reconfiguring it would have changed nothing. The fix merges split chunks back together post-chunking instead.
+
+**Result**: verified on the 18-doc diagnosis sample (2,333 shredded flags → 0) and the full 35-doc ONH corpus (0 shredded, max chunk 2,355 words — well under the 8192-token embedding limit).
+
+---
+
+## 2026-10 — Chroma chunk-ID cleanup is a one-off migration, not a pipeline change
+
+**Issue**: [#29](https://github.com/AmaurySalles/luxdem/issues/29)
+
+**Decision**: a one-off migration script deletes and re-embeds only the docs whose chunk count changed after the table-shredding fix (detected by reparsing and comparing to the `chunk_count` already in Chroma's metadata). `onh_pipeline()`/`main_pipeline()` themselves are untouched.
+
+**Why**: chunk IDs are `md5(source_url::chunk_index)`. Changing chunk counts leaves stale chunks behind at indices the new run no longer writes, and the existing "skip if chunk 0's ID exists" check (`onh_pipeline.py:40`, `main_pipeline.py:38`) would otherwise skip every doc without noticing anything changed. Scoping the fix to a one-off script — rather than making every pipeline run always reparse and compare — keeps that cheap skip-check fast for the common case where nothing changed.
+
+**Implementation**: deletes by `vectorstore.get(where={"source_url": ...})` then `vectorstore.delete(ids=...)`, the same pattern already used by `_delete_coalition_chunks()`. Dry-run by default; a `--commit` flag is required to actually touch Chroma.
+
+---
+
 ## 2026-06 — `constants.py` path resolution made environment-aware
 
 **Commit**: `1bf7bf1` — "fixed dossier pipeline" (`git show 1bf7bf1`)

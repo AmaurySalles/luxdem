@@ -15,6 +15,7 @@ venv/
 # Ignoring PyCharm cach files
 # Ignoring files other than code
 *.png
+!docs/*.png
 *.xlsx
 # Ignoring notebooks
 .ipynb
@@ -33,9 +34,6 @@ data/
 secrets/
 # dev-tools
 app/assets/collapse-devtools.js
-
-# docs
-docs/
 
 # Mac
 *.DS_Store
