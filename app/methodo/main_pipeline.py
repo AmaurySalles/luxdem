@@ -6,12 +6,15 @@ By resource, we mean any type of file related to the dossier
 import hashlib
 
 from sqlmodel import Session
-from ecodev_core import logger_get, SETTINGS
 
-from app.methodo.chroma import get_create_chroma_vectorstore, embed_and_store_in_chroma
+from ecodev_core import logger_get, SETTINGS, engine 
+
+from app.methodo.chroma import get_create_chroma_vectorstore
+from app.methodo.chroma import embed_and_store_in_chroma
 from app.methodo.parsing.docling_parser import parse_with_docling
 from app.methodo.parsing.metadata import get_resource_metadata
 from app.db_model.retrievers import retrieve_all_resources
+from app.db_model.tables.resource import Resource
 from app.constants import EMBEDDINGS_DIR
 
 log = logger_get(__name__)
