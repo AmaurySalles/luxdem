@@ -1,0 +1,120 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'primaryColor': '#3a3a4a',
+    'primaryTextColor': '#e0e0e0',
+    'primaryBorderColor': '#888',
+    'lineColor': '#aaa',
+    'secondaryColor': '#2a2a3a',
+    'tertiaryColor': '#1a1a2a',
+    'background': '#0d1117',
+    'mainBkg': '#3a3a4a',
+    'nodeBorder': '#888',
+    'clusterBkg': '#1e1e2e',
+    'clusterBorder': '#555',
+    'titleColor': '#e0e0e0',
+    'edgeLabelBackground': '#6b5b3a',
+    'fontFamily': 'Segoe UI, sans-serif',
+    'fontSize': '14px'
+  }
+}}%%
+
+flowchart TD
+    %% ── Data Sources ──
+    CA["Coalition Agreement"]
+    ONH["ONH Website"]
+    PARL["Parliament Website"]
+
+    %% ── Ingestion ──
+    SCRAPER["🕷 Scraper"]
+    CA -->|PDF| SCRAPER
+    ONH -->|research reports| SCRAPER
+    PARL -->|dossiers / PDFs| SCRAPER
+
+    %% ── Docling parsing ──
+    DOCLING["📄 Docling Parser
+    IBM Research
+    DocumentConverter + HybridChunker
+    + table-shred merge fix"]
+    SCRAPER -->|raw PDFs| DOCLING
+
+    %% ── Embedding ──
+    OLLAMA_EMB["🧲 Ollama
+    nomic-embed-text
+    local embeddings"]
+    DOCLING -->|semantic chunks + metadata| OLLAMA_EMB
+
+    %% ── Storage ──
+    CHROMA[("🔮 Chroma
+    Vector DB
+    single collection · doc_type filter")]
+    OLLAMA_EMB -->|embeddings + metadata| CHROMA
+
+    PG[("🐘 Postgres
+    metadata + cached summaries")]
+    SCRAPER -->|metadata| PG
+
+    %% ── Query ──
+    TOPIC(["🏠 Housing Topic
+    e.g. rental affordability"])
+
+    RETRIEVAL["🔍 Retrieval
+    Semantic Search
+    3× queries by doc_type"]
+    CHROMA --> RETRIEVAL
+    TOPIC --> RETRIEVAL
+
+    %% ── Reranking ──
+    RERANKER["⚖️ Reranker
+    LLM relevance scoring 0.0–1.0"]
+    RETRIEVAL -->|top-k ONH chunks| RERANKER
+    RETRIEVAL -->|top-k law chunks| RERANKER
+
+    %% ── Summarizer ──
+    SUMMARIZER["📝 Summarizer
+    LLM"]
+    PG <-->|cached summaries| SUMMARIZER
+
+    %% ── Analyzer ──
+    ANALYZER["🧠 Analyzer
+    LLM"]
+    RERANKER -->|top 3 ONH reports| ANALYZER
+    RERANKER -->|top 5 laws| ANALYZER
+    SUMMARIZER -->|summaries| ANALYZER
+    RETRIEVAL -->|coalition excerpts| ANALYZER
+
+    %% ── Output ──
+    VERDICT(["📊 Policy Verdict
+    promised · enacted · gaps · judgment"])
+    ANALYZER --> VERDICT
+
+    %% ── LLM Backend (shared) ──
+    LLM_BACKEND["🤖 LLM Backend
+    Current: Claude claude-sonnet-4-6
+    Exploring: Open-source models — MiniMax, etc.
+    Future: Fine-tuned model via
+    MeluXina 🇱🇺 supercomputer — LuxProvide"]
+
+    LLM_BACKEND -.->|powers| RERANKER
+    LLM_BACKEND -.->|powers| SUMMARIZER
+    LLM_BACKEND -.->|powers| ANALYZER
+
+    %% ── Styling ──
+    classDef source fill:#4a4a2a,stroke:#aa9944,color:#e0e0e0
+    classDef process fill:#3a3a4a,stroke:#888,color:#e0e0e0
+    classDef docling fill:#2a4a4a,stroke:#44aa99,color:#e0e0e0
+    classDef storage fill:#2a2a4a,stroke:#6666aa,color:#e0e0e0
+    classDef llm fill:#4a2a4a,stroke:#aa44aa,color:#e0e0e0
+    classDef topic fill:#3a3a3a,stroke:#aaa,color:#e0e0e0,stroke-dasharray: 5 5
+    classDef output fill:#2a4a2a,stroke:#44aa44,color:#e0e0e0
+    classDef backend fill:#4a3a2a,stroke:#cc8844,color:#e0e0e0
+
+    class CA,ONH,PARL source
+    class SCRAPER process
+    class DOCLING docling
+    class OLLAMA_EMB docling
+    class CHROMA,PG storage
+    class RERANKER,SUMMARIZER,ANALYZER llm
+    class TOPIC topic
+    class VERDICT output
+    class LLM_BACKEND backend
