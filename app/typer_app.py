@@ -102,6 +102,44 @@ def ingest_coalition_agreement_command() -> None:
 
 @safe_clt
 @typer_app.command()
+def cleanup_stale_chunks_command(
+    commit: bool = typer.Option(False, "--commit", help="Delete + re-embed (default: dry-run)"),
+    onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs whose DB path is missing"),
+    onh: bool = typer.Option(True, help="Include ONH publications"),
+    dossiers: bool = typer.Option(True, help="Include dossiers"),
+    limit: int = typer.Option(None, help="Max number of docs per corpus"),
+) -> None:
+    """
+    One-off migration (#29): reparse ONH + dossier docs, and re-embed those whose chunks
+    changed after the table-shredding fix, deleting their stale Chroma chunks first.
+    Dry-run by default. Back up data/embeddings/ before --commit.
+    Coalition is not covered: re-run ingest-coalition-agreement-command instead.
+    """
+    from app.methodo.stale_chunk_migration import stale_chunk_migration
+    with Session(engine) as session:
+        report = stale_chunk_migration(session, commit=commit, onh_dir=onh_dir,
+                                       include_onh=onh, include_dossiers=dossiers, limit=limit)
+
+    typer.echo(f"\n{'COMMIT' if commit else 'DRY-RUN'} REPORT")
+    typer.echo(f"  unchanged:    {len(report.unchanged)}")
+    typer.echo(f"  not embedded: {len(report.not_embedded)} (left to the normal pipelines)")
+    typer.echo(f"  affected:     {len(report.affected)}"
+               f" ({sum(old - new for _, old, new in report.affected)} net chunks removed)")
+    for label, old, new in report.affected:
+        typer.echo(f"    {old:>5} -> {new:<5} {label}")
+    for title, rows in (("SUSPICIOUS (0 chunks after reparse, untouched)", report.suspicious),
+                        ("FAILED TO PARSE", report.failed),
+                        ("COUNT MISMATCH AFTER COMMIT", report.count_mismatch)):
+        if rows:
+            typer.echo(f"  {title}: {len(rows)}")
+            for row in rows:
+                typer.echo(f"    {row}")
+    if not commit and report.affected:
+        typer.echo("\nRe-run with --commit to apply (back up data/embeddings/ first).")
+
+
+@safe_clt
+@typer_app.command()
 def summarize_laws_command(
     limit: int = typer.Option(None, help="Max number of dossiers to summarize"),
 ) -> None:
