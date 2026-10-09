@@ -14,7 +14,11 @@ PATH VARIABLES
 _base = Path(os.environ.get("base_path", "/app"))
 DATA_DIR = _base / "data"
 ASSETS_DIR = _base / "app" / "assets"
-EMBEDDINGS_DIR = DATA_DIR / "embeddings"
+# Chroma store, from config `chroma` (defaults: the pre-#51 store). The re-embed (#32) points
+# it at a new directory/collection; never write vectors from two clients/models to one collection.
+_chroma = getattr(SETTINGS, "chroma", None)
+CHROMA_DIR = DATA_DIR / str(getattr(_chroma, "directory", "embeddings"))
+CHROMA_COLLECTION = str(getattr(_chroma, "collection", "dossier_docs"))
 
 """
 MAIN URL CONSTANTS
