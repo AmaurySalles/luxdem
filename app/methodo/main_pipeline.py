@@ -15,7 +15,7 @@ from app.methodo.parsing.docling_parser import parse_with_docling
 from app.methodo.parsing.metadata import get_resource_metadata
 from app.db_model.retrievers import retrieve_all_resources
 from app.db_model.tables.resource import Resource
-from app.constants import EMBEDDINGS_DIR
+from app.constants import CHROMA_DIR
 
 log = logger_get(__name__)
 OLLAMA_EMBEDDING_MODEL = SETTINGS.ollama.embedding_model
@@ -47,4 +47,4 @@ def dossier_pipeline(session: Session,
 
         log.info(f"[3/3] Embedding and storing in Chroma")
         embed_and_store_in_chroma(parsed_chunks, vectorstore)
-        log.info(f"   → Stored in Chroma: {EMBEDDINGS_DIR}")
+        log.info(f"   → Stored in Chroma: {CHROMA_DIR}")
