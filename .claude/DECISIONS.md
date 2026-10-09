@@ -4,6 +4,16 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-10 — Parse cache: split Docling parsing from embedding
+
+**Issue**: [#46](https://github.com/AmaurySalles/luxdem/issues/46)
+
+**Decision**: `cleanup-stale-chunks-command` dry run parses every ONH + dossier doc (including never-embedded ones) into `data/parse_cache/<md5(source_url)>.json`; `--commit` embeds from that cache only and never parses. Each entry holds a fingerprint (sha256 of `docling_parser.py` source, docling + docling-core versions, parse args, doc metadata); a mismatch means stale, so the dry run reparses and commit skips + reports it.
+
+**Why**: parsing is slow but free on the laptop; embedding needs a rented GPU. Parsing inside the embed loop (as `dossier_pipeline` does) leaves the GPU idle. Hashing the parser source is coarse (a comment change invalidates everything) but can't miss a real change.
+
+---
+
 ## 2026-10 — Table-shredded chunking fix: merge, not reconfigure
 
 **Issues**: [#28](https://github.com/AmaurySalles/luxdem/issues/28) (investigation), [#31](https://github.com/AmaurySalles/luxdem/issues/31) (implementation), PR [#33](https://github.com/AmaurySalles/luxdem/pull/33)

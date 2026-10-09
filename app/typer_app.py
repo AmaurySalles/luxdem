@@ -103,39 +103,47 @@ def ingest_coalition_agreement_command() -> None:
 @safe_clt
 @typer_app.command()
 def cleanup_stale_chunks_command(
-    commit: bool = typer.Option(False, "--commit", help="Delete + re-embed (default: dry-run)"),
+    commit: bool = typer.Option(False, "--commit", help="Embed from cache (default: dry-run)"),
     onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs whose DB path is missing"),
     onh: bool = typer.Option(True, help="Include ONH publications"),
     dossiers: bool = typer.Option(True, help="Include dossiers"),
     limit: int = typer.Option(None, help="Max number of docs per corpus"),
+    cache_dir: Path = typer.Option(None, help="Parse cache dir (default: data/parse_cache)"),
 ) -> None:
     """
-    One-off migration (#29): reparse ONH + dossier docs, and re-embed those whose chunks
-    changed after the table-shredding fix, deleting their stale Chroma chunks first.
-    Dry-run by default. Back up data/embeddings/ before --commit.
+    One-off migration (#29, #46). Dry-run (default): parse ONH + dossier docs into the
+    parse cache and report vs Chroma, no Chroma writes. --commit: embed-only from the
+    cache (no parsing): delete + re-embed changed docs, embed never-embedded ones.
+    Back up data/embeddings/ before --commit.
     Coalition is not covered: re-run ingest-coalition-agreement-command instead.
     """
+    from app.methodo.parse_cache import PARSE_CACHE_DIR
     from app.methodo.stale_chunk_migration import stale_chunk_migration
     with Session(engine) as session:
         report = stale_chunk_migration(session, commit=commit, onh_dir=onh_dir,
-                                       include_onh=onh, include_dossiers=dossiers, limit=limit)
+                                       include_onh=onh, include_dossiers=dossiers, limit=limit,
+                                       cache_dir=cache_dir or PARSE_CACHE_DIR)
 
     typer.echo(f"\n{'COMMIT' if commit else 'DRY-RUN'} REPORT")
+    if not commit:
+        typer.echo(f"  cache hits:   {report.cache_hits} (not reparsed)")
     typer.echo(f"  unchanged:    {len(report.unchanged)}")
-    typer.echo(f"  not embedded: {len(report.not_embedded)} (left to the normal pipelines)")
+    typer.echo(f"  not embedded: {len(report.not_embedded)}"
+               f" ({sum(new for _, new in report.not_embedded)} chunks to embed)")
     typer.echo(f"  affected:     {len(report.affected)}"
                f" ({sum(old - new for _, old, new in report.affected)} net chunks removed)")
     for label, old, new in report.affected:
         typer.echo(f"    {old:>5} -> {new:<5} {label}")
-    for title, rows in (("SUSPICIOUS (0 chunks after reparse, untouched)", report.suspicious),
-                        ("FAILED TO PARSE", report.failed),
+    for title, rows in (("SUSPICIOUS (0 chunks after parse, untouched)", report.suspicious),
+                        ("FAILED TO PARSE (not cached)", report.failed),
+                        ("NOT CACHED (skipped, re-run dry run)", report.uncached),
                         ("COUNT MISMATCH AFTER COMMIT", report.count_mismatch)):
         if rows:
             typer.echo(f"  {title}: {len(rows)}")
             for row in rows:
                 typer.echo(f"    {row}")
-    if not commit and report.affected:
-        typer.echo("\nRe-run with --commit to apply (back up data/embeddings/ first).")
+    if not commit and (report.affected or report.not_embedded):
+        typer.echo("\nRe-run with --commit to embed from cache (back up data/embeddings/ first).")
 
 
 @safe_clt
