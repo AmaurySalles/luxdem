@@ -18,12 +18,13 @@ from sqlmodel import Session
 
 from app.db_model.tables.onh_publication import OnhPublication
 from app.db_model.retrievers.onh_retriever import upsert_onh_publication
+from app.methodo.onh_paths import DOWNLOADS_DIR
+from app.methodo.onh_paths import relative_to_downloads
 
 log = logger_get(__name__)
 
 ONH_BASE = "https://logement.public.lu"
 ONH_PUBLICATIONS_PATH = "/fr/observatoire-habitat/publications.html"
-ONH_DOWNLOADS_DIR = Path("downloads/onh")
 
 BROWSER_HEADERS = {
     "User-Agent": (
@@ -44,7 +45,10 @@ BROWSER_HEADERS = {
 
 
 def scrape_onh_publications(session: Session) -> list[OnhPublication]:
-    """Scrape ONH publication index and persist metadata to DB."""
+    """
+    Scrape ONH publication index and persist metadata to DB. Stores the remote PDF urls
+    (nothing is downloaded); onh_pipeline parses them directly.
+    """
     listing_url = urljoin(ONH_BASE, ONH_PUBLICATIONS_PATH)
     log.info(f"Scraping ONH publications from {listing_url}")
 
@@ -88,18 +92,26 @@ def scrape_onh_publications(session: Session) -> list[OnhPublication]:
 
 
 def ingest_onh_pdfs_from_dir(session: Session, pdf_dir: Path) -> list[OnhPublication]:
-    """Manual fallback: ingest PDFs placed in pdf_dir by the user."""
+    """
+    Manual fallback: ingest PDFs placed in pdf_dir by the user. pdf_dir must be under
+    DOWNLOADS_DIR (e.g. data/downloads/onh): urls are stored relative to it (#49).
+    """
     pdf_dir = Path(pdf_dir).resolve()
     if not pdf_dir.exists():
         log.error(f"Directory not found: {pdf_dir}")
         return []
+    try:
+        listing_url = relative_to_downloads(pdf_dir)
+    except ValueError:
+        raise ValueError(
+            f"{pdf_dir} is outside {DOWNLOADS_DIR}: move the PDFs there first") from None
 
     publications = []
     for pdf_path in sorted(pdf_dir.glob("*.pdf")):
         pub = OnhPublication(
             title=pdf_path.stem.replace("_", " ").replace("-", " "),
-            url=pdf_path.as_uri(),
-            listing_url=str(pdf_dir),
+            url=relative_to_downloads(pdf_path),
+            listing_url=listing_url,
             category=_infer_category(pdf_path.stem),
         )
         persisted = upsert_onh_publication(session, pub)

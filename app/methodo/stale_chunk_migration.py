@@ -35,6 +35,7 @@ from app.db_model.retrievers.onh_retriever import retrieve_onh_publications
 from app.methodo.chroma import embed_and_store_in_chroma
 from app.methodo.chroma import get_create_chroma_vectorstore
 from app.methodo.main_pipeline import OLLAMA_EMBEDDING_MODEL
+from app.methodo.onh_paths import resolve_onh_source
 from app.methodo.onh_pipeline import _get_onh_metadata
 from app.methodo.onh_pipeline import ONH_MIN_CHUNK_WORDS
 from app.methodo.parse_cache import load_cached_chunks
@@ -153,14 +154,6 @@ def migrate_stale_chunks(targets: list[MigrationTarget],
     return report
 
 
-def _resolve_onh_source(url: str, onh_dir: Path | None) -> str:
-    """ONH urls in the DB can be local paths from another machine: fall back to onh_dir."""
-    source = url.removeprefix("file://")
-    if onh_dir is not None and not source.startswith("http") and not Path(source).exists():
-        return str(onh_dir / Path(source).name)
-    return source
-
-
 def collect_targets(session: Session,
                     onh_dir: Path | None = None,
                     include_onh: bool = True,
@@ -170,7 +163,7 @@ def collect_targets(session: Session,
     targets: list[MigrationTarget] = []
     if include_onh:
         for pub in retrieve_onh_publications(session, limit=limit):
-            source = _resolve_onh_source(pub.url, onh_dir)
+            source = resolve_onh_source(pub.url, onh_dir)
             metadata = _get_onh_metadata(pub)
             targets.append(MigrationTarget(
                 label=f"onh: {pub.title}",

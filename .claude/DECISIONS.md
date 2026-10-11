@@ -4,6 +4,16 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-10 — ONH sources stored as paths relative to `data/downloads`
+
+**Issues**: [#49](https://github.com/AmaurySalles/luxdem/issues/49) (decision), [#55](https://github.com/AmaurySalles/luxdem/issues/55) (implementation)
+
+**Decision**: `OnhPublication.url` and the chunks' `source_url` hold e.g. `onh/Note-30.pdf`. `resolve_onh_source()` (`app/methodo/onh_paths.py`) resolves it against `DATA_DIR / "downloads"` at parse time; legacy `file://` values are still accepted. `ingest-onh-from-dir-command` refuses dirs outside `data/downloads`. `--onh-dir` is a fallback only. Existing rows are rewritten once with `relativize-onh-urls-command` (dry-run by default).
+
+**Why**: same value works in Docker and natively, chunk IDs carry nothing machine-specific, and it survives moving files to shared storage. Rejected: `/app/...` (Docker-only), keeping `/Users/shmiggit/...` (`--onh-dir` forever), ONH website URLs (site blocks downloads).
+
+---
+
 ## 2026-10 — Parse cache: split Docling parsing from embedding
 
 **Issue**: [#46](https://github.com/AmaurySalles/luxdem/issues/46)
