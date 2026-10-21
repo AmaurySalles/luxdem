@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-LuxDem is a Luxembourg housing policy analysis tool. It scrapes legislative dossiers from chd.lu and ONH (Observatoire National de l'Habitat) publications, embeds them into a Chroma vector store, and uses Claude to generate structured policy analyses cross-referencing laws against coalition agreement commitments and ONH research.
+LuxDem is a Luxembourg housing policy analysis tool. It scrapes legislative dossiers from chd.lu and ONH (Observatoire National de l'Habitat) publications, embeds them into a Chroma vector store, and uses a local LLM to generate structured policy analyses cross-referencing laws against coalition agreement commitments and ONH research.
+
+The pipeline runs only on open-source models (Docling, `nomic-embed-text`, `qwen3.5` via Ollama). It makes no Claude/Anthropic API calls — Claude is used only as the coding assistant. `app/methodo/claude.py`, the `anthropic` requirement and `api_keys.claude` are unused leftovers.
 
 ## Commands
 
@@ -51,17 +53,19 @@ In dev (`docker-compose.override.yml`), both use `uvicorn` with `--reload`. In p
 The full pipeline to get from raw web sources to a topic analysis runs in order:
 
 1. **Scrape** (`app/methodo/scraper.py`, `onh_scraper.py`) — fetch dossier/ONH metadata and store in Postgres via SQLModel.
-2. **Parse** (`app/methodo/parsing/`) — download PDFs and parse with Docling (`docling_parser.py`); Produces text chunks with metadata dicts.
+2. **Parse** (`app/methodo/parsing/`) — download PDFs and parse with Docling (`docling_parser.py`), then chunk with Docling's `HybridChunker` (`nomic-ai/nomic-embed-text-v1` tokenizer, 512 tokens max). Produces text chunks with metadata dicts.
 3. **Embed** (`app/methodo/chroma.py`) — chunks are embedded with Ollama (`nomic-embed-text` by default) and stored in Chroma at `data/embeddings/`. All documents are in a single collection `dossier_docs`, distinguished by `doc_type` metadata (`"dossier"`, `"onh"`, `"coalition"`).
-4. **Summarize** (`app/methodo/summarizer.py`) — Claude generates per-document summaries that are cached in `DossierSummary` / `OnhSummary` DB tables. Run `summarize-laws-command` to pre-warm the cache.
-5. **Rerank** (`app/methodo/reranker.py`) — Claude scores each candidate document for relevance to the query topic.
-6. **Analyze** (`app/methodo/analyzer.py`) — Claude generates a structured `TopicAnalysisResult` (Pydantic model) containing commitments, matched laws, ONH reports, gaps, and a conclusion.
+4. **Summarize** (`app/methodo/summarizer.py`) — the local LLM generates per-document summaries that are cached in `DossierSummary` / `OnhSummary` DB tables. Run `summarize-laws-command` to pre-warm the cache.
+5. **Rerank** (`app/methodo/reranker.py`) — the local LLM scores each candidate document for relevance to the query topic.
+6. **Analyze** (`app/methodo/analyzer.py`) — the local LLM generates a structured `TopicAnalysisResult` (Pydantic model) containing commitments, matched laws, ONH reports, gaps, and a conclusion.
+
+Steps 4–6 all go through `app/methodo/local_llm.py` (`chat_completion`), which calls Ollama's chat API with the `ollama.chat_model` setting (`qwen3.5` by default), thinking off and a 16K context window. JSON output is parsed by hand in the reranker and analyzer.
 
 `topic_analysis_pipeline.py` orchestrates steps 4–6 end-to-end and is called both from the Typer CLI and from `POST /api/analysis/topic`.
 
 ### Configuration
 
-Settings are loaded by `ecodev_core.SETTINGS` from layered YAML files under `config/` and `secrets/`. `config/local.yaml` contains structure with nulled secrets; real values go in `secrets/local.yaml` (gitignored). Key settings: `ollama.embedding_model`, `api_keys.claude`.
+Settings are loaded by `ecodev_core.SETTINGS` from layered YAML files under `config/` and `secrets/`. `config/local.yaml` contains structure with nulled secrets; real values go in `secrets/local.yaml` (gitignored). Key settings: `ollama.embedding_model`, `ollama.chat_model`, `ollama.base_url`. Locally, the chat model runs on the native Ollama.app (`127.0.0.1:11434`), not the `luxdem_ollama` container.
 
 ### Database
 
