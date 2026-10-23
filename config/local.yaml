@@ -30,6 +30,13 @@ ollama:
   embedding_model: nomic-embed-text
   chat_model: qwen3.5:latest  # native Ollama.app on 127.0.0.1:11434, not the luxdem_ollama container
   base_url: http://127.0.0.1:11434  # Docker uses http://ollama:11434
+  embedding_keep_alive: 30m  # how long Ollama keeps the embedder loaded; -1 = forever (bulk runs)
+
+chroma:
+  # Store under data/. Default = pre-#51 store (legacy client). The re-embed (#32) switches to a
+  # new one, e.g. directory: embeddings_v2, collection: docs. Never reuse a collection across models.
+  directory: embeddings
+  collection: dossier_docs
 
 docling:
   accelerator: mps   # auto | cpu | mps

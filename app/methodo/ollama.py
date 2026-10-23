@@ -9,6 +9,8 @@ import requests
 from ecodev_core import SETTINGS
 from langchain_community.embeddings import OllamaEmbeddings
 
+from app.methodo.ollama_embeddings import OllamaEmbedEmbeddings
+
 DEFAULT_OLLAMA_PORT = 11434
 _LOCAL_OLLAMA_HOSTNAMES = frozenset({'localhost', '127.0.0.1', '::1'})
 
@@ -45,15 +47,27 @@ def _resolved_ollama_base_url() -> str:
 OLLAMA_BASE_URL = _resolved_ollama_base_url()
 OLLAMA_EMBEDDING_MODEL = SETTINGS.ollama.embedding_model
 OLLAMA_PORT = str(urlparse(OLLAMA_BASE_URL).port or DEFAULT_OLLAMA_PORT)
+OLLAMA_EMBEDDING_KEEP_ALIVE = getattr(SETTINGS.ollama, "embedding_keep_alive", "30m")
 
 
-def get_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL):
-    """Initialize Ollama embeddings"""
-    embeddings = OllamaEmbeddings(
+def get_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL) -> OllamaEmbedEmbeddings:
+    """Ollama embeddings over /api/embed (see app/methodo/ollama_embeddings.py)."""
+    return OllamaEmbedEmbeddings(
+        model=model,
+        host=OLLAMA_BASE_URL,
+        keep_alive=OLLAMA_EMBEDDING_KEEP_ALIVE,
+    )
+
+
+def get_legacy_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL) -> OllamaEmbeddings:
+    """
+    Pre-#51 client (/api/embeddings, E5 prefixes). Only for collections embedded with it, so
+    old and new vectors never mix. Remove after the re-embed (#32).
+    """
+    return OllamaEmbeddings(
         base_url=OLLAMA_BASE_URL,
         model=model,
     )
-    return embeddings
 
 
 def verify_ollama_running() -> bool:

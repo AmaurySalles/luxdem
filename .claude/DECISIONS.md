@@ -4,6 +4,20 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-10 — Custom Ollama embedding client; new Chroma store per model
+
+**Issues**: [#48](https://github.com/AmaurySalles/luxdem/issues/48) (decision), [#51](https://github.com/AmaurySalles/luxdem/issues/51) (implementation)
+
+**Decision**: `get_ollama_embeddings` returns `OllamaEmbedEmbeddings` (`app/methodo/ollama_embeddings.py`), a LangChain `Embeddings` over `ollama.Client` calling `/api/embed` in batches of 64. It sets `truncate=False`, per-model `num_ctx`/`num_batch` (8192 bge-m3/arctic2, 2048 nomic), `keep_alive` (`ollama.embedding_keep_alive`), a 120 s timeout, retry with backoff on connection errors/5xx, and per-model prefixes (bge-m3 none; arctic2 `query: ` on queries; nomic `search_document: `/`search_query: `). It logs `prompt_eval_count`. Model stays `ollama.embedding_model`; the default is picked by the comparison (#52).
+
+**Why**: the `langchain_community` client sent one request per chunk to the deprecated `/api/embeddings`, added E5 prefixes nomic never saw, and had no timeout/retry. `langchain-ollama` 0.1.3 (the only version fitting the 0.2 pins) can't set `num_ctx`/`num_batch`. `/api/embed` truncates silently by default.
+
+**Over-long chunks**: with `truncate=False` Ollama returns 400 "input length exceeds the context length". The client then embeds the batch one by one, splits the offending chunk in two on a paragraph/line/word boundary (recursively), and stores the token-weighted mean of the parts, re-normalized. One vector per chunk, so chunk IDs don't change, and no text is dropped. Each split is logged.
+
+**Chroma**: the store comes from config `chroma.directory`/`chroma.collection` (default: the old `data/embeddings`/`dossier_docs`). New collections are created with `hnsw:space=cosine`, `hnsw:search_ef=100` (the default 10 missed an exact match among near-duplicate chunks in testing), `hnsw:construction_ef=200`, and the model, Ollama version and digest. A collection without `embedding_model` metadata predates #51 and keeps the old client, so old and new vectors never mix; opening a collection with another model raises. The re-embed (#32) points the config at a new store. `add_documents` is sliced into 256-doc calls, since langchain-chroma 0.1.4 embeds the whole list then does one upsert.
+
+---
+
 ## 2026-10 — Table-shredded chunking fix: merge, not reconfigure
 
 **Issues**: [#28](https://github.com/AmaurySalles/luxdem/issues/28) (investigation), [#31](https://github.com/AmaurySalles/luxdem/issues/31) (implementation), PR [#33](https://github.com/AmaurySalles/luxdem/pull/33)
@@ -12,7 +26,7 @@ Living record of architectural and operational choices for this project. Each en
 
 **Why**: 49% of chunks in a diagnosis sample had a table split across multiple chunks. The cause is Docling's `HybridChunker`: when a table doesn't fit its 512-token budget, it falls through to a plain-text splitter with no table awareness. Docling's table recognition itself (`TableFormerMode.ACCURATE`) was already correct — reconfiguring it would have changed nothing. The fix merges split chunks back together post-chunking instead.
 
-**Result**: verified on the 18-doc diagnosis sample (2,333 shredded flags → 0) and the full 35-doc ONH corpus (0 shredded, max chunk 2,355 words — well under the 8192-token embedding limit).
+**Result**: verified on the 18-doc diagnosis sample (2,333 shredded flags → 0) and the full 35-doc ONH corpus (0 shredded, max chunk 2,355 words). Correction (#51): that is not "well under the 8192-token limit" for nomic-embed-text, which Ollama clamps to 2048 tokens, so such chunks overflow it; the #51 client splits them instead of letting Ollama cut them.
 
 ---
 

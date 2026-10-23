@@ -6,7 +6,7 @@ The pipeline is open-source only (Docling, `nomic-embed-text`, `qwen3.5` via Oll
 
 ## Pipeline
 
-scrape (`methodo/scraper.py`, `onh_scraper.py`) → parse + chunk (`methodo/parsing/`) → embed (`methodo/chroma.py`, one collection `dossier_docs`, split by `doc_type`) → summarize → rerank → analyze (via `methodo/local_llm.py`). `topic_analysis_pipeline.py` runs the last three.
+scrape (`methodo/scraper.py`, `onh_scraper.py`) → parse + chunk (`methodo/parsing/`) → embed (`methodo/chroma.py` via `OllamaEmbedEmbeddings` in `ollama_embeddings.py`; store from config `chroma`, one collection split by `doc_type`) → summarize → rerank → analyze (via `methodo/local_llm.py`). `topic_analysis_pipeline.py` runs the last three.
 
 ## Commands
 
