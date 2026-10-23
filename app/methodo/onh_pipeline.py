@@ -12,6 +12,7 @@ from app.db_model.retrievers.onh_retriever import retrieve_onh_publications
 from app.db_model.tables.onh_publication import OnhPublication
 from app.methodo.chroma import embed_and_store_in_chroma, get_create_chroma_vectorstore
 from app.methodo.main_pipeline import OLLAMA_EMBEDDING_MODEL
+from app.methodo.onh_paths import resolve_onh_source
 from app.methodo.parsing.docling_parser import parse_with_docling
 
 log = logger_get(__name__)
@@ -36,7 +37,7 @@ def onh_pipeline(session: Session,
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
 
     for pub in publications:
-        source = pub.url.removeprefix("file://") if pub.url.startswith("file://") else pub.url
+        source = resolve_onh_source(pub.url)
         first_id = hashlib.md5(f"{pub.url}::0".encode()).hexdigest()
         if vectorstore.get(ids=[first_id])["ids"]:
             log.info(f"Already embedded, skipping: {pub.title}")

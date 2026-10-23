@@ -89,6 +89,39 @@ def embed_onh_command(
 
 @safe_clt
 @typer_app.command()
+def relativize_onh_urls_command(
+    commit: bool = typer.Option(False, "--commit", help="Apply the rewrite (default: dry-run)"),
+) -> None:
+    """
+    One-off (#55): rewrite legacy `file://.../<file>` onh_publication urls to `onh/<file>`,
+    relative to data/downloads. Rows whose file is missing there are refused (left as-is).
+    Back up the onh_publication table before --commit.
+    """
+    from app.db_model.inserters import update_onh_publication_urls
+    from app.db_model.retrievers import retrieve_onh_publications
+    from app.methodo.onh_paths import ONH_DOWNLOADS_DIR
+    from app.methodo.onh_paths import plan_onh_url_rewrites
+
+    with Session(engine) as session:
+        rewrites = sorted(plan_onh_url_rewrites(retrieve_onh_publications(session)),
+                          key=lambda r: r.id)
+        typer.echo(f"{'id':>4}  {'found':<5}  before -> after")
+        for r in rewrites:
+            typer.echo(f"{r.id:>4}  {'yes' if r.file_found else 'NO':<5}  "
+                       f"{r.old_url} -> {r.new_url}")
+        ok = {r.id: r.new_url for r in rewrites if r.file_found}
+        missing = len(rewrites) - len(ok)
+        typer.echo(f"\n{len(rewrites)} legacy rows, {len(ok)} files found under "
+                   f"{ONH_DOWNLOADS_DIR}, {missing} refused (file missing)")
+        if not commit:
+            if ok:
+                typer.echo("DRY-RUN: re-run with --commit (back up onh_publication first).")
+            return
+        typer.echo(f"COMMIT: updated {update_onh_publication_urls(session, ok)} rows.")
+
+
+@safe_clt
+@typer_app.command()
 def ingest_coalition_agreement_command() -> None:
     """
     Parse and embed the coalition agreement 2023-2028 PDF into Chroma (run once).
@@ -104,7 +137,7 @@ def ingest_coalition_agreement_command() -> None:
 @typer_app.command()
 def cleanup_stale_chunks_command(
     commit: bool = typer.Option(False, "--commit", help="Embed from cache (default: dry-run)"),
-    onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs whose DB path is missing"),
+    onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs missing in data/downloads"),
     onh: bool = typer.Option(True, help="Include ONH publications"),
     dossiers: bool = typer.Option(True, help="Include dossiers"),
     limit: int = typer.Option(None, help="Max number of docs per corpus"),
