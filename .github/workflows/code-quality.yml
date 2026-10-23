@@ -15,7 +15,7 @@ jobs:
       postgres:
         image: postgres:14.2-alpine
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -37,7 +37,11 @@ jobs:
           POSTGRES_HOST: postgres
         with:
           image: luxdem:latest
+          # Root: the image runs as appuser, which can't pip-install into /opt/venv or write to the workspace.
+          # Service network: lets db_host=postgres resolve to the postgres service container.
           options:
+            --user root
+            --network ${{ job.services.postgres.network }}
             -e algorithm=HS256
             -e access_token_expire_minutes=1440
             -e admin_user=postgres
@@ -47,7 +51,7 @@ jobs:
             -e app_password=postgres
             -e db_host=postgres
             -e db_name=postgres
-            -e db_port=${{ job.services.postgres.ports[5432] }}
+            -e db_port=5432
             -e test_password=postgres
             -e hashed_admin_password=$2b$12$NIgWF4eEAFZGXfNw7IN1f.JH0zESPVSdQ.nEUcOLhp/rQmo6y9l5e
             -e secret_key=totototototototototototototototototototo
@@ -70,7 +74,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: luxdem:latest
-          options: -v ${{github.workspace}}:/app/
+          options: --user root -v ${{github.workspace}}:/app/
           run: |
             python3 -m pip install pylint anybadge
             find app/ -type f -name "*.py" | xargs python3 -m pylint --exit-zero --output-format=text | tee pylint.log
