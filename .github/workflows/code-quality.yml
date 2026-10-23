@@ -103,7 +103,7 @@ jobs:
             mv pylint.svg ./badges/
 
       - name: Commit badge files
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/ci-badges'
+        if: github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -114,7 +114,7 @@ jobs:
           git commit -m "Add badges" -n
 
       - name: Push badge files
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/ci-badges'
+        if: github.ref == 'refs/heads/main'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
