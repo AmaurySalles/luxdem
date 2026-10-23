@@ -38,10 +38,9 @@ jobs:
         with:
           image: luxdem:latest
           # Root: the image runs as appuser, which can't pip-install into /opt/venv or write to the workspace.
-          # Service network: lets db_host=postgres resolve to the postgres service container.
+          # The action already joins the services network (docker_network), so db_host=postgres resolves.
           options:
             --user root
-            --network ${{ job.services.postgres.network }}
             -e algorithm=HS256
             -e access_token_expire_minutes=1440
             -e admin_user=postgres
