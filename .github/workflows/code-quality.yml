@@ -9,6 +9,9 @@ jobs:
   test:
     name: code quality
     runs-on: ubuntu-latest
+    # Badge push to main needs write access to the repo.
+    permissions:
+      contents: write
     env:
       GITHUB-ACTION: true
     services:
@@ -26,6 +29,10 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v3
+
+      # Created here, not in the root container, so the runner user can write badges/date.log later.
+      - name: Create badges folder
+        run: mkdir -p badges
 
       - name: Build the Docker image
         run: |
@@ -62,7 +69,7 @@ jobs:
           # so CI writes the gitignored secrets file itself.
           # fail-under=0 until the repo has tests; raise it once tests/ is populated.
           run: |
-            mkdir -p secrets badges
+            mkdir -p secrets
             cat > secrets/local.yaml <<EOF
             authentication:
               secret_key: totototototototototototototototototototo
