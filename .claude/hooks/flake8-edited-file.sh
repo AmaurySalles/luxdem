@@ -14,8 +14,10 @@ fi
 
 if ! output=$(docker exec -i luxdem_backend python3 -m flake8 --max-line-length=100 \
         --stdin-display-name "$file_path" - <"$file_path" 2>&1); then
+    # Non-blocking warning (exit 1) so a missing linter is visible, not silently skipped.
     if grep -q "No module named flake8" <<<"$output"; then
-        exit 0
+        echo "flake8 hook: flake8 not installed in luxdem_backend; rebuild with 'make dev-build'." >&2
+        exit 1
     fi
     echo "$output" >&2
     exit 2
