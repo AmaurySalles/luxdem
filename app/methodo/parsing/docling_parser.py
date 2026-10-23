@@ -13,6 +13,8 @@ from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling_core.types.doc import DocItemLabel
 from ecodev_core import SETTINGS, logger_get
 
+from app.methodo.parsing.download import download_pdf
+
 log = logger_get(__name__)
 
 _converter: DocumentConverter | None = None
@@ -226,7 +228,9 @@ def parse_with_docling(source: str, metadata: dict[str, Any],
                        min_chunk_words: int | None = None,
                        content_start_page: int = 1) -> list[dict[str, Any]]:
     log.info(f"Parsing with Docling: {source}")
-    result = _get_converter().convert(source)
+    # fetch remote PDFs ourselves: Docling's built-in fetch has no timeout (can hang)
+    local = download_pdf(source) if source.startswith(("http://", "https://")) else source
+    result = _get_converter().convert(local)
     tag_of_ref = _build_heading_map(result.document, content_start_page)
     chunks = _merge_table_shredded_chunks(list(_chunker.chunk(result.document)))
     log.info(f"Docling produced {len(chunks)} chunks (table-shredded chunks merged)")
