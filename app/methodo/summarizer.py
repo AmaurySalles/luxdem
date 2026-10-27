@@ -24,6 +24,8 @@ Summarize the provided law/proposal in 250-350 words. Cover:
 2. Key provisions and measures
 3. Target beneficiaries or affected parties
 4. Implementation mechanisms
+Text wrapped in ~~double tildes~~ is struck through in the source: wording the bill deletes.
+Read the unmarked text as the current version; mention deletions only as changes.
 Write in English. Be precise and factual. Do not speculate."""
 
 _ONH_SYSTEM_PROMPT = """You are a housing policy researcher specializing in Luxembourg.

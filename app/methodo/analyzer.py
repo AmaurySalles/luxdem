@@ -33,6 +33,9 @@ You will receive:
 3. Summaries of relevant laws and legislative proposals (with their status: enacted, in progress, or rejected)
 4. Summaries of ONH (Observatoire National de l'Habitat) research reports
 
+Text wrapped in ~~double tildes~~ is struck through in the source: wording a bill deletes.
+Read the unmarked text as the current version.
+
 Your task: assess whether the government's legislative response is delivering on its coalition commitments for this topic.
 
 - For enacted laws: assess actual impact based on ONH data
