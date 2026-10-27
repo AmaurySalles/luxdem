@@ -1,6 +1,10 @@
 bcrypt==4.*
 BeautifulSoup4==4.14.3
-docling==2.*
+# Pinned exactly: the strike-through hook (app/methodo/parsing/strike_through.py) patches
+# private docling-parse backend internals. Upgrade all three together and rerun
+# tests.unitary.test_strike_through.
+docling==2.142.1
+docling-parse==7.23.0
 # Pinned: transformers<5 doesn't recognize the rt_detr_v2 architecture Docling's
 # layout model (docling-layout-heron) now ships with, so every parse fails outright.
 # NB: pulls tokenizers>=0.21, which is past chromadb 0.5.23's declared <=0.20.3 ceiling
@@ -28,4 +32,4 @@ SQLAlchemy==2.0.*
 anthropic>=0.40,<1
 jupyter>=1.0,<2
 torch
-docling_core
+docling-core==2.104.0

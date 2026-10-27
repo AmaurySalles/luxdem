@@ -4,6 +4,20 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-10 — Mark struck-through text as `~~…~~` via a Docling backend hook
+
+**Issues**: [#60](https://github.com/AmaurySalles/luxdem/issues/60) (finding), [#61](https://github.com/AmaurySalles/luxdem/issues/61) (prototype), [#62](https://github.com/AmaurySalles/luxdem/issues/62) (recall check), [#65](https://github.com/AmaurySalles/luxdem/issues/65) (implementation)
+
+**Decision**: `app/methodo/parsing/strike_through.py` patches `ThreadedDoclingParsePageBackend.get_segmented_page` (installed by `_create_converter()`). Struck words become `~~…~~` in text-line and word cells, so chunks read `31 décembre ~~2032~~ 2036`. The summarizer and analyzer prompts say marked text is deleted wording.
+
+**Rule**: a strike line is a horizontal subpath of the page's vector shapes, at most 1.5pt thick by both height and stroke width (yellow highlights are zero-height lines with a 12pt stroke), any colour. A word is struck when such a line sits in the 0.4–0.8 band of its height (underlines sit at ~1.1) and covers ≥60% of its width. A line only counts if the words in its band cover ≥70% of its length: without that, chart gridlines struck axis labels in 21 of 39 ONH docs.
+
+**Why mark, not drop**: keeps what a bill changes. Dropping also let Docling's OCR text fill the gap with garbage, so struck cells are rewritten, never removed.
+
+**Upgrade guard**: the hook uses private docling-parse internals, so `docling`, `docling-parse` and `docling-core` are pinned exactly, and `tests.unitary.test_strike_through` parses a 2-page fixture and fails if the marks go missing. A hook exception drops the page, which `DoclingPagesDroppedError` (#63) turns into a failed parse.
+
+**Result**: on 8589/8449, marked words match an independent pdfplumber detector word for word, apart from tokenization (`1er`, dashes). 0 marked words across the 39 ONH PDFs and the coalition agreement.
+
 ## 2026-10 — Custom Ollama embedding client; new Chroma store per model
 
 **Issues**: [#48](https://github.com/AmaurySalles/luxdem/issues/48) (decision), [#51](https://github.com/AmaurySalles/luxdem/issues/51) (implementation)
