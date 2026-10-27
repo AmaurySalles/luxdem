@@ -22,8 +22,7 @@ from app.db_model.retrievers.onh_retriever import retrieve_onh_publications
 from app.methodo.chroma import embed_and_store_in_chroma
 from app.methodo.chroma import get_create_chroma_vectorstore
 from app.methodo.main_pipeline import OLLAMA_EMBEDDING_MODEL
-from app.methodo.onh_pipeline import _get_onh_metadata
-from app.methodo.onh_pipeline import ONH_MIN_CHUNK_WORDS
+from app.methodo.onh_pipeline import _get_onh_metadata, parse_onh_publication
 from app.methodo.parsing.docling_parser import parse_with_docling
 from app.methodo.parsing.metadata import get_resource_metadata
 
@@ -130,8 +129,7 @@ def collect_targets(session: Session,
             targets.append(MigrationTarget(
                 label=f"onh: {pub.title}",
                 source_url=pub.url,
-                parse=lambda s=source, m=metadata: parse_with_docling(
-                    s, m, min_chunk_words=ONH_MIN_CHUNK_WORDS),
+                parse=lambda s=source, m=metadata: parse_onh_publication(s, m),
             ))
     if include_dossiers:
         seen_urls: set[str] = set()
