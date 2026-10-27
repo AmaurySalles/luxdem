@@ -7,7 +7,7 @@ from typing import Any
 import torch
 from docling.chunking import HybridChunker
 from docling.datamodel.accelerator_options import AcceleratorDevice, AcceleratorOptions
-from docling.datamodel.base_models import InputFormat
+from docling.datamodel.base_models import ConversionStatus, InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling_core.types.doc import DocItemLabel
@@ -224,6 +224,21 @@ def _heading_metadata(
     return {"header": header, "subheader": subheader, "heading_path": heading_path}
 
 
+class DoclingPagesDroppedError(Exception):
+    """
+    Docling converted a document but skipped some pages after a stage failed.
+
+    Purpose: Docling only logs the stage failure and returns PARTIAL_SUCCESS,
+    so without this the missing pages would silently vanish from the chunks.
+    """
+
+    def __init__(self, source: str, dropped_pages: list[int], errors: list[str]) -> None:
+        self.source = source
+        self.dropped_pages = dropped_pages
+        self.errors = errors
+        super().__init__(f"Docling dropped pages {dropped_pages} of {source}: {'; '.join(errors)}")
+
+
 def parse_with_docling(source: str, metadata: dict[str, Any],
                        min_chunk_words: int | None = None,
                        content_start_page: int = 1) -> list[dict[str, Any]]:
@@ -231,6 +246,10 @@ def parse_with_docling(source: str, metadata: dict[str, Any],
     # fetch remote PDFs ourselves: Docling's built-in fetch has no timeout (can hang)
     local = download_pdf(source) if source.startswith(("http://", "https://")) else source
     result = _get_converter().convert(local)
+    if result.status == ConversionStatus.PARTIAL_SUCCESS:
+        converted = {page.page_no for page in result.pages}
+        dropped = [n for n in range(1, result.input.page_count + 1) if n not in converted]
+        raise DoclingPagesDroppedError(source, dropped, [e.error_message for e in result.errors])
     tag_of_ref = _build_heading_map(result.document, content_start_page)
     chunks = _merge_table_shredded_chunks(list(_chunker.chunk(result.document)))
     log.info(f"Docling produced {len(chunks)} chunks (table-shredded chunks merged)")
