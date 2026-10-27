@@ -1,6 +1,7 @@
 """Parse PDF using Docling (local, no API)."""
 
 from collections import Counter
+from collections.abc import Collection
 from dataclasses import dataclass
 from typing import Any
 
@@ -224,9 +225,24 @@ def _heading_metadata(
     return {"header": header, "subheader": subheader, "heading_path": heading_path}
 
 
+def _drop_chunks_under_headings(chunks: list[Any], skipped_headings: Collection[str]) -> list[Any]:
+    """
+    Drop chunks whose Docling heading path contains one of `skipped_headings`.
+
+    Purpose: removes known-unparseable regions (e.g. the ONH "LE LOGEMENT en
+    chiffres" cover infographic, whose label/number pairing Docling scrambles)
+    before chunk_index / chunk_count are assigned in parse_with_docling.
+    """
+    kept = [c for c in chunks if not set(c.meta.headings or []) & set(skipped_headings)]
+    if dropped := len(chunks) - len(kept):
+        log.info(f"   → dropped {dropped} chunk(s) under skipped headings")
+    return kept
+
+
 def parse_with_docling(source: str, metadata: dict[str, Any],
                        min_chunk_words: int | None = None,
-                       content_start_page: int = 1) -> list[dict[str, Any]]:
+                       content_start_page: int = 1,
+                       skipped_headings: Collection[str] = ()) -> list[dict[str, Any]]:
     log.info(f"Parsing with Docling: {source}")
     # fetch remote PDFs ourselves: Docling's built-in fetch has no timeout (can hang)
     local = download_pdf(source) if source.startswith(("http://", "https://")) else source
@@ -234,6 +250,7 @@ def parse_with_docling(source: str, metadata: dict[str, Any],
     tag_of_ref = _build_heading_map(result.document, content_start_page)
     chunks = _merge_table_shredded_chunks(list(_chunker.chunk(result.document)))
     log.info(f"Docling produced {len(chunks)} chunks (table-shredded chunks merged)")
+    chunks = _drop_chunks_under_headings(chunks, skipped_headings)
     if min_chunk_words is not None:
         kept = [c for c in chunks if len(c.text.split()) >= min_chunk_words]
         dropped = len(chunks) - len(kept)

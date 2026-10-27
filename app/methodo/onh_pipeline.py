@@ -3,6 +3,7 @@ Pipeline to download, parse, and embed ONH publications into Chroma.
 """
 import hashlib
 from pathlib import Path
+from typing import Any
 
 from ecodev_core import logger_get
 from langchain_chroma import Chroma
@@ -22,6 +23,10 @@ log = logger_get(__name__)
 # unattributable infographic/front-matter noise while keeping all narrative
 # content (see issue #12).
 ONH_MIN_CHUNK_WORDS = 50
+# The p.4 "LE LOGEMENT en chiffres" cover infographic of each logement-en-chiffre
+# issue survives the word floor (~62 words) but Docling scrambles its label/number
+# pairing; a wrongly labelled figure is worse than a missing one (see issue #57).
+ONH_SKIPPED_HEADINGS = frozenset({"LE LOGEMENT en chiffres"})
 
 
 def onh_pipeline(session: Session,
@@ -45,11 +50,23 @@ def onh_pipeline(session: Session,
         log.info(f"Processing ONH publication: {pub.title}")
         metadata = _get_onh_metadata(pub)
         try:
-            chunks = parse_with_docling(source, metadata, min_chunk_words=ONH_MIN_CHUNK_WORDS)
+            chunks = parse_onh_publication(source, metadata)
             log.info(f"   → {len(chunks)} chunks")
             embed_and_store_in_chroma(chunks, vectorstore)
         except Exception as e:
             log.error(f"Failed to process {pub.title}: {e}")
+
+
+def parse_onh_publication(source: str, metadata: dict[str, Any]) -> list[dict[str, Any]]:
+    """
+    Parse an ONH publication with the ONH-specific chunk filters.
+
+    Purpose: single source of ONH parse settings, shared by onh_pipeline and
+    stale_chunk_migration so both produce identical chunks.
+    """
+    return parse_with_docling(source, metadata,
+                              min_chunk_words=ONH_MIN_CHUNK_WORDS,
+                              skipped_headings=ONH_SKIPPED_HEADINGS)
 
 
 def coalition_agreement_pipeline(pdf_path: Path,
