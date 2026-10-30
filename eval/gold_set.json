@@ -1,0 +1,1580 @@
+{
+ "version": 1,
+ "created": "2026-10-30",
+ "match_rule": "hit = retrieved chunk whose source equals gold.source and whose text contains gold.quote, after collapsing whitespace and removing ~~ marks",
+ "queries": [
+  {
+   "id": "q01",
+   "lang": "fr",
+   "query": "Évolution des prix des logements au deuxième trimestre 2023",
+   "gold": [
+    {
+     "source": "onh/logement-en-chiffre-14.pdf",
+     "quote": "Au deuxième trimestre 2023, les prix des logements (appartements et maisons confondus) diminuent de 6.4% par rapport au deuxième trimestre 2022, et donc la baisse des prix observée au premier trimestre de l'année s'accélère.",
+     "prefix_chunk": "onh/logement-en-chiffre-14.pdf::2"
+    },
+    {
+     "source": "onh/logement-en-chiffre-14.pdf",
+     "quote": "Calcul STATEC A l'exception des appartements en construction, tous les sous-indices chutent au deuxième trimestre 2023 par rapport au trimestre précédent.",
+     "prefix_chunk": "onh/logement-en-chiffre-14.pdf::3"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/logement-en-chiffre-14.pdf::1"
+   ]
+  },
+  {
+   "id": "q02",
+   "lang": "fr",
+   "query": "Reprise du marché immobilier résidentiel en 2024 après la crise",
+   "gold": [
+    {
+     "source": "onh/logement-en-chiffre-16.pdf",
+     "quote": "Après cinq trimestres de baisses consécutives, la tendance sur le marché immobilier résidentiel s'est inversée au deuxième trimestre 2024 et les prix des logements (appartements et maisons confondus) reprennent 1.0% en variation trimestrielle .",
+     "prefix_chunk": "onh/logement-en-chiffre-16.pdf::3"
+    },
+    {
+     "source": "onh/logement-en-chiffre-16.pdf",
+     "quote": "L'activité sur les marchés immobiliers et fonciers résidentiels est en progression au 2 e trimestre 2024 , après cinq trimestres consécutifs à des niveaux historiquement bas.",
+     "prefix_chunk": "onh/logement-en-chiffre-16.pdf::6"
+    },
+    {
+     "source": "onh/rapport-analyse-12.pdf",
+     "quote": "L'activité sur les marchés immobiliers pour des biens existants poursuit sa progression au 3 e trimestre 2024 , ce qui confirme une reprise après une année 2023 très difficile, marquée par un nombre de transactions limité.",
+     "prefix_chunk": "onh/rapport-analyse-12.pdf::1"
+    },
+    {
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "L'activité sur ce segment s'avère aujourd'hui supérieure à la moyenne des années précédant la crise (1 234 ventes d'appartements existants en moyenne au 4 e trimestre sur les an -nées 2017 à 2021).",
+     "prefix_chunk": "onh/logement-en-chiffre-17.pdf::7"
+    },
+    {
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "Sur le marché des logements existants, le nombre de transactions revient même à des niveaux supérieurs (pour les appartements existants) ou proches (pour les maisons existantes) comparativement aux standards des années d'avant-crise (2017-2021).",
+     "prefix_chunk": "onh/logement-en-chiffre-17.pdf::5"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/logement-en-chiffre-16.pdf::11",
+    "onh/rapport-analyse-18.pdf::7",
+    "onh/rapport-analyse-10-marche-immobilier-residentiel-2024t1.pdf::1",
+    "onh/logement-en-chiffre-17.pdf::10"
+   ]
+  },
+  {
+   "id": "q03",
+   "lang": "fr",
+   "query": "Baisse des ventes d'appartements en construction (VEFA)",
+   "gold": [
+    {
+     "source": "onh/logement-en-chiffre-15.pdf",
+     "quote": "Cette très forte baisse de l'activité sur le marché des appartements en construction s'inscrit dans une tendance relevée depuis deux ans, mais le niveau d'activité a véritablement plongé depuis le début de l'année 2023.",
+     "prefix_chunk": "onh/logement-en-chiffre-15.pdf::9"
+    },
+    {
+     "source": "onh/logement-en-chiffre-19-202603.pdf",
+     "quote": "Avec un niveau d'activité très inférieur à la moyenne d'avant-crise (714 ventes d'appartements en construction en moyenne par trimestre entre 2017 et 2021), ce segment reste le principal point de faiblesse du marché.",
+     "prefix_chunk": "onh/logement-en-chiffre-19-202603.pdf::10"
+    },
+    {
+     "source": "onh/rapport-analyse-18.pdf",
+     "quote": "Mais le nombre de transactions reste encore 2,5 fois inférieur à la moyenne des années précédant la crise (673 ventes d'appartements en construction au 1 er trimestre en moyenne sur les années 2017 à 2021).",
+     "prefix_chunk": "onh/rapport-analyse-18.pdf::3"
+    },
+    {
+     "source": "onh/rapport-analyse-10-marche-immobilier-residentiel-2024t1.pdf",
+     "quote": "Il s'agit très nettement du plus faible nombre de ventes d'appartements en construction relevé sur un trimestre depuis la création du fichier de la Publicité Foncière en 2007.",
+     "prefix_chunk": "onh/rapport-analyse-10-marche-immobilier-residentiel-2024t1.pdf::3"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/logement-en-chiffre-16.pdf::8",
+    "onh/logement-en-chiffre-18-202509.pdf::22",
+    "onh/logement-en-chiffre-18-202509.pdf::8"
+   ]
+  },
+  {
+   "id": "q04",
+   "lang": "fr",
+   "query": "Indice des prix des terrains à bâtir",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-15.pdf",
+     "quote": "Comme le fait le STATEC pour la vente d'appartements et de maisons, l'Observatoire de l'Habitat a conçu un indice des prix des terrains à bâtir qui cherche à retracer les changements dans la valorisation de ces terrains en neutralisant les changements dans la composition des transactions d'une année sur l'autre.",
+     "prefix_chunk": "onh/rapport-analyse-15.pdf::1"
+    },
+    {
+     "source": "onh/rapport-analyse-19.pdf",
+     "quote": "À l'instar du STATEC pour les appartements et maisons, l'Observatoire a mis en place un indice des prix des terrains à bâtir.",
+     "prefix_chunk": "onh/rapport-analyse-19.pdf::2"
+    },
+    {
+     "source": "onh/rapport-analyse-19.pdf",
+     "quote": "Cela correspond à une augmentation cumulée de 150,4% des prix de terrains à bâtir entre 2010 et 2022.",
+     "prefix_chunk": "onh/rapport-analyse-19.pdf::7"
+    },
+    {
+     "source": "onh/rapport-analyse-19.pdf",
+     "quote": "Nous pouvons par ailleurs souligner que la baisse des prix des terrains à bâtir sur la période 2022-2024 a été très homogène sur le territoire.",
+     "prefix_chunk": "onh/rapport-analyse-19.pdf::10"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/logement-en-chiffre-14.pdf::20",
+    "onh/logement-en-chiffre-14.pdf::18",
+    "onh/rapport-analyse-19.pdf::8",
+    "onh/cahiers-gr-8.pdf::79",
+    "onh/logement-en-chiffre-14.pdf::17",
+    "onh/cahiers-gr-8.pdf::78",
+    "onh/logement-en-chiffre-14.pdf::19"
+   ]
+  },
+  {
+   "id": "q05",
+   "lang": "fr",
+   "query": "Rendement locatif brut des logements",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-13.pdf",
+     "quote": "L'approche retenue ici est centrée autour du taux de rendement locatif brut instantané, qui est le rapport entre :",
+     "prefix_chunk": "onh/rapport-analyse-13.pdf::3"
+    },
+    {
+     "source": "onh/rapport-analyse-13.pdf",
+     "quote": "Il montre que le taux de rendement locatif brut moyen était relativement stable entre 2010 et 2018 (compris entre 4,26% et 4,56%).",
+     "prefix_chunk": "onh/rapport-analyse-13.pdf::7"
+    },
+    {
+     "source": "onh/rapport-analyse-13.pdf",
+     "quote": "Alors que ce taux de rendement locatif brut était assez stable entre 2010 et 2018, il a fortement diminué sur la période 2018-2022, justement marqué par une forte augmentation des prix de l'immobilier résidentiel.",
+     "prefix_chunk": "onh/rapport-analyse-13.pdf::10"
+    },
+    {
+     "source": "onh/rapport-analyse-13.pdf",
+     "quote": "Observatoire de l'Habitat, calculs obtenus par deux modèles hédoniques basés sur les prix de vente réels (actes notariés, en collaboration avec l'Administration de l'Enregistrement, des Domaines et de la TVA) et les loyers annoncés (annonces immobilières, en partenariat avec le portail immobilier Immotop.lu)",
+     "prefix_chunk": "onh/rapport-analyse-13.pdf::8"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-13.pdf::20",
+    "onh/rapport-analyse-13.pdf::4",
+    "onh/rapport-analyse-13.pdf::12",
+    "onh/rapport-analyse-13.pdf::9",
+    "onh/rapport-analyse-13.pdf::18"
+   ]
+  },
+  {
+   "id": "q06",
+   "lang": "fr",
+   "query": "Loyers annoncés moyens par zone géographique",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-17.pdf",
+     "quote": "Tableau 3 - Loyer annoncé moyen entre le 1 er janvier et le 31 décembre 2024 pour différents appartements de 70 m² par zone géographique (découpage en 6 zones, cf.",
+     "prefix_chunk": "onh/rapport-analyse-17.pdf::4"
+    },
+    {
+     "source": "onh/rapport-analyse-11.pdf",
+     "quote": "Le tableau 2 reproduit ainsi les loyers annoncés moyens au sein du découpage le plus étendu (celui à six zones géographiques) pour un bien fictif de 70 m² qui serait un appartement existant (par opposition à un appartement neuf ou en construction, sans que davantage de détail soit apporté sur l'âge du bâtiment).",
+     "prefix_chunk": "onh/rapport-analyse-11.pdf::15"
+    },
+    {
+     "source": "onh/rapport-analyse-11.pdf",
+     "quote": "Ce tableau montre que les différences de loyers annoncés sont très significatives entre la zone géographique la plus chère (Luxembourg-Ville seule), qui cumule 59% des annonces de location d'appartements en 2023-2024 et la zone géographique la moins chère, correspondant au quart le plus au nord du pays.",
+     "prefix_chunk": "onh/rapport-analyse-11.pdf::16"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-17.pdf::6",
+    "onh/rapport-analyse-11.pdf::0",
+    "onh/rapport-analyse-17.pdf::1",
+    "onh/rapport-analyse-11.pdf::18",
+    "onh/rapport-analyse-17.pdf::2",
+    "onh/rapport-analyse-17.pdf::0"
+   ]
+  },
+  {
+   "id": "q07",
+   "lang": "fr",
+   "query": "Avantage fiscal des propriétaires par rapport aux locataires",
+   "gold": [
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Au vu des différences dans le nombre de dispositifs et les montants alloués, il est probable que les propriétaires aient un avantage fiscal par rapport aux locataires : c'est le « Homeownership bias ».",
+     "prefix_chunk": "onh/Note-30.pdf::3"
+    },
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Selon le graphique 39, le gain moyen croît avec le niveau de vie pour les propriétaires alors que le gain moyen décroît fortement avec le niveau de vie pour les locataires .",
+     "prefix_chunk": "onh/Note-30.pdf::114"
+    },
+    {
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Voir note n°27 de l'Observatoire de l'Habitat : https://logement.public.lu/dam-assets/documents/publications/observatoire/note-27.pdf JUULSER",
+     "prefix_chunk": "onh/Note-30-en-bref.pdf::23"
+    },
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Cette question est importante étant donné que des études ont montré que les systèmes de taxation ont tendance à favoriser les propriétaires par rapport aux locataires (Figari et al., 2017).",
+     "prefix_chunk": "onh/Note-30.pdf::0"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/Note-30.pdf::116",
+    "onh/Note-30.pdf::117",
+    "onh/Note-30.pdf::20",
+    "onh/Note-30.pdf::119",
+    "onh/Note-30.pdf::123",
+    "onh/Note-30.pdf::21",
+    "onh/Note-30-en-bref.pdf::21",
+    "onh/Note-30.pdf::122",
+    "onh/Note-30-en-bref.pdf::20",
+    "onh/Note-30.pdf::22"
+   ]
+  },
+  {
+   "id": "q08",
+   "lang": "fr",
+   "query": "Subvention de loyer pour les ménages locataires",
+   "gold": [
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Revenu net disponible du ménage SL p : montant plafond de la subvention de loyer Les différents paramètres ont été adaptés le 1 er avril 2020 (voir Tableau 5).",
+     "prefix_chunk": "onh/Note-30.pdf::32"
+    },
+    {
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Selon l'étude, environ 33 000 ménages pourraient bénéficier de la subvention de loyer pour un montant moyen de 143 euros par mois .",
+     "prefix_chunk": "onh/Note-30-en-bref.pdf::5"
+    },
+    {
+     "source": "dossier/8463",
+     "quote": "Pour les personnes à faible revenu qui louent un logement sur le marché locatif privé, le ministre est autorisé à accorder une subvention de loyer si les conditions suivantes sont remplies :",
+     "prefix_chunk": "dossier/8463::431"
+    },
+    {
+     "source": "dossier/8532",
+     "quote": "Pour les personnes à faible revenu qui louent un logement sur le marché locatif privé, le ministre est autorisé à accorder une subvention de loyer si les conditions suivantes sont remplies :",
+     "prefix_chunk": "dossier/8532::43"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/Note-30.pdf::35",
+    "onh/Note-30-en-bref.pdf::4",
+    "onh/Note-30.pdf::36",
+    "dossier/8716::60",
+    "dossier/8463::434",
+    "onh/note-38.pdf::42",
+    "onh/Note-30.pdf::38",
+    "onh/Note-30.pdf::34",
+    "onh/Note-30.pdf::122",
+    "onh/Note-30.pdf::23"
+   ]
+  },
+  {
+   "id": "q09",
+   "lang": "fr",
+   "query": "Combien de ménages louent un logement à loyer modéré ?",
+   "gold": [
+    {
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "D'après les données de l'Enquête Européenne sur le Revenu et les Conditions de Vie (EU-SILC 2018), un peu plus de 4 000 ménages seraient concernés par la location d'un logement locatif à loyer modéré au Luxembourg 2 .",
+     "prefix_chunk": "onh/Note-30-en-bref.pdf::3"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-38.pdf::13",
+    "onh/Note-30-en-bref.pdf::4"
+   ]
+  },
+  {
+   "id": "q10",
+   "lang": "fr",
+   "query": "Difficultés des jeunes adultes pour accéder au logement",
+   "gold": [
+    {
+     "source": "onh/note-38.pdf",
+     "quote": "Cette note s'est intéressée à la situation des jeunes adultes (19-35 ans) sur le marché luxembourgeois car cette tranche d'âge est marquée par le passage à la vie adulte, dont l'entrée sur le marché du logement est une des étapes majeures, qui peut s'avérer difficile au Luxembourg.",
+     "prefix_chunk": "onh/note-38.pdf::44"
+    },
+    {
+     "source": "onh/note-38.pdf",
+     "quote": "Enfin, nous avons mis en évidence des mécanismes creusant les inégalités d'accès à la propriété privée parmi les jeunes adultes, tels que l'héritage, le soutien financier des proches (un tiers de jeunes en bénéficie au moment de l'achat d'un bien), ou le background migratoire.",
+     "prefix_chunk": "onh/note-38.pdf::45"
+    },
+    {
+     "source": "onh/note-38.pdf",
+     "quote": "La part de jeunes adultes consacrant plus de 41% de ses revenus à son logement est significative dans toutes les catégories.",
+     "prefix_chunk": "onh/note-38.pdf::24"
+    },
+    {
+     "source": "onh/note-38.pdf",
+     "quote": "Les jeunes adultes déclarent plus souvent être devenus propriétaires de leur logement actuel grâce à un héritage (6%).",
+     "prefix_chunk": "onh/note-38.pdf::26"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-38.pdf::2",
+    "onh/note-38.pdf::37",
+    "onh/note-38.pdf::0",
+    "onh/note-38.pdf::19",
+    "onh/note-38.pdf::21",
+    "onh/note-38.pdf::34",
+    "onh/note-38.pdf::35",
+    "onh/note-38.pdf::47"
+   ]
+  },
+  {
+   "id": "q11",
+   "lang": "fr",
+   "query": "Développement du co-living et des chambres meublées",
+   "gold": [
+    {
+     "source": "onh/note-41.pdf",
+     "quote": "Cette note porte sur un phénomène émergeant au Luxembourg, à savoir le développement sur le marché immobilier de nouveaux types de logements locatifs flexibles dits « partagés » - que les acteurs du marché désignent souvent comme du « co-living » - ainsi que des logements locatifs disponibles pour de courtes durées.",
+     "prefix_chunk": "onh/note-41.pdf::0"
+    },
+    {
+     "source": "onh/note-41.pdf",
+     "quote": "Ces logements peuvent être vus comme des formes institutionnalisées et professionnalisées de la colocation et de la location de chambres meublées, dont les trois principales formes sont le co-living, la location court terme (LCT) et les résidences de logement partagé.",
+     "prefix_chunk": "onh/note-41.pdf::44"
+    },
+    {
+     "source": "onh/note-41.pdf",
+     "quote": "- Toujours dans le stock existant, des studios et appartements dans des immeubles anciens peuvent soit être loués en LCT ou divisés en co-living, le nombre de chambres étant maximisé pour ne garder parfois qu'une cuisine commune.",
+     "prefix_chunk": "onh/note-41.pdf::25"
+    },
+    {
+     "source": "onh/note-46.pdf",
+     "quote": "Les traditionnelles chambres à café et autres chambres meublées existent depuis longtemps dans le paysage résidentiel luxembourgeois.",
+     "prefix_chunk": "onh/note-46.pdf::38"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-46.pdf::40",
+    "onh/note-41.pdf::23",
+    "onh/note-46.pdf::28",
+    "onh/note-46.pdf::26",
+    "onh/note-41.pdf::2",
+    "onh/note-46.pdf::5",
+    "onh/note-41.pdf::8",
+    "onh/note-46.pdf::6",
+    "onh/note-46.pdf::3",
+    "onh/note-46.pdf::14",
+    "onh/note-41.pdf::11",
+    "onh/note-41.pdf::6",
+    "onh/note-41.pdf::3",
+    "onh/note-46.pdf::25"
+   ]
+  },
+  {
+   "id": "q12",
+   "lang": "fr",
+   "query": "Préférences politiques en matière de logement selon le statut de propriétaire ou locataire",
+   "gold": [
+    {
+     "source": "onh/note-42.pdf",
+     "quote": "Le statut d'occupation apparaît comme un facteur déterminant dans les préférences relatives au renforcement de la construction de logements abordables, qu'ils soient locatifs ou en vente abordable.",
+     "prefix_chunk": "onh/note-42.pdf::19"
+    },
+    {
+     "source": "onh/note-42.pdf",
+     "quote": "Enfin, le statut d'occupation du logement reste un facteur clé ( Figure 9 ) :",
+     "prefix_chunk": "onh/note-42.pdf::24"
+    },
+    {
+     "source": "onh/note-42.pdf",
+     "quote": "En outre, le statut d'occupation du logement (propriétaire, locataire, logé gratuitement) ressort comme le facteur le plus déterminant dans la variation des préférences.",
+     "prefix_chunk": "onh/note-42.pdf::36"
+    },
+    {
+     "source": "onh/note-42.pdf",
+     "quote": "L'objectif de cette note était d'analyser les préférences en matière d'orientations de la politique du logement parmi les résidents du Luxembourg, en fonction de leurs caractéristiques sociodémographiques.",
+     "prefix_chunk": "onh/note-42.pdf::35"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-42.pdf::12",
+    "onh/note-42.pdf::20",
+    "onh/note-42.pdf::1",
+    "onh/note-42.pdf::3",
+    "onh/note-42.pdf::2"
+   ]
+  },
+  {
+   "id": "q13",
+   "lang": "fr",
+   "query": "Marchés immobiliers dans la région transfrontalière autour du Luxembourg",
+   "gold": [
+    {
+     "source": "onh/cahiers-gr-8.pdf",
+     "quote": "Leurs revenus gagnés au Luxembourg augmentent leur capacité d'achat dans les zones transfrontalières, et leur arrivée augmente probablement les prix locaux des biens immobiliers.",
+     "prefix_chunk": "onh/cahiers-gr-8.pdf::21"
+    },
+    {
+     "source": "onh/cahiers-gr-8.pdf",
+     "quote": "Cet article propose d'examiner les marchés immobiliers de la Grande Région, et plus particulièrement de la région fonctionnelle du Luxembourg.",
+     "prefix_chunk": "onh/cahiers-gr-8.pdf::5"
+    },
+    {
+     "source": "onh/note-n40.pdf",
+     "quote": "Malgré une baisse des prix de vente au Luxembourg depuis le troisième trimestre 2021 10 , le marché immobilier y est toujours sous pression.",
+     "prefix_chunk": "onh/note-n40.pdf::28"
+    },
+    {
+     "source": "onh/cahiers-gr-8.pdf",
+     "quote": "Ainsi, cette étude révèle une complexité croissante du marché locatif dans la région frontalière avec le Luxembourg, marquée par l'augmentation des loyers, l'arrivée de marchands de sommeil, et une offre insuffisante de logements sur les marchés locatifs privés et sociaux.",
+     "prefix_chunk": "onh/cahiers-gr-8.pdf::99"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-43.pdf::29",
+    "onh/cahiers-gr-8.pdf::52",
+    "onh/note-n40.pdf::27",
+    "onh/cahiers-gr-8.pdf::6",
+    "onh/cahiers-gr-8.pdf::2",
+    "onh/note-43.pdf::2",
+    "onh/note-n40.pdf::54",
+    "onh/cahiers-gr-8.pdf::22",
+    "onh/cahiers-gr-8.pdf::106",
+    "onh/cahiers-gr-8.pdf::13",
+    "onh/cahiers-gr-8.pdf::61",
+    "onh/note-43.pdf::1"
+   ]
+  },
+  {
+   "id": "q14",
+   "lang": "fr",
+   "query": "Évolution des zones constructibles des PAG entre 2004 et 2025",
+   "gold": [
+    {
+     "source": "onh/note-45.pdf",
+     "quote": "- La surface cumulée des zones à vocation résidentielle (zones d'habitation et zones mixtes) a augmenté de 1 082 ha nets (8 %) entre 2004 et 2025 pour atteindre 14 839 ha.",
+     "prefix_chunk": "onh/note-45.pdf::29"
+    },
+    {
+     "source": "onh/note-45.pdf",
+     "quote": "En 2004, les zones urbanisées ou destinées à l'être couvraient 8,6 % de la superficie totale du pays (soit 22 327 ha) contre 9,2 % en 2025 (23 797 ha).",
+     "prefix_chunk": "onh/note-45.pdf::11"
+    },
+    {
+     "source": "onh/note-45.pdf",
+     "quote": "En résumé, l'empreinte des zones urbanisées ou destinées à être urbanisées a progressé de 7 % entre 2004 et 2025 et les zones à vocation résidentielle de 8 %.",
+     "prefix_chunk": "onh/note-45.pdf::18"
+    },
+    {
+     "source": "onh/note-45.pdf",
+     "quote": "Évolution des zones à vocation résidentielle selon l'armature urbaine entre",
+     "prefix_chunk": "onh/note-45.pdf::24"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-45.pdf::10",
+    "onh/note-45.pdf::6",
+    "onh/note-45.pdf::35",
+    "onh/note-45.pdf::2",
+    "onh/note-45.pdf::30",
+    "onh/note-45.pdf::17",
+    "onh/note-45.pdf::5",
+    "onh/note-45.pdf::31",
+    "onh/note-45.pdf::25",
+    "onh/note-45.pdf::1",
+    "onh/note-45.pdf::16",
+    "onh/note-45.pdf::14"
+   ]
+  },
+  {
+   "id": "q15",
+   "lang": "fr",
+   "query": "Reconstruction et densification du tissu urbain mesurées par télédétection",
+   "gold": [
+    {
+     "source": "onh/note-n39.pdf",
+     "quote": "La méthodologie adoptée s'appuie sur des techniques de télédétection, combinées à des analyses géospatiales précises, pour détecter les surfaces ayant subi des transformations significatives entre 2004 et 2022 et ceci dans l'ensemble des zones urbanisées ou destinées à être urbanisées des PAG.",
+     "prefix_chunk": "onh/note-n39.pdf::3"
+    },
+    {
+     "source": "onh/note-n39.pdf",
+     "quote": "Dans la Nordstad, près de la moitié des nouveaux logements est issu de la reconstruction (47%) ;",
+     "prefix_chunk": "onh/note-n39.pdf::36"
+    },
+    {
+     "source": "onh/note-n39.pdf",
+     "quote": "Le tableau 4 montre que la densité est plus élevée pour la reconstruction (presque 54 logements par hectare) que pour la nouvelle construction (37 logements par hectare).",
+     "prefix_chunk": "onh/note-n39.pdf::26"
+    },
+    {
+     "source": "onh/note-n39.pdf",
+     "quote": "surfaces nouvellement construites que sur celles reconstruites, permet de mesurer l'extension des zones urbaines ainsi que la densification du tissu urbain existant.",
+     "prefix_chunk": "onh/note-n39.pdf::1"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-n39.pdf::30",
+    "onh/note-n39.pdf::20",
+    "onh/note-n39.pdf::34",
+    "onh/note-n39.pdf::38",
+    "onh/note-n39.pdf::28",
+    "onh/note-n39.pdf::37",
+    "onh/note-n39.pdf::27"
+   ]
+  },
+  {
+   "id": "q16",
+   "lang": "fr",
+   "query": "Comparaison des politiques du logement en Belgique, France et Allemagne",
+   "gold": [
+    {
+     "source": "onh/note-n40.pdf",
+     "quote": "Les politiques du logement des quatre pays étudiés (Luxembourg, Belgique, France, Allemagne) ont suivi des trajectoires distinctes, influençant directement les conditions de vie des ménages.",
+     "prefix_chunk": "onh/note-n40.pdf::53"
+    },
+    {
+     "source": "onh/note-n40.pdf",
+     "quote": "L'évolution historique des politiques du logement dans les quatre pays révèle des trajectoires variées, influencées par des contextes économiques, sociaux et institutionnels spécifiques.",
+     "prefix_chunk": "onh/note-n40.pdf::26"
+    },
+    {
+     "source": "onh/note-n40.pdf",
+     "quote": "Cette section introductive présente les grandes tendances historiques et les tournants critiques en matière de politique du logement au Luxembourg, en Belgique, en France et en Allemagne, afin de mieux comprendre les similarités et divergences observées dans la section suivante.",
+     "prefix_chunk": "onh/note-n40.pdf::3"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-44.pdf::17",
+    "onh/note-38.pdf::39",
+    "onh/note-38.pdf::38",
+    "onh/note-n40.pdf::2",
+    "onh/note-38.pdf::41",
+    "onh/note-n40.pdf::14",
+    "onh/note-n40.pdf::24"
+   ]
+  },
+  {
+   "id": "q17",
+   "lang": "fr",
+   "query": "Fonctionnement du miroir des loyers en Allemagne",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Le miroir des loyers permet ainsi d'avoir une meilleure connaissance de la situation actuelle des loyers (seuls les contrats de bail qui ont connu une révision au cours des 6 dernières années sont pris en compte).",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::3"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Au bout de quatre ans, un nouveau miroir des loyers qualifié doit être établi en bonne et due forme (c'està-dire sur base de données issues d'enquêtes représentatives).",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::7"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Les autorités compétentes en vertu du droit du Land doivent établir un miroir des loyers s'il existe un besoin en la matière et si cela est possible à un coût raisonnable.",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::6"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "La base légale du miroir des loyers se retrouve au \"Bürgerliches Gesetzbuch (BGB), § 558c Mietspiegel;",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::14"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-14.pdf::5",
+    "onh/rapport-analyse-14.pdf::30",
+    "onh/rapport-analyse-14.pdf::31",
+    "onh/rapport-analyse-14.pdf::12",
+    "onh/rapport-analyse-14.pdf::11",
+    "onh/rapport-analyse-14.pdf::1",
+    "onh/rapport-analyse-14.pdf::4",
+    "onh/rapport-analyse-14.pdf::9",
+    "onh/rapport-analyse-14.pdf::0"
+   ]
+  },
+  {
+   "id": "q18",
+   "lang": "fr",
+   "query": "Plafonnement des loyers et capital investi réévalué",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "La présente actualisation confirme le diagnostic posé en 2022 : le mode de calcul actuellement en vigueur du capital investi dans la loi sur le bail à loyer présente des limites structurelles importantes, devenues plus visibles encore à la lumière des évolutions récentes du marché immobilier.",
+     "prefix_chunk": "onh/rapport-analyse-21.pdf::39"
+    },
+    {
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "« Propositions pour le mode de calcul du capital investi dans la Loi sur le Bail à Loyer », Rapport d'analyse n°3 (octobre 2022), Ministère du Logement, 28 pages. https://logement.public.lu/fr/publications/observatoire/rapport-analyse-3.html",
+     "prefix_chunk": "onh/rapport-analyse-21.pdf::1"
+    },
+    {
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "17.04.2026 À l'inverse, les logements acquis plus récemment bénéficient en effet de niveaux de capital investi réévalué beaucoup plus élevés, autorisant des loyers maximaux sensiblement supérieurs pour des biens comparables en termes de localisation, de surface ou de qualité .",
+     "prefix_chunk": "onh/rapport-analyse-21.pdf::2"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "Toutefois, en cas d'aliénation à titre onéreux, le prix d'acquisition indiqué dans l'acte authentique translatif de propriété, et les frais de l'acte, sont présumés correspondre au jour de la signature de l'acte au capital investi, réévalué et décoté.",
+     "prefix_chunk": "dossier/8535::303"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-21.pdf::32",
+    "onh/rapport-analyse-22.pdf::16",
+    "dossier/8535::302",
+    "onh/rapport-analyse-21.pdf::0",
+    "onh/rapport-analyse-21.pdf::10",
+    "onh/rapport-analyse-21.pdf::4",
+    "onh/rapport-analyse-21.pdf::30",
+    "onh/rapport-analyse-22.pdf::15",
+    "onh/rapport-analyse-21.pdf::13",
+    "onh/rapport-analyse-21.pdf::15",
+    "onh/rapport-analyse-21.pdf::14",
+    "onh/rapport-analyse-21.pdf::20"
+   ]
+  },
+  {
+   "id": "q19",
+   "lang": "fr",
+   "query": "Consultation d'experts par la méthode Delphi sur la réforme du bail",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "À la lumière des résultats de l'enquête menée auprès d'experts, présentés dans le Rapport d'analyse 22, il pourrait être envisagé de poursuivre la réflexion sur la réforme du plafonnement des loyers d'habitation au Luxembourg selon une approche en trois étapes .",
+     "prefix_chunk": "onh/rapport-analyse-22.pdf::21"
+    },
+    {
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "Globalement, les différents segments de logements à inclure dans le dispositif de plafonnement, ainsi que les principes complémentaires visant à accompagner la réforme, recueillent un consensus allant de fort à modéré parmi les experts .",
+     "prefix_chunk": "onh/rapport-analyse-22.pdf::6"
+    },
+    {
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "Fondé sur une consultation itérative d'experts réalisée entre juillet et novembre 2025, ce rapport met en évidence les principaux points de consensus concernant les objectifs et les modalités du plafonnement des loyers d'habitation.",
+     "prefix_chunk": "onh/rapport-analyse-22.pdf::0"
+    },
+    {
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "Compte tenu du fort consensus observé sur ces principes, ils semblent constituer des mesures prioritaires à introduire, même avant l'implémentation de la réforme relative à la régulation des loyers.",
+     "prefix_chunk": "onh/rapport-analyse-22.pdf::20"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-22.pdf::27",
+    "onh/rapport-analyse-22.pdf::4",
+    "onh/rapport-analyse-22.pdf::22",
+    "onh/rapport-analyse-22.pdf::23",
+    "onh/rapport-analyse-22.pdf::24",
+    "onh/rapport-analyse-22.pdf::2"
+   ]
+  },
+  {
+   "id": "q20",
+   "lang": "fr",
+   "query": "Enquête pour établir un cadastre des loyers auprès des multipropriétaires",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "L'enquête mise en œuvre pour établir un cadastre des loyers est la première au Luxembourg ayant ciblé de manière précise les individus détenant plus d'un bien immobilier.",
+     "prefix_chunk": "onh/rapport-analyse-23.pdf::3"
+    },
+    {
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "Afin de proposer des mesures efficaces et adaptées aux spécificités luxembourgeoises, le Ministère a mandaté le Luxembourg Institute of Socio-Economic Research (LISER), partenaire du Ministère dans l'Observatoire de l'Habitat, pour réaliser une enquête visant à établir un premier cadastre des loyers au Luxembourg .",
+     "prefix_chunk": "onh/rapport-analyse-23.pdf::0"
+    },
+    {
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "Cette enquête a été rendue possible par une collaboration étroite et efficace entre le LISER, l'ACT, le CTIE et le Ministère du Logement et de l'Aménagement du territoire .",
+     "prefix_chunk": "onh/rapport-analyse-23.pdf::29"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Il faudrait dès lors élaborer le cadastre sur base d'une enquête auprès d'un échantillon représentatif de logements loués.",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::19"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-23.pdf::7",
+    "onh/rapport-analyse-23.pdf::13",
+    "onh/rapport-analyse-14.pdf::29",
+    "onh/rapport-analyse-23.pdf::1"
+   ]
+  },
+  {
+   "id": "q21",
+   "lang": "fr",
+   "query": "Microsimulation du revenu des ménages pour estimer les bénéficiaires des aides au logement",
+   "gold": [
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Nous avons donc intégré au modèle des politiques comme les aides en intérêt et en capital, les déductions fiscales liées au financement d'un logement etc.",
+     "prefix_chunk": "onh/Note-30.pdf::25"
+    },
+    {
+     "source": "onh/rapport-analyse-16.pdf",
+     "quote": "C 'est pourquoi après estimation du revenu net disponible (loi logement) de chaque ménage, nous calculons des seuils de revenu pour chaque décile et type de ménage 4 , servant ensuite de base afin de définir les plafonds qui seront appliqués dans la loi logement et les différentes aides/politiques sous-jacentes.",
+     "prefix_chunk": "onh/rapport-analyse-16.pdf::3"
+    },
+    {
+     "source": "onh/rapport-analyse-16.pdf",
+     "quote": "La partie la plus importante et la plus compliquée es t d'estimer le revenu total des ménages, tel que défini dans la loi logement 5 .",
+     "prefix_chunk": "onh/rapport-analyse-16.pdf::6"
+    },
+    {
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "À l'aide de données d'enquête, de données administratives et d'un modèle de microsimulation, l'étude a cherché à mettre en évidence les catégories de ménages les plus avantagées par le système socio-fiscal actuel.",
+     "prefix_chunk": "onh/Note-30-en-bref.pdf::2"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/Note-30.pdf::110",
+    "onh/Note-30.pdf::26",
+    "onh/Note-30.pdf::125",
+    "onh/Note-30.pdf::50",
+    "onh/Note-30.pdf::124",
+    "onh/Note-30.pdf::49",
+    "onh/Note-30.pdf::42",
+    "onh/Note-30-en-bref.pdf::1",
+    "onh/Note-30.pdf::91",
+    "onh/rapport-analyse-16.pdf::0",
+    "onh/Note-30.pdf::48",
+    "onh/Note-30.pdf::103"
+   ]
+  },
+  {
+   "id": "q22",
+   "lang": "fr",
+   "query": "Croissance démographique et pénurie de logements au Luxembourg",
+   "gold": [
+    {
+     "source": "onh/note-n39.pdf",
+     "quote": "Le Grand-Duché de Luxembourg est un pays dont le taux de croissance de la population est l'un des plus élevés de l'Union européenne : sa population est passée de 455 000 habitants en 2004 à 645 000 habitants en 2022, soit une augmentation de près de 42 % en moins de deux décennies.",
+     "prefix_chunk": "onh/note-n39.pdf::0"
+    },
+    {
+     "source": "onh/note-45.pdf",
+     "quote": "Entre 2004 et 2025, la population du Luxembourg a augmenté de 50 % (STATEC, 2025), soit 227 000 résidents environ 1 , générant de très grands besoins en nouveaux logements et en infrastructures publiques.",
+     "prefix_chunk": "onh/note-45.pdf::0"
+    },
+    {
+     "source": "onh/note-44.pdf",
+     "quote": "Depuis 1970, le Luxembourg a connu une croissance démographique rapide, passant de 340 000 résidents au début des années 1970 à plus de 681 000 en 2025, largement alimentée par l'arrivée d'étrangers (multipliée par cinq sur la période).",
+     "prefix_chunk": "onh/note-44.pdf::1"
+    },
+    {
+     "source": "onh/note-44.pdf",
+     "quote": "L'augmentation des prix de vente et des loyers, soutenue par une croissance démographique importante et un rythme de construction insuffisant, place les ménages face à des coûts résidentiels de plus en plus lourds.",
+     "prefix_chunk": "onh/note-44.pdf::0"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/cahiers-gr-8.pdf::80",
+    "onh/note-41.pdf::41",
+    "onh/cahiers-gr-8.pdf::83",
+    "onh/note-n40.pdf::1",
+    "onh/note-36.pdf::70",
+    "onh/note-43.pdf::0"
+   ]
+  },
+  {
+   "id": "q23",
+   "lang": "fr",
+   "query": "Droit à un logement convenable",
+   "gold": [
+    {
+     "source": "dossier/8535",
+     "quote": "Il est retenu dorénavant que le logement abordable est d'utilité publique.",
+     "prefix_chunk": "dossier/8535::5"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "En effet, il est entre autres de la volonté déclarée du Gouvernement de « construire l'avenir du Luxembourg avec ambition et dans l'intérêt général, de façon équitable et à la pointe des défis écologiques » 2 que la Loi a vu le jour en 2023.",
+     "prefix_chunk": "dossier/8535::58"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "La présente loi a pour objectif la réalisation du droit au logement en promouvant :",
+     "prefix_chunk": "dossier/8535::129"
+    },
+    {
+     "source": "onh/note-36.pdf",
+     "quote": "Dans cette optique, le gouvernement s'engage à élaborer des mesures législatives, administratives et politiques visant à mettre en œuvre le droit à un logement convenable.",
+     "prefix_chunk": "onh/note-36.pdf::1"
+    },
+    {
+     "source": "onh/note-36.pdf",
+     "quote": "Par ailleurs, la violation du droit à un logement convenable peut avoir des répercussions sur d'autres droits humains tels que le droit au travail, à la santé, à l'éducation, à la vie privée, etc.",
+     "prefix_chunk": "onh/note-36.pdf::0"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8535::24"
+   ]
+  },
+  {
+   "id": "q24",
+   "lang": "fr",
+   "query": "Transactions exclues des indices des prix immobiliers",
+   "gold": [
+    {
+     "source": "onh/note-37.pdf",
+     "quote": "Identifier les transactions exclues pour le calcul des indices des prix qui pourraient néanmoins être utilisées pour une étude ultérieure sur les caractéristiques des vendeurs et acquéreurs de biens immobiliers et fonciers au Luxembourg.",
+     "prefix_chunk": "onh/note-37.pdf::1"
+    },
+    {
+     "source": "onh/note-37.pdf",
+     "quote": "Il est à présent possible de synthétiser les différentes étapes, en combinant les transactions exclues du champ des indices à cause du type de bien qu'elles contiennent ( Section 1 ) avec les transactions d'appartements exclues par le processus de sélection ( Section 3 ).",
+     "prefix_chunk": "onh/note-37.pdf::51"
+    },
+    {
+     "source": "onh/note-37.pdf",
+     "quote": "Ce décalage est quasiment identique en ce qui concerne le volume financier (75,2 %), ce qui veut dire que les transactions exclues sont relativement similaires à celles retenues pour l'indice des prix en ce qui concerne leur montant en euros.",
+     "prefix_chunk": "onh/note-37.pdf::14"
+    },
+    {
+     "source": "onh/note-37.pdf",
+     "quote": "Ce cas de figure, qui concerne 4 809 transactions de VEFA sans terrain (soit 69,1 % des transactions exclues), s'explique par le fait qu'il n'est pas JUULSER",
+     "prefix_chunk": "onh/note-37.pdf::42"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/note-37.pdf::47",
+    "onh/logement-en-chiffre-16.pdf::17",
+    "onh/logement-en-chiffre-16.pdf::18",
+    "onh/note-37.pdf::53",
+    "onh/note-37.pdf::52",
+    "onh/note-37.pdf::48",
+    "onh/note-37.pdf::45",
+    "onh/note-37.pdf::24",
+    "onh/note-37.pdf::0",
+    "onh/note-37.pdf::39"
+   ]
+  },
+  {
+   "id": "q25",
+   "lang": "fr",
+   "query": "Modification des aides individuelles au logement",
+   "gold": [
+    {
+     "source": "dossier/8532",
+     "quote": "D'une manière générale, le législateur de 2023 a voulu rendre la législation en matière d'aides individuelles au logement plus claire et moins complexe.",
+     "prefix_chunk": "dossier/8532::3"
+    },
+    {
+     "source": "dossier/8532",
+     "quote": "Pour l'année 2024, les demandes de remboursement d'aides indûment touchées en relation avec de tels changements ont généré une recette d'environ 500 000 euros.",
+     "prefix_chunk": "dossier/8532::69"
+    },
+    {
+     "source": "dossier/8716",
+     "quote": "La loi modifiée du 7 août 2023 relative aux aides individuelles au logement est modifiée comme suit :",
+     "prefix_chunk": "dossier/8716::61"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8532::2",
+    "dossier/8532::76",
+    "dossier/8463::31",
+    "dossier/8532::0",
+    "dossier/8535::274"
+   ]
+  },
+  {
+   "id": "q26",
+   "lang": "fr",
+   "query": "Création d'une administration des aides individuelles au logement",
+   "gold": [
+    {
+     "source": "dossier/8548",
+     "quote": "Il est institué une Administration des aides individuelles au logement, dénommé ci-après « Administration », qui est placée sous l'autorité du ministre ayant le Logement dans ses attributions, dénommé ci-après « ministre ».",
+     "prefix_chunk": "dossier/8548::4"
+    },
+    {
+     "source": "dossier/8548",
+     "quote": "Dans les grandes lignes, le Service des aides au logement a liquidé au cours des dix exercices budgétaires précédents (2015 à 2024) pas moins de 436 millions euros sous forme d'aides individuelles au logement.",
+     "prefix_chunk": "dossier/8548::3"
+    },
+    {
+     "source": "dossier/8548",
+     "quote": "- 6° assurer auprès du public ainsi que des acteurs publics et privés l'information et le conseil en matière d'aides individuelles au logement, à l'aide des moyens de communication et des technologies appropriés.",
+     "prefix_chunk": "dossier/8548::5"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8548::9",
+    "dossier/8548::11",
+    "dossier/8548::2",
+    "dossier/8548::6",
+    "dossier/8548::16"
+   ]
+  },
+  {
+   "id": "q27",
+   "lang": "fr",
+   "query": "Réforme de la loi relative au logement abordable",
+   "gold": [
+    {
+     "source": "dossier/8535",
+     "quote": "En même temps, les auteurs de la Loi ont introduit des concepts nouveaux, dont inter alia ceux de bailleur social, de bail abordable, de la compensation de service public et de registre national des logements abordables (ci-après le « RENLA »).",
+     "prefix_chunk": "dossier/8535::3"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "A l'article 2 de la loi modifiée du 7 août 2023 relative au logement abordable, il est inséré un paragraphe 3 nouveau libellé comme suit :",
+     "prefix_chunk": "dossier/8535::24"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "Il est rappelé que dans ces cas, lors de l'attribution du logement, le bailleur social est autorisé - pour le pourcentage indiqué des logements de son parc - à prendre en considération uniquement les critères de revenu de la communauté domestique et de correspondance typologique du logement.",
+     "prefix_chunk": "dossier/8535::95"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8535::367",
+    "dossier/8535::2",
+    "dossier/8535::252"
+   ]
+  },
+  {
+   "id": "q28",
+   "lang": "fr",
+   "query": "Pacte logement avec les communes",
+   "gold": [
+    {
+     "source": "dossier/8589",
+     "quote": "(1) Il est instauré un programme de coopération, ci-après « Pacte logement », entre l'État et les communes ayant comme objectifs : a) d'augmenter l'offre de logements abordables et durables ; b) de mobiliser le potentiel foncier et résidentiel existant ; c) d'améliorer la qualité résidentielle.",
+     "prefix_chunk": "dossier/8589::41"
+    },
+    {
+     "source": "dossier/8589",
+     "quote": "La loi modifiée du 30 juillet 2021 relative au Pacte logement 2.0.",
+     "prefix_chunk": "dossier/8589::3"
+    },
+    {
+     "source": "dossier/8589",
+     "quote": "Le nouveau Pacte logement fixe les objectifs à l’horizon 2037 et oriente les moyens financiers afin de mieux soutenir le développement de logements abordables et durables à long terme.",
+     "prefix_chunk": "dossier/8589::94"
+    },
+    {
+     "source": "onh/note-n40.pdf",
+     "quote": "En réaction à son manque d'effectivité sur la construction de logements abordables, le pacte logement 2.0 (2021) a conditionné le soutien de l'Etat à la construction effective de ce type de logements par les communes.",
+     "prefix_chunk": "onh/note-n40.pdf::19"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8589::37",
+    "dossier/8481::3",
+    "dossier/8589::43",
+    "dossier/8589::0",
+    "dossier/8589::5",
+    "dossier/8589::2",
+    "dossier/8589::8",
+    "dossier/8589::44",
+    "dossier/8589::30",
+    "dossier/8589::46",
+    "dossier/8589::90",
+    "dossier/8589::57",
+    "dossier/8589::97"
+   ]
+  },
+  {
+   "id": "q29",
+   "lang": "fr",
+   "query": "Complément vie chère pour les ménages à faible revenu",
+   "gold": [
+    {
+     "source": "dossier/8716",
+     "quote": "Il vise à instituer un nouveau « complément vie chère », une aide financière destinée à soutenir les ménages à revenus modestes face à l'augmentation continue du coût de la vie.",
+     "prefix_chunk": "dossier/8716::3"
+    },
+    {
+     "source": "dossier/8716",
+     "quote": "Le complément comprend également un nouveau soutien financier destiné aux communautés domestiques comprenant des enfants.",
+     "prefix_chunk": "dossier/8716::65"
+    },
+    {
+     "source": "dossier/8716",
+     "quote": "En créant un complément vie chère ciblé, doté d'un barème dégressif, il renforce le filet de sécurité sociale pour les ménages à revenus modestes.",
+     "prefix_chunk": "dossier/8716::11"
+    },
+    {
+     "source": "dossier/8716",
+     "quote": "(2) Pour les communautés domestiques visées à l'article 2, paragraphe 1 er , point 2°, lettre a) le complément vie chère est fixé par année à :",
+     "prefix_chunk": "dossier/8716::45"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8716::42",
+    "dossier/8716::104",
+    "dossier/8716::51",
+    "dossier/8716::69",
+    "dossier/8716::22",
+    "dossier/8716::107",
+    "dossier/8716::113",
+    "dossier/8716::89",
+    "dossier/8716::46",
+    "dossier/8716::32",
+    "dossier/8716::49",
+    "dossier/8716::41",
+    "dossier/8716::21",
+    "dossier/8716::77"
+   ]
+  },
+  {
+   "id": "q30",
+   "lang": "fr",
+   "query": "Participation financière de l'État à un projet de logements abordables",
+   "gold": [
+    {
+     "source": "dossier/8535",
+     "quote": "(1) Une participation financière est accordée au promoteur social pour la réalisation de logements destinés à la location abordable, sous réserve des crédits budgétaires disponibles.",
+     "prefix_chunk": "dossier/8535::147"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "(1) Une participation financière est accordée au promoteur public pour la réalisation de logements destinés à la vente abordable, sous réserve des crédits budgétaires disponibles.",
+     "prefix_chunk": "dossier/8535::137"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "(1) Une participation financière est accordée au promoteur public pour la réalisation de logements destinés à la vente à coût modéré, sous réserve des crédits budgétaires disponibles.",
+     "prefix_chunk": "dossier/8535::139"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "- 2° la participation financière de l'État à la réalisation de logements innovateurs destinés à la location abordable et de logements abordables résilients au changement climatique ;",
+     "prefix_chunk": "dossier/8535::130"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8656::36",
+    "dossier/8535::167",
+    "dossier/8656::22",
+    "dossier/8656::39",
+    "dossier/8535::170",
+    "dossier/8656::26",
+    "dossier/8656::46",
+    "dossier/8535::77"
+   ]
+  },
+  {
+   "id": "q31",
+   "lang": "fr",
+   "query": "Préfinancement des installations solaires photovoltaïques",
+   "gold": [
+    {
+     "source": "dossier/8463",
+     "quote": "Dans ce contexte, le Gouvernement s'assurera également que les entreprises concernées reçoivent les subventions étatiques endéans un délai bref. » (p.53) En premier lieu, ce préfinancement sera accordé pour les installations photovoltaïques, y inclus les batteries.",
+     "prefix_chunk": "dossier/8463::3"
+    },
+    {
+     "source": "dossier/8463",
+     "quote": "L'article 5 précité vise les installations PV raccordées au réseau du gestionnaire de réseau et opérés en mode d'autoconsommation.",
+     "prefix_chunk": "dossier/8463::35"
+    },
+    {
+     "source": "dossier/8463",
+     "quote": "introduisant une procédure de préfinancement pour les installations solaires photovoltaïques et modifiant :",
+     "prefix_chunk": "dossier/8463::0"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8463::66",
+    "dossier/8463::2",
+    "dossier/8463::514",
+    "dossier/8463::508",
+    "dossier/8463::509",
+    "dossier/8463::46",
+    "dossier/8532::33",
+    "dossier/8463::79",
+    "dossier/8463::47",
+    "dossier/8463::68",
+    "dossier/8463::23",
+    "dossier/8463::33"
+   ]
+  },
+  {
+   "id": "q32",
+   "lang": "fr",
+   "query": "Aides à la rénovation énergétique des logements",
+   "gold": [
+    {
+     "source": "dossier/8585",
+     "quote": "À cette fin, il est créé un régime d'aides financières pour la réalisation de projets d'investissement qui ont pour but la rénovation énergétique durable de logements existants et la mise en valeur des sources d'énergie renouvelables.",
+     "prefix_chunk": "dossier/8585::8"
+    },
+    {
+     "source": "dossier/8585",
+     "quote": "L'assainissement énergétique des bâtiments existants tout comme le recours aux sources d'énergie renouvelables sont deux priorités ancrées dans la mise à jour du plan national intégré en matière d'énergie et de climat adoptée par le Conseil de gouvernement en juillet 2024.",
+     "prefix_chunk": "dossier/8585::3"
+    },
+    {
+     "source": "dossier/8585",
+     "quote": "Cet article précise l'objet du présent projet de loi consistant à promouvoir la rénovation énergétique durable de logements existants et le recours aux sources d'énergie renouvelables dans le domaine du logement moyennant la création d'un régime d'aides financières pour la réalisation de projets d'investissement.",
+     "prefix_chunk": "dossier/8585::79"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8585::82",
+    "dossier/8585::102",
+    "dossier/8535::65",
+    "dossier/8585::90",
+    "dossier/8463::81",
+    "dossier/8585::0",
+    "dossier/8585::22",
+    "dossier/8585::101",
+    "dossier/8463::57",
+    "dossier/8535::148"
+   ]
+  },
+  {
+   "id": "q33",
+   "lang": "fr",
+   "query": "Hébergement des demandeurs de protection internationale",
+   "gold": [
+    {
+     "source": "dossier/8732",
+     "quote": "2° de gérer des structures d'hébergement réservées au logement provisoire de demandeurs de protection internationale, de réfugiés et de personnes pouvant bénéficier de la protection subsidiaire tels que définis par la loi précitée du 18 décembre 2015 ;",
+     "prefix_chunk": "dossier/8732::170"
+    },
+    {
+     "source": "dossier/8732",
+     "quote": "- a) des locaux servant à loger les demandeurs pendant l'examen d'une demande de protection internationale présentée à la frontière ou dans une zone de transit;",
+     "prefix_chunk": "dossier/8732::294"
+    },
+    {
+     "source": "dossier/8732",
+     "quote": "L'accueil des demandeurs de protection internationale constitue un véritable défi, tant en raison du nombre soutenu d'arrivées que de la tension structurelle du marché immobilier luxembourgeois, qui ralentit la sortie effective des bénéficiaires d'une protection internationale des structures d'hébergement.",
+     "prefix_chunk": "dossier/8732::4"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8732::19",
+    "dossier/8732::245",
+    "dossier/8732::101",
+    "dossier/8732::218",
+    "dossier/8732::95",
+    "dossier/8732::291"
+   ]
+  },
+  {
+   "id": "q34",
+   "lang": "fr",
+   "query": "Taux réduit de TVA pour la construction de logements",
+   "gold": [
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "D'après le tableau 7 , 3 556 logements, en 2020, ont été concernés par le remboursement de la TVA et 23 544 par l'application directe du taux super-réduit.",
+     "prefix_chunk": "onh/Note-30.pdf::96"
+    },
+    {
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Cette mesure vise à réduire le taux de TVA appliqué sur les travaux de construction ou de rénovation d'une résidence.",
+     "prefix_chunk": "onh/Note-30-en-bref.pdf::11"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/Note-30.pdf::100",
+    "onh/Note-30.pdf::105",
+    "onh/Note-30.pdf::101",
+    "onh/Note-30.pdf::106",
+    "onh/Note-30.pdf::104",
+    "onh/Note-30.pdf::103"
+   ]
+  },
+  {
+   "id": "q35",
+   "lang": "fr",
+   "query": "Déduction des intérêts débiteurs d'un prêt immobilier",
+   "gold": [
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Nous avons simulé la déduction fiscale en fonction de la composition du ménage et l'ancienneté dans le logement, ainsi qu'en fonction d'une estimation des intérêts débiteurs payés sur l'année d'imposition.",
+     "prefix_chunk": "onh/Note-30.pdf::51"
+    },
+    {
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Les intérêts payés sur un prêt hypothécaire (après déduction de la subvention/bonification d'intérêt), dans le cadre du financement de la résidence principale, sont déductibles de l'impôt sur le revenu avec un plafond dépendant de l'ancienneté d'occupation du logement.",
+     "prefix_chunk": "onh/Note-30-en-bref.pdf::7"
+    },
+    {
+     "source": "onh/Note-30.pdf",
+     "quote": "Cependant, certains frais ne sont pas inclus dans la déduction forfaitaire comme les intérêts débiteurs qui peuvent donc être déduits en supplément du forfait et déductibles sans aucune limite.",
+     "prefix_chunk": "onh/Note-30.pdf::57"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/Note-30.pdf::54",
+    "onh/rapport-analyse-13.pdf::16",
+    "onh/Note-30.pdf::1",
+    "onh/Note-30.pdf::55",
+    "onh/Note-30.pdf::52",
+    "onh/Note-30.pdf::53",
+    "onh/Note-30.pdf::56"
+   ]
+  },
+  {
+   "id": "q36",
+   "lang": "fr",
+   "query": "Aménagement communal et plans d'aménagement particulier",
+   "gold": [
+    {
+     "source": "dossier/8481",
+     "quote": "Avant d'avoir été formalisé conformément aux articles 30 ou 30 bis de la présente loi, le plan d'aménagement particulier est appelé « projet d'aménagement particulier ».",
+     "prefix_chunk": "dossier/8481::34"
+    },
+    {
+     "source": "dossier/8481",
+     "quote": "Toutefois, à la demande de l'initiateur d'une proposition de modification ponctuelle d'un plan d'aménagement particulier, le collège des bourgmestre et échevins peut décider d'entamer la procédure de modification ponctuelle prévue à l'article 30 bis .",
+     "prefix_chunk": "dossier/8481::35"
+    },
+    {
+     "source": "onh/note-45.pdf",
+     "quote": "À l'échelle communale, chaque commune a l'obligation d'élaborer et de mettre en œuvre ses propres plans d'aménagement : le plan d'aménagement général (PAG) et les plans d'aménagement particulier (PAP).",
+     "prefix_chunk": "onh/note-45.pdf::4"
+    },
+    {
+     "source": "dossier/8429",
+     "quote": "(1) On entend par aménagement communal l'organisation du territoire communal et des ressources énumérées au paragraphe 2 par des règles générales et permanentes.",
+     "prefix_chunk": "dossier/8429::219"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8589::61",
+    "dossier/8449::51",
+    "onh/note-46.pdf::8",
+    "onh/note-45.pdf::35",
+    "dossier/8578::47",
+    "dossier/8589::65",
+    "dossier/8481::44",
+    "dossier/8449::107",
+    "dossier/8578::44",
+    "dossier/8481::33"
+   ]
+  },
+  {
+   "id": "q37",
+   "lang": "fr",
+   "query": "Accessibilité des logements aux personnes handicapées",
+   "gold": [
+    {
+     "source": "dossier/8463",
+     "quote": "(1) Le ministre est autorisé à accorder une prime pour aménagements spéciaux de constructions nouvelles ou de logements existants qui ne sont pas pris en charge par l'assurance dépendance et qui répondent aux besoins spécifiques de personnes en situation de handicap.",
+     "prefix_chunk": "dossier/8463::457"
+    },
+    {
+     "source": "dossier/8463",
+     "quote": "- 5° la première installation d'équipements dans la cuisine, dans la salle de bains et aux toilettes répondant aux besoins spécifiques de la personne en situation de handicap ;",
+     "prefix_chunk": "dossier/8463::458"
+    },
+    {
+     "source": "dossier/8480",
+     "quote": "portant sur l'accessibilité à tous des lieux ouverts au public, des voies publiques et des bâtiments d'habitation collectifs (…)",
+     "prefix_chunk": "dossier/8480::65"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8463::465"
+   ]
+  },
+  {
+   "id": "q38",
+   "lang": "fr",
+   "query": "Construction en zone verte et protection de la nature",
+   "gold": [
+    {
+     "source": "dossier/8578",
+     "quote": "Le présent projet de loi vise à créer une nouvelle zone d'utilisation du sol dénommée « zone verte bis ».",
+     "prefix_chunk": "dossier/8578::3"
+    },
+    {
+     "source": "dossier/8449",
+     "quote": "Il appartient au requérant d'une autorisation de démontrer le besoin réel de la nouvelle construction en zone verte.",
+     "prefix_chunk": "dossier/8449::123"
+    },
+    {
+     "source": "dossier/8578",
+     "quote": "Il appartient au requérant d'une autorisation de démontrer le besoin réel de la nouvelle construction en zone verte.",
+     "prefix_chunk": "dossier/8578::31"
+    },
+    {
+     "source": "dossier/8449",
+     "quote": "- 1° « zone verte » : des parties du territoire national non affectées en ordre principal à être urbanisées selon un plan d'aménagement général en vigueur.",
+     "prefix_chunk": "dossier/8449::111"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8578::11",
+    "dossier/8449::186",
+    "dossier/8578::7",
+    "dossier/8578::12",
+    "dossier/8449::129",
+    "dossier/8578::37",
+    "dossier/8578::60",
+    "dossier/8449::78",
+    "dossier/8578::36",
+    "dossier/8578::5",
+    "dossier/8578::15"
+   ]
+  },
+  {
+   "id": "q39",
+   "lang": "fr",
+   "query": "Organismes génétiquement modifiés mis sur le marché",
+   "gold": [
+    {
+     "source": "dossier/8206",
+     "quote": "La présente loi fixe les règles de la mise sur le marché européen des organismes génétiquement modifiés en tant que produits ou éléments de produits.",
+     "prefix_chunk": "dossier/8206::4"
+    },
+    {
+     "source": "dossier/8206",
+     "quote": "L'Union européenne a établi un cadre juridique pour garantir que le développement de la biotechnologie moderne, et plus particulièrement des organismes génétiquement modifiés (OGM), se déroule dans des conditions sûres.",
+     "prefix_chunk": "dossier/8206::117"
+    },
+    {
+     "source": "dossier/8206",
+     "quote": "L'autorisation est délivrée par le ministre après examen par l'ALVA des risques que présente la mise sur le marché pour la santé publique humaine ou pour l'environnement.",
+     "prefix_chunk": "dossier/8206::132"
+    },
+    {
+     "source": "dossier/8206",
+     "quote": "concernant la mise sur le marché des organismes génétiquement modifiés en tant que produits ou éléments de produits * * * Document de dépôt Dépôt: le 27.4.2023 *",
+     "prefix_chunk": "dossier/8206::1"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8206::128",
+    "dossier/8206::183",
+    "dossier/8206::6",
+    "dossier/8206::5",
+    "dossier/8206::124",
+    "dossier/8206::3",
+    "dossier/8206::122",
+    "dossier/8206::120",
+    "dossier/8206::158",
+    "dossier/8206::235",
+    "dossier/8206::166",
+    "dossier/8206::167"
+   ]
+  },
+  {
+   "id": "q40",
+   "lang": "fr",
+   "query": "Contrôle de la connaissance des langues administratives",
+   "gold": [
+    {
+     "source": "dossier/8582",
+     "quote": "Le présent projet de loi a pour objet d'adapter les modalités du contrôle de la connaissance des trois langues administratives pour le recrutement des fonctionnaires et employés des administrations de l'Etat et des communes.",
+     "prefix_chunk": "dossier/8582::3"
+    },
+    {
+     "source": "dossier/8582",
+     "quote": "En ce qui concerne les épreuves de langues organisées pour les catégories de traitement et d'indemnité A, B et C, les niveaux de compétences à atteindre pour la compréhension de l'oral, pour la compréhension de l'écrit et l'expression orale dans les trois langues sont fixés comme suit:",
+     "prefix_chunk": "dossier/8582::7"
+    },
+    {
+     "source": "dossier/8582",
+     "quote": "La vérification de la connaissance adéquate des trois langues administratives se fait sous forme d'épreuves informatisées.",
+     "prefix_chunk": "dossier/8582::6"
+    },
+    {
+     "source": "dossier/8582",
+     "quote": "fixant les modalités du contrôle de la connaissance des trois langues administratives pour le recrutement des fonc­ tionnaires et employés de l'État et des fonctionnaires et employés communaux et - 1° modifiant la loi modifiée du 15 juin 1999 portant organisa­ tion de l'Institut national d'administration publique ;",
+     "prefix_chunk": "dossier/8582::0"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8582::9",
+    "dossier/8582::61",
+    "dossier/8582::66",
+    "dossier/8582::62",
+    "dossier/8582::22",
+    "dossier/8582::21",
+    "dossier/8582::2",
+    "dossier/8582::46"
+   ]
+  },
+  {
+   "id": "q41",
+   "lang": "de",
+   "query": "Wohnflächenreserven und Baulücken in Luxemburg",
+   "gold": [
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Etwa 10.200 Baulücken und 2.500 nicht baureife Baulücken wurden für Wohnzwecke identifiziert.",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::62"
+    },
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Da die aktuelle Wohnungslage in Luxemburg besonders angespannt ist, beschäftigt sich dieses Kapitel ausschließlich mit jenen Flächenreserven, die für Wohnzwecke ausgewiesen sind.",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::53"
+    },
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Auch auf regionaler Ebene gilt diese Beobachtung: laut Eurostat ist Luxemburg auf NUTS-2 Ebene europaweit die Region mit dem größten Wachstum (Eurostat 2010-2016).",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::36"
+    },
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Die Anzahl der Baulücken ist um fast 20% gestiegen (von 1.410 auf 1.690 Einzelbaulücken).",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::85"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::4",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::94",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::5",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::87",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::71",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::65",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::43"
+   ]
+  },
+  {
+   "id": "q42",
+   "lang": "de",
+   "query": "Wohnkapazität der Gemeinden",
+   "gold": [
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Anschließend folgen die Agglo Centre mit mehr als 7.700, die Südregion mit knapp 6.000, die CDA-Gemeinden mit 5.200 und die Nordstad mit etwa 2.100 Wohnungen.",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::67"
+    },
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Ein Viertel der Gemeinden haben einen Wert niedriger/gleich 29 Jahre, ein Viertel haben einen Wert grösser/gleich 71 Jahre.",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::61"
+    },
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "Die drei Agglomerationen zusammen besitzen mit 1.818 ha 42% der gesamten Wohnflächenreserven und mit 93.012 Wohneinheiten 58% der Wohnkapazität.",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::60"
+    },
+    {
+     "source": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf",
+     "quote": "In den 102 untersuchten Gemeinden sind 4.295 ha (15.827 Einzelflächen) an Siedlungsflächenreserven für Wohnzwecke ermittelt worden.",
+     "prefix_chunk": "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::58"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::87",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::68",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::54",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::91",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::55",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::88",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::38",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::66",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::59",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf::53"
+   ]
+  },
+  {
+   "id": "q43",
+   "lang": "de",
+   "query": "Entwicklung der Immobilienpreise in Luxemburg",
+   "gold": [
+    {
+     "source": "onh/cahiers-gr-8.pdf",
+     "quote": "Cette poussée inflationniste a culminé en 2020, avec une augmentation des prix réels des logements de +16 % comparativement à l'année 2019.",
+     "prefix_chunk": "onh/cahiers-gr-8.pdf::70"
+    },
+    {
+     "source": "onh/cahiers-gr-8.pdf",
+     "quote": "Dans la plupart des pays voisins (tels que la Belgique, les Pays-Bas et l'Allemagne), la progression des prix a été comprise entre +3,0 % et +4,0 % par an (la moyenne dans l'Union européenne étant de +3,0 %, et de seulement +2,5 % dans la zone euro).",
+     "prefix_chunk": "onh/cahiers-gr-8.pdf::76"
+    },
+    {
+     "source": "onh/rapport-analyse-13.pdf",
+     "quote": "En cumulé, les prix des maisons ont également baissé de 21,5% entre le 2 e trimestre 2022 (correspondant au niveau des prix le plus élevé sur ce segment) et le 4 e trimestre 2023.",
+     "prefix_chunk": "onh/rapport-analyse-13.pdf::1"
+    },
+    {
+     "source": "onh/logement-en-chiffre-19-202603.pdf",
+     "quote": "Dans la Minette, les corrections sont également marquées (-17% à Esch-sur-Alzette et -18% à Dudelange).",
+     "prefix_chunk": "onh/logement-en-chiffre-19-202603.pdf::20"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-13.pdf::0",
+    "onh/cahiers-gr-8.pdf::66",
+    "onh/logement-en-chiffre-17.pdf::14",
+    "onh/cahiers-gr-8.pdf::68",
+    "onh/logement-en-chiffre-19-202603.pdf::22",
+    "onh/rapport-analyse-21.pdf::8",
+    "onh/rapport-analyse-21.pdf::5",
+    "onh/logement-en-chiffre-18-202509.pdf::24"
+   ]
+  },
+  {
+   "id": "q44",
+   "lang": "de",
+   "query": "Mietspiegel und Begrenzung der Mieten",
+   "gold": [
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Le miroir des loyers (« Mietspiegel ») est une observation par enquête des niveaux de loyers d'une commune et de ses quartiers, sur base de méthodes scientifiquement reconnues (souvent des approches de modélisation hédonique).",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::3"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Pour ces contrats, le loyer ne peut pas dépasser de plus de 10 % le loyer de référence déterminé par le Miroir des loyers.",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::4"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Pour les contrats en cours et indépendamment du Mietspiegel, il existe en Allemagne depuis longtemps une limitation de la hausse des loyers :",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::5"
+    },
+    {
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Il sert en second lieu aux bailleurs et locataires pour fixer le montant et/ou l'augmentation des loyers (selon le type de bail conclu).",
+     "prefix_chunk": "onh/rapport-analyse-14.pdf::0"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "onh/rapport-analyse-14.pdf::31",
+    "onh/rapport-analyse-14.pdf::14",
+    "onh/rapport-analyse-14.pdf::13",
+    "onh/rapport-analyse-14.pdf::11",
+    "onh/rapport-analyse-14.pdf::1",
+    "onh/note-42.pdf::22",
+    "onh/rapport-analyse-14.pdf::6",
+    "onh/rapport-analyse-14.pdf::2"
+   ]
+  },
+  {
+   "id": "q45",
+   "lang": "de",
+   "query": "Staatliche Förderung von bezahlbarem Wohnraum",
+   "gold": [
+    {
+     "source": "dossier/8535",
+     "quote": "- 2° la participation financière de l'État à la réalisation de logements innovateurs destinés à la location abordable et de logements abordables résilients au changement climatique ;",
+     "prefix_chunk": "dossier/8535::130"
+    },
+    {
+     "source": "dossier/8535",
+     "quote": "Cette mesure permettra ainsi de diversifier les quartiers par une mixité sociale et évitera des quartiers défavorisés marqués par des stigmatisations et une grande pauvreté.",
+     "prefix_chunk": "dossier/8535::21"
+    },
+    {
+     "source": "dossier/8589",
+     "quote": "- 2.500.- euros pour tout logement se situant sur leur territoire et ayant été mis en location conformément à la loi modifiée du 7 août 2023.",
+     "prefix_chunk": "dossier/8589::6"
+    }
+   ],
+   "acceptable_prefix_chunks": [
+    "dossier/8589::59",
+    "dossier/8589::32",
+    "dossier/8535::155",
+    "dossier/8535::153",
+    "dossier/8589::79",
+    "onh/note-n40.pdf::19",
+    "dossier/8535::118",
+    "onh/note-n40.pdf::25",
+    "dossier/8656::26",
+    "dossier/8535::201",
+    "dossier/8656::46"
+   ]
+  }
+ ]
+}
