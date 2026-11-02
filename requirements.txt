@@ -27,5 +27,8 @@ scikit-learn>=1.4,<2
 SQLAlchemy==2.0.*
 anthropic>=0.40,<1
 jupyter>=1.0,<2
-torch
+# Pinned exactly (#71): the parse box and the laptop must produce the same chunks
+torch==2.14.1
 docling_core
+psutil==7.2.2
+pypdfium2>=5,<6

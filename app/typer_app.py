@@ -122,15 +122,47 @@ def relativize_onh_urls_command(
 
 @safe_clt
 @typer_app.command()
-def ingest_coalition_agreement_command() -> None:
+def ingest_coalition_agreement_command(
+    pdf_path: Path = typer.Argument(DATA_DIR / "downloads" / "accord_coalition_2023_2028.pdf",
+                                    help="Coalition agreement PDF"),
+    cache_dir: Path = typer.Option(None, help="Parse cache dir (default: data/parse_cache)"),
+) -> None:
     """
-    Parse and embed the coalition agreement 2023-2028 PDF into Chroma (run once).
-    This document provides the KPI baseline for policy analysis.
+    Embed the coalition agreement 2023-2028 PDF into Chroma (run once), from the parse
+    cache when the parse box already parsed it. It provides the KPI baseline for policy
+    analysis.
     """
-    pdf_path = DATA_DIR / 'accord-coalition.pdf'
     from app.methodo.onh_pipeline import coalition_agreement_pipeline
-    coalition_agreement_pipeline(Path(pdf_path))
+    from app.methodo.parse_cache import PARSE_CACHE_DIR
+    coalition_agreement_pipeline(pdf_path, cache_dir=cache_dir or PARSE_CACHE_DIR)
     typer.echo("Coalition agreement ingested successfully.")
+
+
+@safe_clt
+@typer_app.command()
+def export_parse_manifest_command(
+    out: Path = typer.Option(DATA_DIR / "parse_manifest.jsonl", help="Manifest to write"),
+    dossier_dir: Path = typer.Option(DATA_DIR / "_pilot_a" / "all",
+                                     help="Local dossier PDFs, named <dossier number>.pdf"),
+) -> None:
+    """
+    Write the parse box's manifest (#80): every ONH + dossier doc and the coalition
+    agreement, with file paths relative to data/. Fails if any doc has no local PDF.
+    """
+    from app.methodo.parse_manifest import build_manifest
+    from app.methodo.parse_manifest import ManifestFilesMissingError
+    from app.methodo.parse_manifest import write_manifest
+    from app.methodo.parse_worker import LONG_DOC_PAGES
+    with Session(engine) as session:
+        try:
+            rows = build_manifest(session, dossier_dir=dossier_dir)
+        except ManifestFilesMissingError as e:
+            typer.echo(str(e), err=True)
+            raise typer.Exit(1) from e
+    write_manifest(rows, out)
+    long_docs = [r for r in rows if r.page_count > LONG_DOC_PAGES]
+    typer.echo(f"{len(rows)} docs ({sum(r.page_count for r in rows)} pages) -> {out}")
+    typer.echo(f"long lane (> {LONG_DOC_PAGES} pages): {len(long_docs)}")
 
 
 @safe_clt
@@ -160,6 +192,10 @@ def cleanup_stale_chunks_command(
     typer.echo(f"\n{'COMMIT' if commit else 'DRY-RUN'} REPORT")
     if not commit:
         typer.echo(f"  cache hits:   {report.cache_hits} (not reparsed)")
+        for env, n in report.cache_envs.most_common():
+            typer.echo(f"    {n:>5} parsed with {env}")
+        if len(report.cache_envs) > 1:
+            typer.echo("  WARNING: cache entries come from more than one parse environment")
     typer.echo(f"  unchanged:    {len(report.unchanged)}")
     typer.echo(f"  not embedded: {len(report.not_embedded)}"
                f" ({sum(new for _, new in report.not_embedded)} chunks to embed)")
