@@ -4,6 +4,40 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Parse-only worker for the rented parse box
+
+**Issues**: [#71](https://github.com/AmaurySalles/luxdem/issues/71), [#77](https://github.com/AmaurySalles/luxdem/issues/77) (decisions), [#80](https://github.com/AmaurySalles/luxdem/issues/80) (implementation)
+
+**Decision**: the full-corpus Docling parse runs on a rented GPU box with no Postgres or Chroma. `export-parse-manifest-command` (laptop) writes `parse_manifest.jsonl`: one `ManifestRow` per ONH doc, dossier and the coalition agreement, holding the file path relative to `data/`, the DB metadata, the parse args and `page_count`. It fails if any PDF is missing. On the box, `python -m app.methodo.parse_worker supervise` fills the parse cache. A supervisor feeds restarting worker subprocesses in two lanes: normal (`--workers`, exit over 10 GB RSS or after 20 docs) and long (1 worker for docs over 250 pages, restarted after every doc). Replies go over a dedicated pipe, not stdout. A SIGKILLed normal-lane doc is retried once in the long lane. Other failures go straight to `failed.jsonl` in the cache dir, which the dry run reports and never reparses. The laptop dry run then hits the cache for every doc. `ParseJob` (`parse_cache.py`) is shared by the migration, the manifest and the worker, so all three compute the same fingerprint.
+
+**Fingerprint**: it now hashes all of `app/methodo/parsing/*.py`, docling-parse and the torch base version (`2.14.1`, pinned). The torch build/device (`+cpu`, `+cu128`) is stored per entry as `parse_env` but not hashed, otherwise the laptop could never hit box-made entries. The dry run prints the entry count per `parse_env`, so a mix is visible.
+
+**Coalition**: `coalition_agreement_pipeline` reads from the cache (key `coalition:accord_coalition_2023_2028`, not put in chunk metadata, so Chroma ids are unchanged). `ingest-coalition-agreement-command` takes the PDF path, defaulting to `data/downloads/accord_coalition_2023_2028.pdf` (it pointed at a nonexistent file).
+
+**Why**: an OOM kill breaks `ProcessPoolExecutor` and hangs `multiprocessing.Pool`, so the supervisor owns the subprocesses. Each worker loads the models once.
+
+---
+
+## 2026-10 — ONH sources stored as paths relative to `data/downloads`
+
+**Issues**: [#49](https://github.com/AmaurySalles/luxdem/issues/49) (decision), [#55](https://github.com/AmaurySalles/luxdem/issues/55) (implementation)
+
+**Decision**: `OnhPublication.url` and the chunks' `source_url` hold e.g. `onh/Note-30.pdf`. `resolve_onh_source()` (`app/methodo/onh_paths.py`) resolves it against `DATA_DIR / "downloads"` at parse time; legacy `file://` values are still accepted. `ingest-onh-from-dir-command` refuses dirs outside `data/downloads`. `--onh-dir` is a fallback only. Existing rows are rewritten once with `relativize-onh-urls-command` (dry-run by default).
+
+**Why**: same value works in Docker and natively, chunk IDs carry nothing machine-specific, and it survives moving files to shared storage. Rejected: `/app/...` (Docker-only), keeping `/Users/shmiggit/...` (`--onh-dir` forever), ONH website URLs (site blocks downloads).
+
+---
+
+## 2026-10 — Parse cache: split Docling parsing from embedding
+
+**Issue**: [#46](https://github.com/AmaurySalles/luxdem/issues/46)
+
+**Decision**: `cleanup-stale-chunks-command` dry run parses every ONH + dossier doc (including never-embedded ones) into `data/parse_cache/<md5(source_url)>.json`; `--commit` embeds from that cache only and never parses. Each entry holds a fingerprint (sha256 of `docling_parser.py` source, docling + docling-core versions, parse args, doc metadata); a mismatch means stale, so the dry run reparses and commit skips + reports it.
+
+**Why**: parsing is slow but free on the laptop; embedding needs a rented GPU. Parsing inside the embed loop (as `dossier_pipeline` does) leaves the GPU idle. Hashing the parser source is coarse (a comment change invalidates everything) but can't miss a real change.
+
+---
+
 ## 2026-10 — Custom Ollama embedding client; new Chroma store per model
 
 **Issues**: [#48](https://github.com/AmaurySalles/luxdem/issues/48) (decision), [#51](https://github.com/AmaurySalles/luxdem/issues/51) (implementation)
