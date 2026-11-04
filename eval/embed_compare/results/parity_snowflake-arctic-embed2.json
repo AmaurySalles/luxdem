@@ -1,0 +1,23 @@
+{
+ "model": "snowflake-arctic-embed2",
+ "n_queries": 56,
+ "n_chunks": 60,
+ "server_a": {
+  "host": "http://localhost:11434",
+  "ollama_version": "0.20.5",
+  "model_digest": "5de93a84837d0ff00da872e90830df5d973f616cbf1e5c198731ab19dd7b776b"
+ },
+ "server_b": {
+  "host": "http://127.0.0.1:11434",
+  "ollama_version": "0.40.13",
+  "model_digest": "30685f516da4acfcce0b8afee7444afc9b60bc9628f269add5f7730c5e4be3b0"
+ },
+ "cosine_queries": {
+  "min": 1.0,
+  "mean": 1.0
+ },
+ "cosine_chunks": {
+  "min": 0.98219,
+  "mean": 0.99606
+ }
+}

@@ -1,0 +1,906 @@
+{
+ "k": 10,
+ "gold_set": "eval/gold_set.json",
+ "n_queries": 56,
+ "variants": {
+  "prefix": {
+   "docs": 65,
+   "chunks": 5010,
+   "infographic_chunks": 6,
+   "zero_chunk_docs": [],
+   "docs_with_strike_marks": [],
+   "conversion": {
+    "dossier/8006": "reused_postfix_document_no_strike_marks",
+    "dossier/8017": "docling_convert",
+    "dossier/8117": "docling_convert",
+    "dossier/8173": "reused_postfix_document_no_strike_marks",
+    "dossier/8206": "reused_postfix_document_no_strike_marks",
+    "dossier/8279": "reused_postfix_document_no_strike_marks",
+    "dossier/8423": "docling_convert",
+    "dossier/8429": "docling_convert",
+    "dossier/8449": "docling_convert",
+    "dossier/8463": "docling_convert",
+    "dossier/8470": "docling_convert",
+    "dossier/8473": "reused_postfix_document_no_strike_marks",
+    "dossier/8480": "docling_convert",
+    "dossier/8481": "docling_convert",
+    "dossier/8532": "docling_convert",
+    "dossier/8534": "docling_convert",
+    "dossier/8535": "docling_convert",
+    "dossier/8540": "docling_convert",
+    "dossier/8547": "docling_convert",
+    "dossier/8548": "reused_postfix_document_no_strike_marks",
+    "dossier/8578": "reused_postfix_document_no_strike_marks",
+    "dossier/8582": "docling_convert",
+    "dossier/8585": "reused_postfix_document_no_strike_marks",
+    "dossier/8587": "docling_convert",
+    "dossier/8589": "docling_convert",
+    "dossier/8614": "reused_postfix_document_no_strike_marks",
+    "dossier/8656": "reused_postfix_document_no_strike_marks",
+    "dossier/8716": "docling_convert",
+    "dossier/8721": "reused_postfix_document_no_strike_marks",
+    "dossier/8732": "reused_postfix_document_no_strike_marks",
+    "onh/Note-30-en-bref.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/Note-30.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/cahiers-gr-8.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/logement-en-chiffre-14.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/logement-en-chiffre-15.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/logement-en-chiffre-16.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/logement-en-chiffre-17.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/logement-en-chiffre-18-202509.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/logement-en-chiffre-19-202603.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-36.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-37.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-38.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-41.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-42.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-43.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-44.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-45.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-46.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-n39.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/note-n40.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-10-marche-immobilier-residentiel-2024t1.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-11.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-12.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-13.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-14.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-15.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-16.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-17.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-18.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-19.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-20.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-21.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-22.pdf": "reused_postfix_document_no_strike_marks",
+    "onh/rapport-analyse-23.pdf": "reused_postfix_document_no_strike_marks"
+   },
+   "gold_quotes_unfindable_collapse_rule": [
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-16.pdf",
+     "quote": "Après cinq trimestres de baisses consécutives, la tendance sur le marché immobilier résidentiel s'est inversée au deuxième trimestre 2024 et les prix des logements (appartements et maisons confondus) reprennent 1.0% en variation trimestrielle ."
+    },
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-16.pdf",
+     "quote": "L'activité sur les marchés immobiliers et fonciers résidentiels est en progression au 2 e trimestre 2024 , après cinq trimestres consécutifs à des niveaux historiquement bas."
+    },
+    {
+     "qid": "q02",
+     "source": "onh/rapport-analyse-12.pdf",
+     "quote": "L'activité sur les marchés immobiliers pour des biens existants poursuit sa progression au 3 e trimestre 2024 , ce qui confirme une reprise après une année 2023 très difficile, marquée par un nombre de transactions limité."
+    },
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "L'activité sur ce segment s'avère aujourd'hui supérieure à la moyenne des années précédant la crise (1 234 ventes d'appartements existants en moyenne au 4 e trimestre sur les an -nées 2017 à 2021)."
+    },
+    {
+     "qid": "q07",
+     "source": "onh/Note-30.pdf",
+     "quote": "Selon le graphique 39, le gain moyen croît avec le niveau de vie pour les propriétaires alors que le gain moyen décroît fortement avec le niveau de vie pour les locataires ."
+    },
+    {
+     "qid": "q07",
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Voir note n°27 de l'Observatoire de l'Habitat : https://logement.public.lu/dam-assets/documents/publications/observatoire/note-27.pdf JUULSER"
+    },
+    {
+     "qid": "q08",
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Selon l'étude, environ 33 000 ménages pourraient bénéficier de la subvention de loyer pour un montant moyen de 143 euros par mois ."
+    },
+    {
+     "qid": "q12",
+     "source": "onh/note-42.pdf",
+     "quote": "Enfin, le statut d'occupation du logement reste un facteur clé ( Figure 9 ) :"
+    },
+    {
+     "qid": "q17",
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Au bout de quatre ans, un nouveau miroir des loyers qualifié doit être établi en bonne et due forme (c'està-dire sur base de données issues d'enquêtes représentatives)."
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "« Propositions pour le mode de calcul du capital investi dans la Loi sur le Bail à Loyer », Rapport d'analyse n°3 (octobre 2022), Ministère du Logement, 28 pages. https://logement.public.lu/fr/publications/observatoire/rapport-analyse-3.html"
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "17.04.2026 À l'inverse, les logements acquis plus récemment bénéficient en effet de niveaux de capital investi réévalué beaucoup plus élevés, autorisant des loyers maximaux sensiblement supérieurs pour des biens comparables en termes de localisation, de surface ou de qualité ."
+    },
+    {
+     "qid": "q19",
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "À la lumière des résultats de l'enquête menée auprès d'experts, présentés dans le Rapport d'analyse 22, il pourrait être envisagé de poursuivre la réflexion sur la réforme du plafonnement des loyers d'habitation au Luxembourg selon une approche en trois étapes ."
+    },
+    {
+     "qid": "q19",
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "Globalement, les différents segments de logements à inclure dans le dispositif de plafonnement, ainsi que les principes complémentaires visant à accompagner la réforme, recueillent un consensus allant de fort à modéré parmi les experts ."
+    },
+    {
+     "qid": "q20",
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "Afin de proposer des mesures efficaces et adaptées aux spécificités luxembourgeoises, le Ministère a mandaté le Luxembourg Institute of Socio-Economic Research (LISER), partenaire du Ministère dans l'Observatoire de l'Habitat, pour réaliser une enquête visant à établir un premier cadastre des loyers au Luxembourg ."
+    },
+    {
+     "qid": "q20",
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "Cette enquête a été rendue possible par une collaboration étroite et efficace entre le LISER, l'ACT, le CTIE et le Ministère du Logement et de l'Aménagement du territoire ."
+    },
+    {
+     "qid": "q21",
+     "source": "onh/rapport-analyse-16.pdf",
+     "quote": "C 'est pourquoi après estimation du revenu net disponible (loi logement) de chaque ménage, nous calculons des seuils de revenu pour chaque décile et type de ménage 4 , servant ensuite de base afin de définir les plafonds qui seront appliqués dans la loi logement et les différentes aides/politiques sous-jacentes."
+    },
+    {
+     "qid": "q21",
+     "source": "onh/rapport-analyse-16.pdf",
+     "quote": "La partie la plus importante et la plus compliquée es t d'estimer le revenu total des ménages, tel que défini dans la loi logement 5 ."
+    },
+    {
+     "qid": "q24",
+     "source": "onh/note-37.pdf",
+     "quote": "Il est à présent possible de synthétiser les différentes étapes, en combinant les transactions exclues du champ des indices à cause du type de bien qu'elles contiennent ( Section 1 ) avec les transactions d'appartements exclues par le processus de sélection ( Section 3 )."
+    },
+    {
+     "qid": "q24",
+     "source": "onh/note-37.pdf",
+     "quote": "Ce cas de figure, qui concerne 4 809 transactions de VEFA sans terrain (soit 69,1 % des transactions exclues), s'explique par le fait qu'il n'est pas JUULSER"
+    },
+    {
+     "qid": "q28",
+     "source": "dossier/8589",
+     "quote": "Le nouveau Pacte logement fixe les objectifs à l’horizon 2037 et oriente les moyens financiers afin de mieux soutenir le développement de logements abordables et durables à long terme."
+    },
+    {
+     "qid": "q34",
+     "source": "onh/Note-30.pdf",
+     "quote": "D'après le tableau 7 , 3 556 logements, en 2020, ont été concernés par le remboursement de la TVA et 23 544 par l'application directe du taux super-réduit."
+    },
+    {
+     "qid": "q36",
+     "source": "dossier/8481",
+     "quote": "Avant d'avoir été formalisé conformément aux articles 30 ou 30 bis de la présente loi, le plan d'aménagement particulier est appelé « projet d'aménagement particulier »."
+    },
+    {
+     "qid": "q36",
+     "source": "dossier/8481",
+     "quote": "Toutefois, à la demande de l'initiateur d'une proposition de modification ponctuelle d'un plan d'aménagement particulier, le collège des bourgmestre et échevins peut décider d'entamer la procédure de modification ponctuelle prévue à l'article 30 bis ."
+    }
+   ],
+   "gold_quotes_unfindable_no_whitespace_rule": [
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "L'activité sur ce segment s'avère aujourd'hui supérieure à la moyenne des années précédant la crise (1 234 ventes d'appartements existants en moyenne au 4 e trimestre sur les an -nées 2017 à 2021)."
+    },
+    {
+     "qid": "q07",
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Voir note n°27 de l'Observatoire de l'Habitat : https://logement.public.lu/dam-assets/documents/publications/observatoire/note-27.pdf JUULSER"
+    },
+    {
+     "qid": "q17",
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Au bout de quatre ans, un nouveau miroir des loyers qualifié doit être établi en bonne et due forme (c'està-dire sur base de données issues d'enquêtes représentatives)."
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "« Propositions pour le mode de calcul du capital investi dans la Loi sur le Bail à Loyer », Rapport d'analyse n°3 (octobre 2022), Ministère du Logement, 28 pages. https://logement.public.lu/fr/publications/observatoire/rapport-analyse-3.html"
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "17.04.2026 À l'inverse, les logements acquis plus récemment bénéficient en effet de niveaux de capital investi réévalué beaucoup plus élevés, autorisant des loyers maximaux sensiblement supérieurs pour des biens comparables en termes de localisation, de surface ou de qualité ."
+    },
+    {
+     "qid": "q24",
+     "source": "onh/note-37.pdf",
+     "quote": "Ce cas de figure, qui concerne 4 809 transactions de VEFA sans terrain (soit 69,1 % des transactions exclues), s'explique par le fait qu'il n'est pas JUULSER"
+    },
+    {
+     "qid": "q28",
+     "source": "dossier/8589",
+     "quote": "Le nouveau Pacte logement fixe les objectifs à l’horizon 2037 et oriente les moyens financiers afin de mieux soutenir le développement de logements abordables et durables à long terme."
+    }
+   ]
+  },
+  "postfix": {
+   "docs": 65,
+   "chunks": 5034,
+   "infographic_chunks": 0,
+   "zero_chunk_docs": [],
+   "docs_with_strike_marks": [
+    "dossier/8017",
+    "dossier/8117",
+    "dossier/8423",
+    "dossier/8429",
+    "dossier/8449",
+    "dossier/8463",
+    "dossier/8470",
+    "dossier/8480",
+    "dossier/8481",
+    "dossier/8532",
+    "dossier/8534",
+    "dossier/8535",
+    "dossier/8540",
+    "dossier/8547",
+    "dossier/8582",
+    "dossier/8587",
+    "dossier/8589",
+    "dossier/8716"
+   ],
+   "conversion": {
+    "dossier/8006": "docling_convert",
+    "dossier/8017": "docling_convert",
+    "dossier/8117": "docling_convert",
+    "dossier/8173": "docling_convert",
+    "dossier/8206": "docling_convert",
+    "dossier/8279": "docling_convert",
+    "dossier/8423": "docling_convert",
+    "dossier/8429": "docling_convert",
+    "dossier/8449": "docling_convert",
+    "dossier/8463": "docling_convert",
+    "dossier/8470": "docling_convert",
+    "dossier/8473": "docling_convert",
+    "dossier/8480": "docling_convert",
+    "dossier/8481": "docling_convert",
+    "dossier/8532": "docling_convert",
+    "dossier/8534": "docling_convert",
+    "dossier/8535": "docling_convert",
+    "dossier/8540": "docling_convert",
+    "dossier/8547": "docling_convert",
+    "dossier/8548": "docling_convert",
+    "dossier/8578": "docling_convert",
+    "dossier/8582": "docling_convert",
+    "dossier/8585": "docling_convert",
+    "dossier/8587": "docling_convert",
+    "dossier/8589": "docling_convert",
+    "dossier/8614": "docling_convert",
+    "dossier/8656": "docling_convert",
+    "dossier/8716": "docling_convert",
+    "dossier/8721": "docling_convert",
+    "dossier/8732": "docling_convert",
+    "onh/Note-30-en-bref.pdf": "docling_convert",
+    "onh/Note-30.pdf": "docling_convert",
+    "onh/cahiers-gr-8.pdf": "docling_convert",
+    "onh/dater-raumplus-endbericht-siedlungsflachenreserven-in-luxemburg-20202022.pdf": "docling_convert",
+    "onh/logement-en-chiffre-14.pdf": "docling_convert",
+    "onh/logement-en-chiffre-15.pdf": "docling_convert",
+    "onh/logement-en-chiffre-16.pdf": "docling_convert",
+    "onh/logement-en-chiffre-17.pdf": "docling_convert",
+    "onh/logement-en-chiffre-18-202509.pdf": "docling_convert",
+    "onh/logement-en-chiffre-19-202603.pdf": "docling_convert",
+    "onh/note-36.pdf": "docling_convert",
+    "onh/note-37.pdf": "docling_convert",
+    "onh/note-38.pdf": "docling_convert",
+    "onh/note-41.pdf": "docling_convert",
+    "onh/note-42.pdf": "docling_convert",
+    "onh/note-43.pdf": "docling_convert",
+    "onh/note-44.pdf": "docling_convert",
+    "onh/note-45.pdf": "docling_convert",
+    "onh/note-46.pdf": "docling_convert",
+    "onh/note-n39.pdf": "docling_convert",
+    "onh/note-n40.pdf": "docling_convert",
+    "onh/rapport-analyse-10-marche-immobilier-residentiel-2024t1.pdf": "docling_convert",
+    "onh/rapport-analyse-11.pdf": "docling_convert",
+    "onh/rapport-analyse-12.pdf": "docling_convert",
+    "onh/rapport-analyse-13.pdf": "docling_convert",
+    "onh/rapport-analyse-14.pdf": "docling_convert",
+    "onh/rapport-analyse-15.pdf": "docling_convert",
+    "onh/rapport-analyse-16.pdf": "docling_convert",
+    "onh/rapport-analyse-17.pdf": "docling_convert",
+    "onh/rapport-analyse-18.pdf": "docling_convert",
+    "onh/rapport-analyse-19.pdf": "docling_convert",
+    "onh/rapport-analyse-20.pdf": "docling_convert",
+    "onh/rapport-analyse-21.pdf": "docling_convert",
+    "onh/rapport-analyse-22.pdf": "docling_convert",
+    "onh/rapport-analyse-23.pdf": "docling_convert"
+   },
+   "gold_quotes_unfindable_collapse_rule": [
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-16.pdf",
+     "quote": "Après cinq trimestres de baisses consécutives, la tendance sur le marché immobilier résidentiel s'est inversée au deuxième trimestre 2024 et les prix des logements (appartements et maisons confondus) reprennent 1.0% en variation trimestrielle ."
+    },
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-16.pdf",
+     "quote": "L'activité sur les marchés immobiliers et fonciers résidentiels est en progression au 2 e trimestre 2024 , après cinq trimestres consécutifs à des niveaux historiquement bas."
+    },
+    {
+     "qid": "q02",
+     "source": "onh/rapport-analyse-12.pdf",
+     "quote": "L'activité sur les marchés immobiliers pour des biens existants poursuit sa progression au 3 e trimestre 2024 , ce qui confirme une reprise après une année 2023 très difficile, marquée par un nombre de transactions limité."
+    },
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "L'activité sur ce segment s'avère aujourd'hui supérieure à la moyenne des années précédant la crise (1 234 ventes d'appartements existants en moyenne au 4 e trimestre sur les an -nées 2017 à 2021)."
+    },
+    {
+     "qid": "q07",
+     "source": "onh/Note-30.pdf",
+     "quote": "Selon le graphique 39, le gain moyen croît avec le niveau de vie pour les propriétaires alors que le gain moyen décroît fortement avec le niveau de vie pour les locataires ."
+    },
+    {
+     "qid": "q07",
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Voir note n°27 de l'Observatoire de l'Habitat : https://logement.public.lu/dam-assets/documents/publications/observatoire/note-27.pdf JUULSER"
+    },
+    {
+     "qid": "q08",
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Selon l'étude, environ 33 000 ménages pourraient bénéficier de la subvention de loyer pour un montant moyen de 143 euros par mois ."
+    },
+    {
+     "qid": "q12",
+     "source": "onh/note-42.pdf",
+     "quote": "Enfin, le statut d'occupation du logement reste un facteur clé ( Figure 9 ) :"
+    },
+    {
+     "qid": "q17",
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Au bout de quatre ans, un nouveau miroir des loyers qualifié doit être établi en bonne et due forme (c'està-dire sur base de données issues d'enquêtes représentatives)."
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "« Propositions pour le mode de calcul du capital investi dans la Loi sur le Bail à Loyer », Rapport d'analyse n°3 (octobre 2022), Ministère du Logement, 28 pages. https://logement.public.lu/fr/publications/observatoire/rapport-analyse-3.html"
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "17.04.2026 À l'inverse, les logements acquis plus récemment bénéficient en effet de niveaux de capital investi réévalué beaucoup plus élevés, autorisant des loyers maximaux sensiblement supérieurs pour des biens comparables en termes de localisation, de surface ou de qualité ."
+    },
+    {
+     "qid": "q19",
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "À la lumière des résultats de l'enquête menée auprès d'experts, présentés dans le Rapport d'analyse 22, il pourrait être envisagé de poursuivre la réflexion sur la réforme du plafonnement des loyers d'habitation au Luxembourg selon une approche en trois étapes ."
+    },
+    {
+     "qid": "q19",
+     "source": "onh/rapport-analyse-22.pdf",
+     "quote": "Globalement, les différents segments de logements à inclure dans le dispositif de plafonnement, ainsi que les principes complémentaires visant à accompagner la réforme, recueillent un consensus allant de fort à modéré parmi les experts ."
+    },
+    {
+     "qid": "q20",
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "Afin de proposer des mesures efficaces et adaptées aux spécificités luxembourgeoises, le Ministère a mandaté le Luxembourg Institute of Socio-Economic Research (LISER), partenaire du Ministère dans l'Observatoire de l'Habitat, pour réaliser une enquête visant à établir un premier cadastre des loyers au Luxembourg ."
+    },
+    {
+     "qid": "q20",
+     "source": "onh/rapport-analyse-23.pdf",
+     "quote": "Cette enquête a été rendue possible par une collaboration étroite et efficace entre le LISER, l'ACT, le CTIE et le Ministère du Logement et de l'Aménagement du territoire ."
+    },
+    {
+     "qid": "q21",
+     "source": "onh/rapport-analyse-16.pdf",
+     "quote": "C 'est pourquoi après estimation du revenu net disponible (loi logement) de chaque ménage, nous calculons des seuils de revenu pour chaque décile et type de ménage 4 , servant ensuite de base afin de définir les plafonds qui seront appliqués dans la loi logement et les différentes aides/politiques sous-jacentes."
+    },
+    {
+     "qid": "q21",
+     "source": "onh/rapport-analyse-16.pdf",
+     "quote": "La partie la plus importante et la plus compliquée es t d'estimer le revenu total des ménages, tel que défini dans la loi logement 5 ."
+    },
+    {
+     "qid": "q24",
+     "source": "onh/note-37.pdf",
+     "quote": "Il est à présent possible de synthétiser les différentes étapes, en combinant les transactions exclues du champ des indices à cause du type de bien qu'elles contiennent ( Section 1 ) avec les transactions d'appartements exclues par le processus de sélection ( Section 3 )."
+    },
+    {
+     "qid": "q24",
+     "source": "onh/note-37.pdf",
+     "quote": "Ce cas de figure, qui concerne 4 809 transactions de VEFA sans terrain (soit 69,1 % des transactions exclues), s'explique par le fait qu'il n'est pas JUULSER"
+    },
+    {
+     "qid": "q28",
+     "source": "dossier/8589",
+     "quote": "Le nouveau Pacte logement fixe les objectifs à l’horizon 2037 et oriente les moyens financiers afin de mieux soutenir le développement de logements abordables et durables à long terme."
+    },
+    {
+     "qid": "q34",
+     "source": "onh/Note-30.pdf",
+     "quote": "D'après le tableau 7 , 3 556 logements, en 2020, ont été concernés par le remboursement de la TVA et 23 544 par l'application directe du taux super-réduit."
+    },
+    {
+     "qid": "q36",
+     "source": "dossier/8481",
+     "quote": "Avant d'avoir été formalisé conformément aux articles 30 ou 30 bis de la présente loi, le plan d'aménagement particulier est appelé « projet d'aménagement particulier »."
+    },
+    {
+     "qid": "q36",
+     "source": "dossier/8481",
+     "quote": "Toutefois, à la demande de l'initiateur d'une proposition de modification ponctuelle d'un plan d'aménagement particulier, le collège des bourgmestre et échevins peut décider d'entamer la procédure de modification ponctuelle prévue à l'article 30 bis ."
+    }
+   ],
+   "gold_quotes_unfindable_no_whitespace_rule": [
+    {
+     "qid": "q02",
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "L'activité sur ce segment s'avère aujourd'hui supérieure à la moyenne des années précédant la crise (1 234 ventes d'appartements existants en moyenne au 4 e trimestre sur les an -nées 2017 à 2021)."
+    },
+    {
+     "qid": "q07",
+     "source": "onh/Note-30-en-bref.pdf",
+     "quote": "Voir note n°27 de l'Observatoire de l'Habitat : https://logement.public.lu/dam-assets/documents/publications/observatoire/note-27.pdf JUULSER"
+    },
+    {
+     "qid": "q17",
+     "source": "onh/rapport-analyse-14.pdf",
+     "quote": "Au bout de quatre ans, un nouveau miroir des loyers qualifié doit être établi en bonne et due forme (c'està-dire sur base de données issues d'enquêtes représentatives)."
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "« Propositions pour le mode de calcul du capital investi dans la Loi sur le Bail à Loyer », Rapport d'analyse n°3 (octobre 2022), Ministère du Logement, 28 pages. https://logement.public.lu/fr/publications/observatoire/rapport-analyse-3.html"
+    },
+    {
+     "qid": "q18",
+     "source": "onh/rapport-analyse-21.pdf",
+     "quote": "17.04.2026 À l'inverse, les logements acquis plus récemment bénéficient en effet de niveaux de capital investi réévalué beaucoup plus élevés, autorisant des loyers maximaux sensiblement supérieurs pour des biens comparables en termes de localisation, de surface ou de qualité ."
+    },
+    {
+     "qid": "q24",
+     "source": "onh/note-37.pdf",
+     "quote": "Ce cas de figure, qui concerne 4 809 transactions de VEFA sans terrain (soit 69,1 % des transactions exclues), s'explique par le fait qu'il n'est pas JUULSER"
+    },
+    {
+     "qid": "q28",
+     "source": "dossier/8589",
+     "quote": "Le nouveau Pacte logement fixe les objectifs à l’horizon 2037 et oriente les moyens financiers afin de mieux soutenir le développement de logements abordables et durables à long terme."
+    }
+   ]
+  }
+ },
+ "excluded_queries": {
+  "prefix": {},
+  "postfix": {}
+ },
+ "models": {
+  "bge-m3": {
+   "prefix": {
+    "ollama_version": "0.40.13",
+    "model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"
+   },
+   "postfix": {
+    "ollama_version": "0.40.13",
+    "model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"
+   }
+  },
+  "snowflake-arctic-embed2": {
+   "prefix": {
+    "ollama_version": "0.40.13",
+    "model_digest": "30685f516da4acfcce0b8afee7444afc9b60bc9628f269add5f7730c5e4be3b0"
+   },
+   "postfix": {
+    "ollama_version": "0.40.13",
+    "model_digest": "30685f516da4acfcce0b8afee7444afc9b60bc9628f269add5f7730c5e4be3b0"
+   }
+  },
+  "nomic-embed-text": {
+   "prefix": {
+    "ollama_version": "0.40.13",
+    "model_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+   },
+   "postfix": {
+    "ollama_version": "0.40.13",
+    "model_digest": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+   }
+  }
+ },
+ "runs": {
+  "prefix/bge-m3": {
+   "indexed_chunks": 5004,
+   "excluded_infographic": 6,
+   "overall": {
+    "n": 56,
+    "hit@10": 0.9464,
+    "mrr_gold+acceptable": 0.8666,
+    "mrr_gold": 0.7224
+   },
+   "fr": {
+    "n": 40,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9688,
+    "mrr_gold": 0.7857
+   },
+   "de_all": {
+    "n": 16,
+    "hit@10": 0.8125,
+    "mrr_gold+acceptable": 0.6112,
+    "mrr_gold": 0.5643
+   },
+   "de_old": {
+    "n": 5,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9,
+    "mrr_gold": 0.75
+   },
+   "de_new": {
+    "n": 11,
+    "hit@10": 0.7273,
+    "mrr_gold+acceptable": 0.4799,
+    "mrr_gold": 0.4799
+   },
+   "doc_type:dossier": {
+    "n": 28,
+    "hit@10": 0.8929,
+    "mrr_gold+acceptable": 0.7332
+   },
+   "doc_type:onh": {
+    "n": 33,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9545
+   },
+   "pooled_search": {
+    "hit@10": 0.9464,
+    "mrr_gold+acceptable": 0.8487
+   },
+   "unfindable_gold_passages": 7,
+   "missed_queries": [
+    "q46",
+    "q47",
+    "q49"
+   ]
+  },
+  "postfix/bge-m3": {
+   "indexed_chunks": 5034,
+   "excluded_infographic": 0,
+   "overall": {
+    "n": 56,
+    "hit@10": 0.9464,
+    "mrr_gold+acceptable": 0.8702,
+    "mrr_gold": 0.726
+   },
+   "fr": {
+    "n": 40,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9688,
+    "mrr_gold": 0.7857
+   },
+   "de_all": {
+    "n": 16,
+    "hit@10": 0.8125,
+    "mrr_gold+acceptable": 0.6239,
+    "mrr_gold": 0.577
+   },
+   "de_old": {
+    "n": 5,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9,
+    "mrr_gold": 0.75
+   },
+   "de_new": {
+    "n": 11,
+    "hit@10": 0.7273,
+    "mrr_gold+acceptable": 0.4983,
+    "mrr_gold": 0.4983
+   },
+   "doc_type:dossier": {
+    "n": 28,
+    "hit@10": 0.8929,
+    "mrr_gold+acceptable": 0.7404
+   },
+   "doc_type:onh": {
+    "n": 33,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9545
+   },
+   "pooled_search": {
+    "hit@10": 0.9464,
+    "mrr_gold+acceptable": 0.8524
+   },
+   "unfindable_gold_passages": 7,
+   "missed_queries": [
+    "q46",
+    "q47",
+    "q49"
+   ]
+  },
+  "prefix/snowflake-arctic-embed2": {
+   "indexed_chunks": 5004,
+   "excluded_infographic": 6,
+   "overall": {
+    "n": 56,
+    "hit@10": 0.9821,
+    "mrr_gold+acceptable": 0.9096,
+    "mrr_gold": 0.7554
+   },
+   "fr": {
+    "n": 40,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 1.0,
+    "mrr_gold": 0.8133
+   },
+   "de_all": {
+    "n": 16,
+    "hit@10": 0.9375,
+    "mrr_gold+acceptable": 0.6835,
+    "mrr_gold": 0.6106
+   },
+   "de_old": {
+    "n": 5,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 1.0,
+    "mrr_gold": 0.7667
+   },
+   "de_new": {
+    "n": 11,
+    "hit@10": 0.9091,
+    "mrr_gold+acceptable": 0.5396,
+    "mrr_gold": 0.5396
+   },
+   "doc_type:dossier": {
+    "n": 28,
+    "hit@10": 0.9643,
+    "mrr_gold+acceptable": 0.8191
+   },
+   "doc_type:onh": {
+    "n": 33,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9848
+   },
+   "pooled_search": {
+    "hit@10": 0.9821,
+    "mrr_gold+acceptable": 0.9006
+   },
+   "unfindable_gold_passages": 7,
+   "missed_queries": [
+    "q54"
+   ]
+  },
+  "postfix/snowflake-arctic-embed2": {
+   "indexed_chunks": 5034,
+   "excluded_infographic": 0,
+   "overall": {
+    "n": 56,
+    "hit@10": 0.9821,
+    "mrr_gold+acceptable": 0.9105,
+    "mrr_gold": 0.7563
+   },
+   "fr": {
+    "n": 40,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 1.0,
+    "mrr_gold": 0.8133
+   },
+   "de_all": {
+    "n": 16,
+    "hit@10": 0.9375,
+    "mrr_gold+acceptable": 0.6866,
+    "mrr_gold": 0.6137
+   },
+   "de_old": {
+    "n": 5,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 1.0,
+    "mrr_gold": 0.7667
+   },
+   "de_new": {
+    "n": 11,
+    "hit@10": 0.9091,
+    "mrr_gold+acceptable": 0.5442,
+    "mrr_gold": 0.5442
+   },
+   "doc_type:dossier": {
+    "n": 28,
+    "hit@10": 0.9643,
+    "mrr_gold+acceptable": 0.8209
+   },
+   "doc_type:onh": {
+    "n": 33,
+    "hit@10": 1.0,
+    "mrr_gold+acceptable": 0.9848
+   },
+   "pooled_search": {
+    "hit@10": 0.9821,
+    "mrr_gold+acceptable": 0.9015
+   },
+   "unfindable_gold_passages": 7,
+   "missed_queries": [
+    "q54"
+   ]
+  },
+  "prefix/nomic-embed-text": {
+   "indexed_chunks": 5004,
+   "excluded_infographic": 6,
+   "overall": {
+    "n": 56,
+    "hit@10": 0.7321,
+    "mrr_gold+acceptable": 0.6699,
+    "mrr_gold": 0.4881
+   },
+   "fr": {
+    "n": 40,
+    "hit@10": 0.9,
+    "mrr_gold+acceptable": 0.8433,
+    "mrr_gold": 0.6182
+   },
+   "de_all": {
+    "n": 16,
+    "hit@10": 0.3125,
+    "mrr_gold+acceptable": 0.2362,
+    "mrr_gold": 0.1628
+   },
+   "de_old": {
+    "n": 5,
+    "hit@10": 0.6,
+    "mrr_gold+acceptable": 0.6026,
+    "mrr_gold": 0.368
+   },
+   "de_new": {
+    "n": 11,
+    "hit@10": 0.1818,
+    "mrr_gold+acceptable": 0.0696,
+    "mrr_gold": 0.0696
+   },
+   "doc_type:dossier": {
+    "n": 28,
+    "hit@10": 0.6071,
+    "mrr_gold+acceptable": 0.4918
+   },
+   "doc_type:onh": {
+    "n": 33,
+    "hit@10": 0.8485,
+    "mrr_gold+acceptable": 0.8407
+   },
+   "pooled_search": {
+    "hit@10": 0.6964,
+    "mrr_gold+acceptable": 0.6345
+   },
+   "unfindable_gold_passages": 7,
+   "missed_queries": [
+    "q04",
+    "q05",
+    "q14",
+    "q29",
+    "q43",
+    "q45",
+    "q46",
+    "q47",
+    "q48",
+    "q49",
+    "q50",
+    "q52",
+    "q53",
+    "q54",
+    "q56"
+   ]
+  },
+  "postfix/nomic-embed-text": {
+   "indexed_chunks": 5034,
+   "excluded_infographic": 0,
+   "overall": {
+    "n": 56,
+    "hit@10": 0.7321,
+    "mrr_gold+acceptable": 0.6698,
+    "mrr_gold": 0.4875
+   },
+   "fr": {
+    "n": 40,
+    "hit@10": 0.9,
+    "mrr_gold+acceptable": 0.8433,
+    "mrr_gold": 0.6174
+   },
+   "de_all": {
+    "n": 16,
+    "hit@10": 0.3125,
+    "mrr_gold+acceptable": 0.2359,
+    "mrr_gold": 0.1626
+   },
+   "de_old": {
+    "n": 5,
+    "hit@10": 0.6,
+    "mrr_gold+acceptable": 0.6026,
+    "mrr_gold": 0.368
+   },
+   "de_new": {
+    "n": 11,
+    "hit@10": 0.1818,
+    "mrr_gold+acceptable": 0.0692,
+    "mrr_gold": 0.0692
+   },
+   "doc_type:dossier": {
+    "n": 28,
+    "hit@10": 0.5714,
+    "mrr_gold+acceptable": 0.4916
+   },
+   "doc_type:onh": {
+    "n": 33,
+    "hit@10": 0.8485,
+    "mrr_gold+acceptable": 0.8407
+   },
+   "pooled_search": {
+    "hit@10": 0.6964,
+    "mrr_gold+acceptable": 0.6344
+   },
+   "unfindable_gold_passages": 7,
+   "missed_queries": [
+    "q04",
+    "q05",
+    "q14",
+    "q29",
+    "q43",
+    "q45",
+    "q46",
+    "q47",
+    "q48",
+    "q49",
+    "q50",
+    "q52",
+    "q53",
+    "q54",
+    "q56"
+   ]
+  }
+ },
+ "flips": {
+  "bge-m3": {
+   "n_compared": 56,
+   "hit_to_miss": [],
+   "miss_to_hit": [],
+   "miss_both": [
+    "q46",
+    "q47",
+    "q49"
+   ]
+  },
+  "snowflake-arctic-embed2": {
+   "n_compared": 56,
+   "hit_to_miss": [],
+   "miss_to_hit": [],
+   "miss_both": [
+    "q54"
+   ]
+  },
+  "nomic-embed-text": {
+   "n_compared": 56,
+   "hit_to_miss": [],
+   "miss_to_hit": [],
+   "miss_both": [
+    "q04",
+    "q05",
+    "q14",
+    "q29",
+    "q43",
+    "q45",
+    "q46",
+    "q47",
+    "q48",
+    "q49",
+    "q50",
+    "q52",
+    "q53",
+    "q54",
+    "q56"
+   ]
+  }
+ }
+}
