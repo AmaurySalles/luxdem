@@ -26,3 +26,4 @@ Everything runs in Docker (`docker compose up -d`). See `Makefile` and `python3 
 - `.claude/TESTING.md`: before writing tests
 - `.claude/STYLE_GUIDE.md`: before writing new functions
 - `.claude/DECISIONS.md`: before changing parsing, embedding, config or paths
+- `.claude/DOMAIN_MODEL.md`: before naming domain concepts (dossiers, actors, analysis outputs)
