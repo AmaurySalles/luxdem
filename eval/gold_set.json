@@ -1575,6 +1575,207 @@
     "dossier/8535::201",
     "dossier/8656::46"
    ]
+  },
+  {
+   "id": "q46",
+   "lang": "de",
+   "target": "strike",
+   "query": "Frist für den Sozialvermieter, einem Mieter eine passende Wohnung anzubieten",
+   "gold": [
+    {
+     "source": "dossier/8535",
+     "quote": "dispose d'un délai de trois ans pour proposer un relogement au locataire",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8535::47",
+      "dossier/8535::241"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q47",
+   "lang": "de",
+   "target": "strike",
+   "query": "Zuweisung an Gemeinden pro erschwinglicher Wohnung im Pacte logement",
+   "gold": [
+    {
+     "source": "dossier/8589",
+     "quote": "se voient attribuer une dotation de vingt-cinq mille euros pour tout logement abordable se situant sur leur territoire",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8589::19",
+      "dossier/8589::50"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q48",
+   "lang": "de",
+   "target": "strike",
+   "query": "Einmalige Pauschale pro Einwohner für Gemeinden mit einer Pacte-logement-Konvention",
+   "gold": [
+    {
+     "source": "dossier/8589",
+     "quote": "une dotation forfaitaire unique de vingt-cinq euros par personne physique ayant établi sa résidence habituelle sur le territoire de la commune, avec un minimum de cent mille euros et un plafond de cinq cent mille euros par commune",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8589::18",
+      "dossier/8589::49"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q49",
+   "lang": "de",
+   "target": "strike",
+   "query": "Verlängerung der Verfallsfrist einer naturschutzrechtlichen Genehmigung",
+   "gold": [
+    {
+     "source": "dossier/8449",
+     "quote": "une prorogation du délai de péremption pour une durée de trois ans",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8449::32",
+      "dossier/8449::171"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q50",
+   "lang": "de",
+   "target": "strike",
+   "query": "Arten von Flächenpools für naturschutzrechtliche Ausgleichsmaßnahmen",
+   "gold": [
+    {
+     "source": "dossier/8449",
+     "quote": "Le ministre peut autoriser la réalisation de mesures compensatoires indépendamment et préalablement à une autorisation",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8449::174"
+     ]
+    },
+    {
+     "source": "dossier/8449",
+     "quote": "3° les pools compensatoires communaux.",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8449::33",
+      "dossier/8449::174"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q51",
+   "lang": "de",
+   "target": "table",
+   "query": "Höchster Quadratmeterpreis für Bestandswohnungen in Bertrange",
+   "gold": [
+    {
+     "source": "onh/logement-en-chiffre-17.pdf",
+     "quote": "Bertrange, Prix par m² moyen maximum = 11.831 €.",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "onh/logement-en-chiffre-17.pdf::22"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q52",
+   "lang": "de",
+   "target": "table",
+   "query": "Förderbetrag pro Quadratmeter für die Dämmung von Außenwänden",
+   "gold": [
+    {
+     "source": "dossier/8585",
+     "quote": "Aide financière spécifique [euros par mètre carré assaini].Standard de performance I = 60.",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8585::17"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q53",
+   "lang": "de",
+   "target": "table",
+   "query": "Anteil der Beschäftigten, die in der Nähe des sozialen Mindestlohns verdienen",
+   "gold": [
+    {
+     "source": "dossier/8117",
+     "quote": "Tableau 5 : Proportion de salariés (hors fonctionnaires) rémunérés au voisinage du salaire social minimum au 31 mars de l'année considérée.",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8117::39"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q54",
+   "lang": "de",
+   "target": "table",
+   "query": "Polizeibefugnisse von Gemeinderat und Bürgermeister",
+   "gold": [
+    {
+     "source": "dossier/8429",
+     "quote": "Les pouvoirs de police communale peuvent être schématisés comme suit",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8429::35"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q55",
+   "lang": "de",
+   "target": "long",
+   "query": "Aufgaben des Nationalen Aufnahmeamts (ONA) bei der Unterbringung von Schutzsuchenden",
+   "gold": [
+    {
+     "source": "dossier/8732",
+     "quote": "de gérer des structures d'hébergement réservées au logement provisoire de demandeurs de protection internationale",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8732::172"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
+  },
+  {
+   "id": "q56",
+   "lang": "de",
+   "target": "long",
+   "query": "Höchstbetrag der Ordnungsstrafe bei nicht erreichten Energieeinsparungen",
+   "gold": [
+    {
+     "source": "dossier/8463",
+     "quote": "Une éventuelle amende d'ordre ne peut dépasser 2 euros par mégawattheure.",
+     "prefix_chunk": null,
+     "postfix_chunks": [
+      "dossier/8463::330"
+     ]
+    }
+   ],
+   "acceptable_prefix_chunks": []
   }
- ]
+ ],
+ "notes_q46_q56": "q46-q56: German, written passage-first from post-fix chunks (#52). target = strike|table|long. No acceptable labels: report their MRR as a separate slice. prefix_chunk unverified: check quote against pre-fix chunks before pre-fix scoring."
 }
