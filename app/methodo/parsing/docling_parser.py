@@ -14,6 +14,7 @@ from docling_core.types.doc import DocItemLabel
 from ecodev_core import SETTINGS, logger_get
 
 from app.methodo.parsing.download import download_pdf
+from app.methodo.parsing.strike_through import install_strike_through_hook
 
 log = logger_get(__name__)
 
@@ -59,6 +60,7 @@ def _create_converter() -> DocumentConverter:
     accelerator_name, num_threads = _read_docling_config()
     device = _resolve_device(accelerator_name)
     log.info(f"Docling using accelerator={device.value} (num_threads={num_threads})")
+    install_strike_through_hook()
     pipeline_options = PdfPipelineOptions(
         accelerator_options=AcceleratorOptions(device=device, num_threads=num_threads)
     )
