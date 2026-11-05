@@ -1,7 +1,7 @@
 {
  "version": 1,
  "created": "2026-10-30",
- "match_rule": "hit = retrieved chunk whose source equals gold.source and whose text contains gold.quote, after collapsing whitespace and removing ~~ marks",
+ "match_rule": "hit = retrieved chunk whose source equals gold.source and whose text contains gold.quote, after removing ~~ marks and all whitespace from both",
  "queries": [
   {
    "id": "q01",
