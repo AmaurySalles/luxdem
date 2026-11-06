@@ -89,53 +89,168 @@ def embed_onh_command(
 
 @safe_clt
 @typer_app.command()
-def ingest_coalition_agreement_command() -> None:
+def relativize_onh_urls_command(
+    commit: bool = typer.Option(False, "--commit", help="Apply the rewrite (default: dry-run)"),
+) -> None:
     """
-    Parse and embed the coalition agreement 2023-2028 PDF into Chroma (run once).
-    This document provides the KPI baseline for policy analysis.
+    One-off (#55): rewrite legacy `file://.../<file>` onh_publication urls to `onh/<file>`,
+    relative to data/downloads. Rows whose file is missing there are refused (left as-is).
+    Back up the onh_publication table before --commit.
     """
-    pdf_path = DATA_DIR / 'accord-coalition.pdf'
+    from app.db_model.inserters import update_onh_publication_urls
+    from app.db_model.retrievers import retrieve_onh_publications
+    from app.methodo.onh_paths import ONH_DOWNLOADS_DIR
+    from app.methodo.onh_paths import plan_onh_url_rewrites
+
+    with Session(engine) as session:
+        rewrites = sorted(plan_onh_url_rewrites(retrieve_onh_publications(session)),
+                          key=lambda r: r.id)
+        typer.echo(f"{'id':>4}  {'found':<5}  before -> after")
+        for r in rewrites:
+            typer.echo(f"{r.id:>4}  {'yes' if r.file_found else 'NO':<5}  "
+                       f"{r.old_url} -> {r.new_url}")
+        ok = {r.id: r.new_url for r in rewrites if r.file_found}
+        missing = len(rewrites) - len(ok)
+        typer.echo(f"\n{len(rewrites)} legacy rows, {len(ok)} files found under "
+                   f"{ONH_DOWNLOADS_DIR}, {missing} refused (file missing)")
+        if not commit:
+            if ok:
+                typer.echo("DRY-RUN: re-run with --commit (back up onh_publication first).")
+            return
+        typer.echo(f"COMMIT: updated {update_onh_publication_urls(session, ok)} rows.")
+
+
+@safe_clt
+@typer_app.command()
+def ingest_coalition_agreement_command(
+    pdf_path: Path = typer.Argument(DATA_DIR / "downloads" / "accord_coalition_2023_2028.pdf",
+                                    help="Coalition agreement PDF"),
+    cache_dir: Path = typer.Option(None, help="Parse cache dir (default: data/parse_cache)"),
+) -> None:
+    """
+    Embed the coalition agreement 2023-2028 PDF into Chroma (run once), from the parse
+    cache when the parse box already parsed it. It provides the KPI baseline for policy
+    analysis.
+    """
     from app.methodo.onh_pipeline import coalition_agreement_pipeline
-    coalition_agreement_pipeline(Path(pdf_path))
+    from app.methodo.parse_cache import PARSE_CACHE_DIR
+    coalition_agreement_pipeline(pdf_path, cache_dir=cache_dir or PARSE_CACHE_DIR)
     typer.echo("Coalition agreement ingested successfully.")
 
 
 @safe_clt
 @typer_app.command()
+def export_parse_manifest_command(
+    out: Path = typer.Option(DATA_DIR / "parse_manifest.jsonl", help="Manifest to write"),
+    dossier_dir: Path = typer.Option(DATA_DIR / "_pilot_a" / "all",
+                                     help="Local dossier PDFs, named <dossier number>.pdf"),
+) -> None:
+    """
+    Write the parse box's manifest (#80): every ONH + dossier doc and the coalition
+    agreement, with file paths relative to data/. Fails if any doc has no local PDF.
+    """
+    from app.methodo.parse_manifest import build_manifest
+    from app.methodo.parse_manifest import ManifestFilesMissingError
+    from app.methodo.parse_manifest import write_manifest
+    from app.methodo.parse_worker import LONG_DOC_PAGES
+    with Session(engine) as session:
+        try:
+            rows = build_manifest(session, dossier_dir=dossier_dir)
+        except ManifestFilesMissingError as e:
+            typer.echo(str(e), err=True)
+            raise typer.Exit(1) from e
+    write_manifest(rows, out)
+    long_docs = [r for r in rows if r.page_count > LONG_DOC_PAGES]
+    typer.echo(f"{len(rows)} docs ({sum(r.page_count for r in rows)} pages) -> {out}")
+    typer.echo(f"long lane (> {LONG_DOC_PAGES} pages): {len(long_docs)}")
+
+
+@safe_clt
+@typer_app.command()
+def embed_parity_command(
+    remote_host: str = typer.Argument(..., help="Tunnelled GPU Ollama, e.g. "
+                                                "http://host.docker.internal:11435"),
+    local_host: str = typer.Option("http://host.docker.internal:11434",
+                                   help="Laptop Ollama that embeds queries at search time"),
+    model: str = typer.Option(OLLAMA_EMBEDDING_MODEL, help="Embedding model"),
+    out: Path = typer.Option(DATA_DIR / "embed_parity.json", help="Report to write"),
+) -> None:
+    """
+    Gate before the bulk embed (#47): the GPU box must give the laptop's vectors (min cosine
+    >= 0.999, same prompt_eval_count, pinned Ollama version and model digest on both sides).
+    """
+    from app.methodo.embed_parity import check_parity
+    from app.methodo.embed_parity import load_parity_sample
+    report = check_parity(model, local_host, remote_host, load_parity_sample())
+    summary = json.dumps(report.summary(), indent=1)
+    out.write_text(summary)
+    typer.echo(summary)
+    # safe_clt swallows typer.Exit, so the verdict is printed rather than an exit code
+    typer.echo("PARITY PASSED" if report.passed else f"PARITY FAILED: {report.problems}")
+
+
+@safe_clt
+@typer_app.command()
+def time_embedding_command(
+    host: str = typer.Argument(..., help="Ollama to time, e.g. http://host.docker.internal:11435"),
+    model: str = typer.Option(OLLAMA_EMBEDDING_MODEL, help="Embedding model"),
+    n_chunks: int = typer.Option(1000, help="Chunks from the fixed timing sample"),
+) -> None:
+    """Embed a fixed sample of post-fix chunks with production batching, to size the bulk run."""
+    from app.methodo.embed_parity import load_timing_sample
+    from app.methodo.embed_parity import time_embedding
+    result = time_embedding(model, host, load_timing_sample()[:n_chunks])
+    typer.echo(json.dumps(result.summary(), indent=1))
+
+
+@safe_clt
+@typer_app.command()
 def cleanup_stale_chunks_command(
-    commit: bool = typer.Option(False, "--commit", help="Delete + re-embed (default: dry-run)"),
-    onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs whose DB path is missing"),
+    commit: bool = typer.Option(False, "--commit", help="Embed from cache (default: dry-run)"),
+    onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs missing in data/downloads"),
     onh: bool = typer.Option(True, help="Include ONH publications"),
     dossiers: bool = typer.Option(True, help="Include dossiers"),
     limit: int = typer.Option(None, help="Max number of docs per corpus"),
+    cache_dir: Path = typer.Option(None, help="Parse cache dir (default: data/parse_cache)"),
 ) -> None:
     """
-    One-off migration (#29): reparse ONH + dossier docs, and re-embed those whose chunks
-    changed after the table-shredding fix, deleting their stale Chroma chunks first.
-    Dry-run by default. Back up data/embeddings/ before --commit.
+    One-off migration (#29, #46). Dry-run (default): parse ONH + dossier docs into the
+    parse cache and report vs Chroma, no Chroma writes. --commit: embed-only from the
+    cache (no parsing): delete + re-embed changed docs, embed never-embedded ones.
+    Back up data/embeddings/ before --commit.
     Coalition is not covered: re-run ingest-coalition-agreement-command instead.
     """
+    from app.methodo.parse_cache import PARSE_CACHE_DIR
     from app.methodo.stale_chunk_migration import stale_chunk_migration
     with Session(engine) as session:
         report = stale_chunk_migration(session, commit=commit, onh_dir=onh_dir,
-                                       include_onh=onh, include_dossiers=dossiers, limit=limit)
+                                       include_onh=onh, include_dossiers=dossiers, limit=limit,
+                                       cache_dir=cache_dir or PARSE_CACHE_DIR)
 
     typer.echo(f"\n{'COMMIT' if commit else 'DRY-RUN'} REPORT")
+    if not commit:
+        typer.echo(f"  cache hits:   {report.cache_hits} (not reparsed)")
+        for env, n in report.cache_envs.most_common():
+            typer.echo(f"    {n:>5} parsed with {env}")
+        if len(report.cache_envs) > 1:
+            typer.echo("  WARNING: cache entries come from more than one parse environment")
     typer.echo(f"  unchanged:    {len(report.unchanged)}")
-    typer.echo(f"  not embedded: {len(report.not_embedded)} (left to the normal pipelines)")
+    typer.echo(f"  not embedded: {len(report.not_embedded)}"
+               f" ({sum(new for _, new in report.not_embedded)} chunks to embed)")
     typer.echo(f"  affected:     {len(report.affected)}"
                f" ({sum(old - new for _, old, new in report.affected)} net chunks removed)")
     for label, old, new in report.affected:
         typer.echo(f"    {old:>5} -> {new:<5} {label}")
-    for title, rows in (("SUSPICIOUS (0 chunks after reparse, untouched)", report.suspicious),
-                        ("FAILED TO PARSE", report.failed),
+    for title, rows in (("SUSPICIOUS (0 chunks after parse, untouched)", report.suspicious),
+                        ("FAILED TO PARSE (not cached)", report.failed),
+                        ("NOT CACHED (skipped, re-run dry run)", report.uncached),
                         ("COUNT MISMATCH AFTER COMMIT", report.count_mismatch)):
         if rows:
             typer.echo(f"  {title}: {len(rows)}")
             for row in rows:
                 typer.echo(f"    {row}")
-    if not commit and report.affected:
-        typer.echo("\nRe-run with --commit to apply (back up data/embeddings/ first).")
+    if not commit and (report.affected or report.not_embedded):
+        typer.echo("\nRe-run with --commit to embed from cache (back up data/embeddings/ first).")
 
 
 @safe_clt

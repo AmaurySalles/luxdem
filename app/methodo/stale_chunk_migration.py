@@ -1,17 +1,33 @@
 """
 One-off migration: re-embed ONH + dossier docs whose chunking changed after the
-table-shredding fix (#31), deleting their stale Chroma chunks first (see #29).
+table-shredding fix (#31), deleting their stale Chroma chunks first (see #29), and
+embed the docs that were never embedded at all (#46).
+
+Two passes, so a rented GPU never sits idle while Docling parses (#46):
+- dry-run (default, laptop): parse every target, write the chunks to the parse cache
+  (`parse_cache.py`), compare with Chroma and report. Never writes to Chroma. Docs
+  that already have a valid cache entry are not reparsed, so an interrupted run resumes.
+- `--commit` (GPU up): reads chunks from the cache only, never parses. Deletes +
+  re-embeds affected docs and embeds never-embedded ones. Targets without a valid
+  cache entry (missing, or stale after a parser change) are skipped and reported.
+
+Docs the parse box listed in `failed.jsonl` (#77) are reported as failed and never
+reparsed here: the laptop doesn't have the memory for them (#71).
 
 Chunk ids are `md5(source_url::chunk_index)`, so a doc that now yields fewer chunks
 would keep its old high-index chunks forever if simply re-embedded. Coalition is not
 covered here: `coalition_agreement_pipeline` already wipes + re-ingests on every run.
+
+The vectorstore comes from `get_create_chroma_vectorstore`, so whichever collection it
+points at is the one compared against. An empty collection just means every doc is
+"not embedded" and gets embedded on `--commit`.
 """
 import hashlib
+from collections import Counter
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import Any
-from typing import Callable
 
 from ecodev_core import logger_get
 from langchain_chroma import Chroma
@@ -22,30 +38,32 @@ from app.db_model.retrievers.onh_retriever import retrieve_onh_publications
 from app.methodo.chroma import embed_and_store_in_chroma
 from app.methodo.chroma import get_create_chroma_vectorstore
 from app.methodo.main_pipeline import OLLAMA_EMBEDDING_MODEL
+from app.methodo.onh_paths import resolve_onh_source
 from app.methodo.onh_pipeline import _get_onh_metadata
 from app.methodo.onh_pipeline import ONH_MIN_CHUNK_WORDS
-from app.methodo.parsing.docling_parser import parse_with_docling
+from app.methodo.parse_cache import load_cache_env
+from app.methodo.parse_cache import load_cached_chunks
+from app.methodo.parse_cache import load_failures
+from app.methodo.parse_cache import PARSE_CACHE_DIR
+from app.methodo.parse_cache import ParseFailure
+from app.methodo.parse_cache import ParseJob
+from app.methodo.parse_cache import save_cached_chunks
 from app.methodo.parsing.metadata import get_resource_metadata
 
 log = logger_get(__name__)
 
 
 @dataclass
-class MigrationTarget:
-    """One doc to check: `source_url` keys its Chroma chunks, `parse` reparses it."""
-    label: str
-    source_url: str
-    parse: Callable[[], list[dict[str, Any]]]
-
-
-@dataclass
 class MigrationReport:
     unchanged: list[str] = field(default_factory=list)
-    not_embedded: list[str] = field(default_factory=list)
+    not_embedded: list[tuple[str, int]] = field(default_factory=list)  # (label, new)
     affected: list[tuple[str, int, int]] = field(default_factory=list)  # (label, old, new)
     suspicious: list[tuple[str, int]] = field(default_factory=list)  # (label, old) -> 0 new
     failed: list[tuple[str, str]] = field(default_factory=list)  # (label, error)
+    uncached: list[str] = field(default_factory=list)  # commit only: no valid cache entry
     count_mismatch: list[tuple[str, int, int]] = field(default_factory=list)  # post-commit
+    cache_hits: int = 0  # dry-run only: targets not reparsed
+    cache_envs: Counter[str] = field(default_factory=Counter)  # parse_env of cache hits
 
 
 def _chunk_id(source_url: str, index: int) -> str:
@@ -62,44 +80,75 @@ def _is_changed(stored: dict[str, Any], source_url: str, chunks: list[dict[str, 
     return any(stored_text[i] != c["page_content"] for i, c in zip(new_ids, chunks))
 
 
-def migrate_stale_chunks(targets: list[MigrationTarget],
+def _get_chunks(target: ParseJob, cache_dir: Path, commit: bool,
+                failures: dict[str, ParseFailure],
+                report: MigrationReport) -> list[dict[str, Any]] | None:
+    """Cached chunks, else (dry-run only) parse + cache. None if unavailable (reported)."""
+    fingerprint = target.fingerprint()
+    chunks = load_cached_chunks(cache_dir, target.source_url, fingerprint)
+    if chunks is not None:
+        if not commit:
+            report.cache_hits += 1
+            report.cache_envs[load_cache_env(cache_dir, target.source_url)] += 1
+        return chunks
+    if target.source_url in failures:
+        failure = failures[target.source_url]
+        log.error(f"   → failed on the parse box ({failure.reason}), not reparsing here")
+        report.failed.append((target.label, f"parse box: {failure.reason} {failure.detail}"))
+        return None
+    if commit:
+        log.warning("   → no valid cache entry, skipping (re-run the dry run first)")
+        report.uncached.append(target.label)
+        return None
+    try:
+        chunks = target.parse()
+    except Exception as e:
+        log.error(f"   → parse failed: {e}")
+        report.failed.append((target.label, str(e)))
+        return None
+    save_cached_chunks(cache_dir, target.source_url, target.label, fingerprint, chunks)
+    return chunks
+
+
+def migrate_stale_chunks(targets: list[ParseJob],
                          vectorstore: Chroma,
+                         cache_dir: Path = PARSE_CACHE_DIR,
                          commit: bool = False) -> MigrationReport:
-    """Reparse each target; in commit mode delete + re-embed the ones whose chunks changed."""
+    """
+    Dry-run: parse (or reuse cache), cache and classify each target. Commit: classify
+    from cache only, then delete + re-embed affected docs and embed never-embedded ones.
+    """
     report = MigrationReport()
+    failures = load_failures(cache_dir)
     for n, target in enumerate(targets, 1):
         log.info(f"[{n}/{len(targets)}] {target.label}")
+        chunks = _get_chunks(target, cache_dir, commit, failures, report)
+        if chunks is None:
+            continue
+
         stored = vectorstore.get(where={"source_url": target.source_url},
                                  include=["documents"])
         old_count = len(stored["ids"])
-        if not old_count:
-            # never embedded: the normal pipelines will pick it up with the fix already in
-            report.not_embedded.append(target.label)
-            continue
-
-        try:
-            chunks = target.parse()
-        except Exception as e:
-            log.error(f"   → parse failed: {e}")
-            report.failed.append((target.label, str(e)))
-            continue
-
         if not chunks:
-            # likely a silent parse failure: never wipe a doc's chunks for nothing
-            log.warning(f"   → {old_count} chunks -> 0 after reparse, leaving untouched")
+            # likely a silent parse failure: never wipe (or "embed") a doc for nothing
+            log.warning(f"   → {old_count} chunks -> 0 after parse, leaving untouched")
             report.suspicious.append((target.label, old_count))
             continue
 
-        if not _is_changed(stored, target.source_url, chunks):
+        if not old_count:
+            log.info(f"   → not embedded: {len(chunks)} chunks to embed")
+            report.not_embedded.append((target.label, len(chunks)))
+        elif not _is_changed(stored, target.source_url, chunks):
             report.unchanged.append(target.label)
             continue
-
-        log.info(f"   → affected: {old_count} -> {len(chunks)} chunks")
-        report.affected.append((target.label, old_count, len(chunks)))
+        else:
+            log.info(f"   → affected: {old_count} -> {len(chunks)} chunks")
+            report.affected.append((target.label, old_count, len(chunks)))
         if not commit:
             continue
 
-        vectorstore.delete(ids=stored["ids"])
+        if old_count:
+            vectorstore.delete(ids=stored["ids"])
         embed_and_store_in_chroma(chunks, vectorstore)
         stored_after = len(vectorstore.get(where={"source_url": target.source_url})["ids"])
         if stored_after != len(chunks):
@@ -108,30 +157,31 @@ def migrate_stale_chunks(targets: list[MigrationTarget],
     return report
 
 
-def _resolve_onh_source(url: str, onh_dir: Path | None) -> str:
-    """ONH urls in the DB can be local paths from another machine: fall back to onh_dir."""
-    source = url.removeprefix("file://")
-    if onh_dir is not None and not source.startswith("http") and not Path(source).exists():
-        return str(onh_dir / Path(source).name)
-    return source
-
-
 def collect_targets(session: Session,
                     onh_dir: Path | None = None,
                     include_onh: bool = True,
                     include_dossiers: bool = True,
-                    limit: int | None = None) -> list[MigrationTarget]:
-    """Build targets with the same parse settings as onh_pipeline / dossier_pipeline."""
-    targets: list[MigrationTarget] = []
+                    limit: int | None = None,
+                    dossier_dir: Path | None = None) -> list[ParseJob]:
+    """
+    Build parse jobs with the same parse settings as onh_pipeline / dossier_pipeline.
+
+    Purpose: targets of the stale-chunk migration, and the rows of the parse-box manifest
+    (`parse_manifest.export_manifest`).
+
+    NOTE: dossiers are parsed from their chd.lu url unless `dossier_dir` holds local
+    copies named `<dossier number>.pdf` (the parse box never downloads, #71). The source
+    doesn't enter the fingerprint, so both give the same cache key.
+    """
+    targets: list[ParseJob] = []
     if include_onh:
         for pub in retrieve_onh_publications(session, limit=limit):
-            source = _resolve_onh_source(pub.url, onh_dir)
-            metadata = _get_onh_metadata(pub)
-            targets.append(MigrationTarget(
-                label=f"onh: {pub.title}",
+            targets.append(ParseJob(
                 source_url=pub.url,
-                parse=lambda s=source, m=metadata: parse_with_docling(
-                    s, m, min_chunk_words=ONH_MIN_CHUNK_WORDS),
+                label=f"onh: {pub.title}",
+                source=resolve_onh_source(pub.url, onh_dir),
+                metadata=_get_onh_metadata(pub),
+                min_chunk_words=ONH_MIN_CHUNK_WORDS,
             ))
     if include_dossiers:
         seen_urls: set[str] = set()
@@ -139,11 +189,12 @@ def collect_targets(session: Session,
             if item.url in seen_urls:
                 continue
             seen_urls.add(item.url)
-            metadata = get_resource_metadata(item)
-            targets.append(MigrationTarget(
-                label=f"dossier #{item.dossier.number}: {item.url}",
+            number = item.dossier.number
+            targets.append(ParseJob(
                 source_url=item.url,
-                parse=lambda u=item.url, m=metadata: parse_with_docling(u, m),
+                label=f"dossier #{number}: {item.url}",
+                source=str(dossier_dir / f"{number}.pdf") if dossier_dir else item.url,
+                metadata=get_resource_metadata(item),
             ))
     return targets
 
@@ -154,7 +205,8 @@ def stale_chunk_migration(session: Session,
                           include_onh: bool = True,
                           include_dossiers: bool = True,
                           limit: int | None = None,
+                          cache_dir: Path = PARSE_CACHE_DIR,
                           embedding_model: str = OLLAMA_EMBEDDING_MODEL) -> MigrationReport:
     targets = collect_targets(session, onh_dir, include_onh, include_dossiers, limit)
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
-    return migrate_stale_chunks(targets, vectorstore, commit=commit)
+    return migrate_stale_chunks(targets, vectorstore, cache_dir=cache_dir, commit=commit)

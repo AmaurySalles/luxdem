@@ -4,6 +4,56 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Parse-only worker for the rented parse box
+
+**Issues**: [#71](https://github.com/AmaurySalles/luxdem/issues/71), [#77](https://github.com/AmaurySalles/luxdem/issues/77) (decisions), [#80](https://github.com/AmaurySalles/luxdem/issues/80) (implementation)
+
+**Decision**: the full-corpus Docling parse runs on a rented GPU box with no Postgres or Chroma. `export-parse-manifest-command` (laptop) writes `parse_manifest.jsonl`: one `ManifestRow` per ONH doc, dossier and the coalition agreement, holding the file path relative to `data/`, the DB metadata, the parse args and `page_count`. It fails if any PDF is missing. On the box, `python -m app.methodo.parse_worker supervise` fills the parse cache. A supervisor feeds restarting worker subprocesses in two lanes: normal (`--workers`, exit over 10 GB RSS or after 20 docs) and long (1 worker for docs over 250 pages, restarted after every doc). Replies go over a dedicated pipe, not stdout. A SIGKILLed normal-lane doc is retried once in the long lane. Other failures go straight to `failed.jsonl` in the cache dir, which the dry run reports and never reparses. The laptop dry run then hits the cache for every doc. `ParseJob` (`parse_cache.py`) is shared by the migration, the manifest and the worker, so all three compute the same fingerprint.
+
+**Fingerprint**: it now hashes all of `app/methodo/parsing/*.py`, docling-parse and the torch base version (`2.14.1`, pinned). The torch build/device (`+cpu`, `+cu128`) is stored per entry as `parse_env` but not hashed, otherwise the laptop could never hit box-made entries. The dry run prints the entry count per `parse_env`, so a mix is visible.
+
+**Coalition**: `coalition_agreement_pipeline` reads from the cache (key `coalition:accord_coalition_2023_2028`, not put in chunk metadata, so Chroma ids are unchanged). `ingest-coalition-agreement-command` takes the PDF path, defaulting to `data/downloads/accord_coalition_2023_2028.pdf` (it pointed at a nonexistent file).
+
+**Why**: an OOM kill breaks `ProcessPoolExecutor` and hangs `multiprocessing.Pool`, so the supervisor owns the subprocesses. Each worker loads the models once.
+
+---
+
+## 2026-10 — ONH sources stored as paths relative to `data/downloads`
+
+**Issues**: [#49](https://github.com/AmaurySalles/luxdem/issues/49) (decision), [#55](https://github.com/AmaurySalles/luxdem/issues/55) (implementation)
+
+**Decision**: `OnhPublication.url` and the chunks' `source_url` hold e.g. `onh/Note-30.pdf`. `resolve_onh_source()` (`app/methodo/onh_paths.py`) resolves it against `DATA_DIR / "downloads"` at parse time; legacy `file://` values are still accepted. `ingest-onh-from-dir-command` refuses dirs outside `data/downloads`. `--onh-dir` is a fallback only. Existing rows are rewritten once with `relativize-onh-urls-command` (dry-run by default).
+
+**Why**: same value works in Docker and natively, chunk IDs carry nothing machine-specific, and it survives moving files to shared storage. Rejected: `/app/...` (Docker-only), keeping `/Users/shmiggit/...` (`--onh-dir` forever), ONH website URLs (site blocks downloads).
+
+---
+
+## 2026-10 — Parse cache: split Docling parsing from embedding
+
+**Issue**: [#46](https://github.com/AmaurySalles/luxdem/issues/46)
+
+**Decision**: `cleanup-stale-chunks-command` dry run parses every ONH + dossier doc (including never-embedded ones) into `data/parse_cache/<md5(source_url)>.json`; `--commit` embeds from that cache only and never parses. Each entry holds a fingerprint (sha256 of `docling_parser.py` source, docling + docling-core versions, parse args, doc metadata); a mismatch means stale, so the dry run reparses and commit skips + reports it.
+
+**Why**: parsing is slow but free on the laptop; embedding needs a rented GPU. Parsing inside the embed loop (as `dossier_pipeline` does) leaves the GPU idle. Hashing the parser source is coarse (a comment change invalidates everything) but can't miss a real change.
+
+---
+
+## 2026-10 — Mark struck-through text as `~~…~~` via a Docling backend hook
+
+**Issues**: [#60](https://github.com/AmaurySalles/luxdem/issues/60) (finding), [#61](https://github.com/AmaurySalles/luxdem/issues/61) (prototype), [#62](https://github.com/AmaurySalles/luxdem/issues/62) (recall check), [#65](https://github.com/AmaurySalles/luxdem/issues/65) (implementation)
+
+**Decision**: `app/methodo/parsing/strike_through.py` patches `ThreadedDoclingParsePageBackend.get_segmented_page` (installed by `_create_converter()`). Struck words become `~~…~~` in text-line and word cells, so chunks read `31 décembre ~~2032~~ 2036`. The summarizer and analyzer prompts say marked text is deleted wording.
+
+**Rule**: a strike line is a horizontal subpath of the page's vector shapes, at most 1.5pt thick by both height and stroke width (yellow highlights are zero-height lines with a 12pt stroke), any colour. A word is struck when such a line sits in the 0.4–0.8 band of its height (underlines sit at ~1.1) and covers ≥60% of its width. A line only counts if the words in its band cover ≥70% of its length: without that, chart gridlines struck axis labels in 21 of 39 ONH docs.
+
+**Why mark, not drop**: keeps what a bill changes. Dropping also let Docling's OCR text fill the gap with garbage, so struck cells are rewritten, never removed.
+
+**Upgrade guard**: the hook uses private docling-parse internals, so `docling`, `docling-parse` and `docling-core` are pinned exactly, and `tests.unitary.test_strike_through` parses a 2-page fixture and fails if the marks go missing. A hook exception drops the page, which `DoclingPagesDroppedError` (#63) turns into a failed parse.
+
+**Result**: on 8589/8449, marked words match an independent pdfplumber detector word for word, apart from tokenization (`1er`, dashes). 0 marked words across the 39 ONH PDFs and the coalition agreement.
+
+---
+
 ## 2026-10 — Custom Ollama embedding client; new Chroma store per model
 
 **Issues**: [#48](https://github.com/AmaurySalles/luxdem/issues/48) (decision), [#51](https://github.com/AmaurySalles/luxdem/issues/51) (implementation)
