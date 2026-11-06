@@ -36,6 +36,7 @@ services:
       - ./app:/app/app
       - ./config:/app/config
       - ./secrets:/app/secrets
+      - ./eval:/app/eval:ro
     
     networks:
       - app-network

@@ -167,6 +167,44 @@ def export_parse_manifest_command(
 
 @safe_clt
 @typer_app.command()
+def embed_parity_command(
+    remote_host: str = typer.Argument(..., help="Tunnelled GPU Ollama, e.g. "
+                                                "http://host.docker.internal:11435"),
+    local_host: str = typer.Option("http://host.docker.internal:11434",
+                                   help="Laptop Ollama that embeds queries at search time"),
+    model: str = typer.Option(OLLAMA_EMBEDDING_MODEL, help="Embedding model"),
+    out: Path = typer.Option(DATA_DIR / "embed_parity.json", help="Report to write"),
+) -> None:
+    """
+    Gate before the bulk embed (#47): the GPU box must give the laptop's vectors (min cosine
+    >= 0.999, same prompt_eval_count, pinned Ollama version and model digest on both sides).
+    """
+    from app.methodo.embed_parity import check_parity
+    from app.methodo.embed_parity import load_parity_sample
+    report = check_parity(model, local_host, remote_host, load_parity_sample())
+    summary = json.dumps(report.summary(), indent=1)
+    out.write_text(summary)
+    typer.echo(summary)
+    # safe_clt swallows typer.Exit, so the verdict is printed rather than an exit code
+    typer.echo("PARITY PASSED" if report.passed else f"PARITY FAILED: {report.problems}")
+
+
+@safe_clt
+@typer_app.command()
+def time_embedding_command(
+    host: str = typer.Argument(..., help="Ollama to time, e.g. http://host.docker.internal:11435"),
+    model: str = typer.Option(OLLAMA_EMBEDDING_MODEL, help="Embedding model"),
+    n_chunks: int = typer.Option(1000, help="Chunks from the fixed timing sample"),
+) -> None:
+    """Embed a fixed sample of post-fix chunks with production batching, to size the bulk run."""
+    from app.methodo.embed_parity import load_timing_sample
+    from app.methodo.embed_parity import time_embedding
+    result = time_embedding(model, host, load_timing_sample()[:n_chunks])
+    typer.echo(json.dumps(result.summary(), indent=1))
+
+
+@safe_clt
+@typer_app.command()
 def cleanup_stale_chunks_command(
     commit: bool = typer.Option(False, "--commit", help="Embed from cache (default: dry-run)"),
     onh_dir: Path = typer.Option(None, help="Fallback dir for ONH PDFs missing in data/downloads"),
