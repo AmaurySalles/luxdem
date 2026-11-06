@@ -251,7 +251,12 @@ def parse_with_docling(source: str, metadata: dict[str, Any],
     if result.status == ConversionStatus.PARTIAL_SUCCESS:
         converted = {page.page_no for page in result.pages}
         dropped = [n for n in range(1, result.input.page_count + 1) if n not in converted]
-        raise DoclingPagesDroppedError(source, dropped, [e.error_message for e in result.errors])
+        errors = [e.error_message for e in result.errors]
+        if dropped:
+            raise DoclingPagesDroppedError(source, dropped, errors)
+        # Docling also reports PARTIAL_SUCCESS when every page converted but a later stage
+        # (e.g. enrichment) recorded an error: no text is lost, so keep the doc
+        log.warning(f"Docling partial success without dropped pages for {source}: {errors}")
     tag_of_ref = _build_heading_map(result.document, content_start_page)
     chunks = _merge_table_shredded_chunks(list(_chunker.chunk(result.document)))
     log.info(f"Docling produced {len(chunks)} chunks (table-shredded chunks merged)")
