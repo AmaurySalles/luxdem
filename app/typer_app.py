@@ -203,6 +203,55 @@ def time_embedding_command(
     typer.echo(json.dumps(result.summary(), indent=1))
 
 
+MAC_OLLAMA = "http://host.docker.internal:11434"
+
+
+@safe_clt
+@typer_app.command()
+def pilot_b_embed_command(
+    model: str = typer.Option("snowflake-arctic-embed2", help="Embedding model"),
+    host: str = typer.Option(MAC_OLLAMA, help="Ollama that embeds (Mac native, #47)"),
+) -> None:
+    """Pilot B (#73): embed the pilot batch from the parse cache into a throwaway collection."""
+    from app.methodo.chroma import get_create_chroma_vectorstore
+    from app.methodo.pilot_b import embed_pilot, PILOT_CHROMA_DIR, PILOT_COLLECTION
+    vectorstore = get_create_chroma_vectorstore(model, PILOT_CHROMA_DIR, PILOT_COLLECTION, host)
+    n_chunks = embed_pilot(vectorstore)
+    typer.echo(f"{n_chunks} chunks in {PILOT_CHROMA_DIR}/{PILOT_COLLECTION}")
+
+
+@safe_clt
+@typer_app.command()
+def pilot_b_score_command(
+    model: str = typer.Option("snowflake-arctic-embed2", help="Pilot embedding model"),
+    baseline_model: str = typer.Option("nomic-embed-text", help="Live collection's model"),
+    host: str = typer.Option(MAC_OLLAMA, help="Ollama that embeds the queries"),
+    out: Path = typer.Option(DATA_DIR / "pilot_b_report.json", help="Report to write"),
+) -> None:
+    """
+    Pilot B (#73): score the pilot collection and the live pre-fix one on the gold set, run the
+    chunk checks on the parse cache, and print the #72 pass-bar verdict.
+    """
+    from dataclasses import asdict
+    from app.constants import CHROMA_COLLECTION, CHROMA_DIR
+    from app.methodo.chroma import get_create_chroma_vectorstore
+    from app.methodo import pilot_b as pb
+    queries = pb.load_gold()
+    pilot = pb.score(get_create_chroma_vectorstore(
+        model, pb.PILOT_CHROMA_DIR, pb.PILOT_COLLECTION, host), queries)
+    live = get_create_chroma_vectorstore(baseline_model, CHROMA_DIR, CHROMA_COLLECTION, host)
+    baseline = pb.score(live, queries)
+    flipped = pb.flips(baseline, pilot, pb.findable_queries(live, queries))
+    checks = pb.check_parse_cache()
+    problems = pb.pass_bar_problems(pilot, flipped, checks)
+    report = {"pilot": pilot.summary(), "baseline": baseline.summary(), "flips": asdict(flipped),
+              "chunk_checks": asdict(checks), "problems": problems}
+    summary = json.dumps(report, indent=1, ensure_ascii=False)
+    out.write_text(summary)
+    typer.echo(summary)
+    typer.echo("PILOT B PASSED" if not problems else f"PILOT B FAILED: {problems}")
+
+
 @safe_clt
 @typer_app.command()
 def cleanup_stale_chunks_command(
