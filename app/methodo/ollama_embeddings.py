@@ -20,7 +20,9 @@ from langchain_core.embeddings import Embeddings
 log = logger_get(__name__)
 
 DEFAULT_BATCH_SIZE = 64
-DEFAULT_TIMEOUT_S = 120.0
+# Worst batch: 64 x 8192 tokens ~ 220 s on the Mac (~2,350 tok/s); 120 s timed out on dense
+# budget tables (8403, #32)
+DEFAULT_TIMEOUT_S = 600.0
 DEFAULT_MAX_RETRIES = 4
 DEFAULT_BACKOFF_S = 1.0
 _CONTEXT_ERROR = "context length"

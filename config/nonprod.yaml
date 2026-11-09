@@ -27,10 +27,15 @@ api_keys:
   claude: null
 
 ollama:
-  embedding_model: nomic-embed-text
+  embedding_model: snowflake-arctic-embed2  # #52, digest 30685f… on Ollama 0.40.13
   chat_model: qwen3.5:latest 
   base_url: null
 
 docling: 
   accelerator: cpu
   num_threads: 8
+
+chroma:
+  # Re-embed (#32): new cosine store. The pre-fix nomic store stays in embeddings/dossier_docs
+  directory: embeddings_v2
+  collection: docs
