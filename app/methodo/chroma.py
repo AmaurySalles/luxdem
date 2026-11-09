@@ -1,4 +1,5 @@
 import hashlib
+from pathlib import Path
 from typing import Any
 
 import chromadb
@@ -11,6 +12,7 @@ from app.constants import CHROMA_COLLECTION
 from app.constants import CHROMA_DIR
 from app.methodo.ollama import get_legacy_ollama_embeddings
 from app.methodo.ollama import get_ollama_embeddings
+from app.methodo.ollama import OLLAMA_BASE_URL
 from app.methodo.ollama import OLLAMA_EMBEDDING_MODEL
 
 log = logger_get(__name__)
@@ -31,36 +33,39 @@ def _existing_collection_metadata(client: chromadb.ClientAPI, name: str) -> dict
         return None
 
 
-def get_create_chroma_vectorstore(model: str = OLLAMA_EMBEDDING_MODEL) -> Chroma:
+def get_create_chroma_vectorstore(model: str = OLLAMA_EMBEDDING_MODEL,
+                                  chroma_dir: Path = CHROMA_DIR,
+                                  collection: str = CHROMA_COLLECTION,
+                                  host: str = OLLAMA_BASE_URL) -> Chroma:
     """
-    Open or create the configured Chroma collection (config `chroma`).
+    Open or create a Chroma collection (default: config `chroma`).
     New collections use cosine and record model, Ollama version and digest. A pre-#51
     collection (no `embedding_model` metadata) keeps the legacy client so vectors never mix.
     """
-    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
-    existing = _existing_collection_metadata(client, CHROMA_COLLECTION)
+    client = chromadb.PersistentClient(path=str(chroma_dir))
+    existing = _existing_collection_metadata(client, collection)
     if existing is not None and "embedding_model" not in existing:
         if model.split(":")[0] != LEGACY_EMBEDDING_MODEL:
             raise ValueError(
-                f"{CHROMA_COLLECTION} holds {LEGACY_EMBEDDING_MODEL} vectors, not {model}"
+                f"{collection} holds {LEGACY_EMBEDDING_MODEL} vectors, not {model}"
             )
-        log.warning(f"{CHROMA_DIR}/{CHROMA_COLLECTION} predates #51: using the legacy client")
+        log.warning(f"{chroma_dir}/{collection} predates #51: using the legacy client")
         return Chroma(
             client=client,
-            collection_name=CHROMA_COLLECTION,
-            embedding_function=get_legacy_ollama_embeddings(model),
+            collection_name=collection,
+            embedding_function=get_legacy_ollama_embeddings(model, host),
         )
 
-    embeddings = get_ollama_embeddings(model)
+    embeddings = get_ollama_embeddings(model, host)
     server_info = embeddings.server_info()
     if existing is not None:
         if existing["embedding_model"] != model:
             raise ValueError(
-                f"{CHROMA_COLLECTION} was embedded with {existing['embedding_model']}, not {model}"
+                f"{collection} was embedded with {existing['embedding_model']}, not {model}"
             )
         for key, value in server_info.items():
             if existing.get(key) != value:
-                log.warning(f"{CHROMA_COLLECTION} {key} is {existing.get(key)}, server has {value}")
+                log.warning(f"{collection} {key} is {existing.get(key)}, server has {value}")
     # Only applied on creation: chromadb 0.5 get_or_create ignores metadata for an existing one.
     # Default search_ef (10) missed an exact match among near-duplicate chunks in testing (#51).
     metadata = {
@@ -72,7 +77,7 @@ def get_create_chroma_vectorstore(model: str = OLLAMA_EMBEDDING_MODEL) -> Chroma
     }
     return Chroma(
         client=client,
-        collection_name=CHROMA_COLLECTION,
+        collection_name=collection,
         embedding_function=embeddings,
         collection_metadata=metadata,
     )
@@ -103,7 +108,7 @@ def embed_and_store_in_chroma(chunks: list[dict], vectorstore: Chroma) -> None:
             documents[i:i + ADD_DOCUMENTS_BATCH_SIZE],
             ids=ids[i:i + ADD_DOCUMENTS_BATCH_SIZE],
         )
-    print(f"   → Stored in Chroma: {CHROMA_DIR}/{CHROMA_COLLECTION}")
+    print(f"   → Stored in Chroma: {vectorstore._collection.name}")
 
 
 def query_vectorstore(vectorstore: Chroma, query: str, k: int = 3) -> list[dict]:

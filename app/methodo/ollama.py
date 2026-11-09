@@ -50,22 +50,24 @@ OLLAMA_PORT = str(urlparse(OLLAMA_BASE_URL).port or DEFAULT_OLLAMA_PORT)
 OLLAMA_EMBEDDING_KEEP_ALIVE = getattr(SETTINGS.ollama, "embedding_keep_alive", "30m")
 
 
-def get_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL) -> OllamaEmbedEmbeddings:
+def get_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL,
+                          host: str = OLLAMA_BASE_URL) -> OllamaEmbedEmbeddings:
     """Ollama embeddings over /api/embed (see app/methodo/ollama_embeddings.py)."""
     return OllamaEmbedEmbeddings(
         model=model,
-        host=OLLAMA_BASE_URL,
+        host=host,
         keep_alive=OLLAMA_EMBEDDING_KEEP_ALIVE,
     )
 
 
-def get_legacy_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL) -> OllamaEmbeddings:
+def get_legacy_ollama_embeddings(model: str = OLLAMA_EMBEDDING_MODEL,
+                                 host: str = OLLAMA_BASE_URL) -> OllamaEmbeddings:
     """
     Pre-#51 client (/api/embeddings, E5 prefixes). Only for collections embedded with it, so
     old and new vectors never mix. Remove after the re-embed (#32).
     """
     return OllamaEmbeddings(
-        base_url=OLLAMA_BASE_URL,
+        base_url=host,
         model=model,
     )
 
