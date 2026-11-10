@@ -33,8 +33,7 @@ ollama:
   embedding_keep_alive: 30m  # how long Ollama keeps the embedder loaded; -1 = forever (bulk runs)
 
 chroma:
-  # Store under data/: the re-embedded arctic store (#32). The pre-fix nomic store stays in
-  # embeddings/dossier_docs for rollback. Never reuse a collection across models.
+  # Store under data/: the re-embedded arctic store (#32). Never reuse a collection across models.
   directory: embeddings_v2
   collection: docs
 
