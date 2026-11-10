@@ -8,7 +8,7 @@ LuxDem analyzes Luxembourg housing policy. It scrapes legislative dossiers from 
 
 1. **Scrape** — fetch dossier and ONH metadata, store in Postgres.
 2. **Parse** — parse PDFs with [Docling](https://github.com/docling-project/docling), chunk into semantically meaningful pieces.
-3. **Embed** — embed chunks locally with Ollama (`nomic-embed-text`), store in Chroma.
+3. **Embed** — embed chunks locally with Ollama (`snowflake-arctic-embed2`), store in Chroma.
 4. **Summarize / Rerank** — an LLM summarizes each document and scores its relevance to a topic.
 5. **Analyze** — an LLM produces a structured verdict, cross-referencing coalition commitments against enacted laws and ONH research.
 

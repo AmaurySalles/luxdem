@@ -36,6 +36,6 @@ docling:
   num_threads: 8
 
 chroma:
-  # Re-embed (#32): new cosine store. The pre-fix nomic store stays in embeddings/dossier_docs
+  # Store under data/: the re-embedded arctic store (#32). Never reuse a collection across models.
   directory: embeddings_v2
   collection: docs
