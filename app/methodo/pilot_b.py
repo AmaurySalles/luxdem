@@ -15,7 +15,6 @@ import json
 import re
 from collections import Counter
 from dataclasses import dataclass
-from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +22,8 @@ from langchain_chroma import Chroma
 
 from app.constants import DATA_DIR
 from app.methodo.chroma import embed_and_store_in_chroma
+from app.methodo.evidence import doc_key
+from app.methodo.evidence import DocType
 from app.methodo.parse_cache import load_cached_chunks
 from app.methodo.parse_cache import load_failures
 from app.methodo.parse_cache import PARSE_CACHE_DIR
@@ -44,12 +45,6 @@ TOKENIZER = "Snowflake/snowflake-arctic-embed-l-v2.0"
 MIN_HIT_RATE = 0.80
 MIN_GERMAN_HIT_RATE = 0.70
 MAX_HIT_TO_MISS = 2
-
-
-class DocType(Enum):
-    DOSSIER = "dossier"
-    ONH = "onh"
-    COALITION = "coalition"
 
 
 @dataclass(frozen=True)
@@ -131,17 +126,6 @@ class PilotDocsNotCachedError(Exception):
 
 def normalize(text: str) -> str:
     return re.sub(r"\s+", "", text.replace("~~", ""))
-
-
-def doc_key(metadata: dict[str, Any]) -> str:
-    """Gold-set doc key of a chunk: `dossier/<number>`, `onh/<file>` or `coalition`."""
-    doc_type = DocType(metadata["doc_type"])
-    if doc_type is DocType.DOSSIER:
-        return f"dossier/{metadata['number']}"
-    if doc_type is DocType.ONH:
-        # pre-fix chunks carry absolute file:// urls, post-fix ones `onh/<file>`
-        return f"onh/{Path(metadata['source_url']).name}"
-    return doc_type.value
 
 
 def load_gold(path: Path = GOLD_SET) -> list[GoldQuery]:

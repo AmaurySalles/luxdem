@@ -29,6 +29,7 @@ api_keys:
 ollama:
   embedding_model: snowflake-arctic-embed2  # #52, digest 30685f… on Ollama 0.40.13
   chat_model: qwen3.5:latest 
+  chat_num_ctx: 32768  # verdict passages ~12k tokens (#101); GPU only
   base_url: null
 
 docling: 

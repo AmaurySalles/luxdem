@@ -14,6 +14,7 @@ from app.db_model.retrievers.dossier_retriever import (
 from app.db_model.retrievers.onh_retriever import persist_onh_summary, retrieve_onh_summary
 from app.db_model.tables.dossier import Dossier
 from app.db_model.tables.onh_publication import OnhPublication
+from app.methodo.evidence import SUMMARY_FOCUS_QUERY
 from app.methodo.local_llm import LOCAL_LLM_MODEL, chat_completion
 
 log = logger_get(__name__)
@@ -38,17 +39,24 @@ Write in English. Be precise and factual."""
 
 
 def retrieve_chunks_for_doc(vectorstore: Chroma, where_filter: dict, max_chunks: int = 30) -> list[str]:
-    """Fetch all Chroma chunks matching the metadata filter, ordered by chunk_index."""
+    """
+    A document's chunks in reading order: all of them, or for a longer document the
+    `max_chunks` most relevant to SUMMARY_FOCUS_QUERY (taking the first ones missed housing
+    measures deep in omnibus bills, e.g. 8403 has 395 chunks, #101).
+    """
     if len(where_filter) > 1:
         # Chroma's `where` requires exactly one operator key; AND multiple
         # equality filters explicitly via `$and`.
         where_filter = {"$and": [{k: v} for k, v in where_filter.items()]}
     result = vectorstore.get(where=where_filter)
-    docs = result.get("documents", [])
-    metadatas = result.get("metadatas", [])
-    # Chroma's `get()` does not guarantee documents come back in chunk order.
-    ordered = sorted(zip(docs, metadatas), key=lambda pair: pair[1].get("chunk_index", 0))
-    return [doc for doc, _ in ordered][:max_chunks]
+    pairs = list(zip(result.get("documents", []), result.get("metadatas", [])))
+    if len(pairs) > max_chunks:
+        hits = vectorstore.similarity_search(SUMMARY_FOCUS_QUERY, k=max_chunks,
+                                             filter=where_filter)
+        pairs = [(hit.page_content, hit.metadata) for hit in hits]
+    # neither get() nor a search returns chunks in document order
+    ordered = sorted(pairs, key=lambda pair: pair[1].get("chunk_index", 0))
+    return [doc for doc, _ in ordered]
 
 
 def summarize_law(client: Client, dossier_number: str, dossier_title: str, chunks: list[str]) -> str:

@@ -4,6 +4,16 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Verdicts cite verbatim passages
+
+**Issues**: [#101](https://github.com/AmaurySalles/luxdem/issues/101) (decided in the grilling on map [#109](https://github.com/AmaurySalles/luxdem/issues/109))
+
+**Decision**: the verdict (`analyzer.generate_analysis`) gets, besides each law's and ONH report's summary, its top 4 verbatim passages, plus the coalition excerpts, each prefixed with an id (`dossier/8589#42`, `onh/note-38.pdf#3`, `coalition#120`, from `evidence.py`). The prompt requires every commitment, gap and analysis paragraph to cite ids, and to drop claims no passage supports. After generation, `TopicAnalysisResult` stores the passages seen, `unknown_citations` (ids not given) and `uncited_items`. Search is grouped by document: 100 chunks per doc type, keeping the top N distinct docs. With 10 chunks, one long law (8082) took every slot. Summaries stay cached per document but read its 30 chunks most relevant to the housing scope (`SUMMARY_FOCUS_QUERY`) in reading order, not its first 30. `ollama.chat_num_ctx` defaults to 32k (verdict prompts are ~12k tokens), which only fits on the rented GPU.
+
+**Why**: a verdict built on summaries passes their errors on unchecked, and reviewers (Darius, Amaury) need to check each claim against its source quickly. Verdicts must be reproducible, so the passages are stored with them.
+
+---
+
 ## 2026-11 — Parse-only worker for the rented parse box
 
 **Issues**: [#71](https://github.com/AmaurySalles/luxdem/issues/71), [#77](https://github.com/AmaurySalles/luxdem/issues/77) (decisions), [#80](https://github.com/AmaurySalles/luxdem/issues/80) (implementation)
