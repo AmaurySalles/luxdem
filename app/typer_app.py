@@ -266,7 +266,7 @@ def cleanup_stale_chunks_command(
     One-off migration (#29, #46). Dry-run (default): parse ONH + dossier docs into the
     parse cache and report vs Chroma, no Chroma writes. --commit: embed-only from the
     cache (no parsing): delete + re-embed changed docs, embed never-embedded ones.
-    Back up data/embeddings/ before --commit.
+    Back up the Chroma store (config `chroma`) before --commit.
     Coalition is not covered: re-run ingest-coalition-agreement-command instead.
     """
     from app.methodo.parse_cache import PARSE_CACHE_DIR
@@ -299,7 +299,7 @@ def cleanup_stale_chunks_command(
             for row in rows:
                 typer.echo(f"    {row}")
     if not commit and (report.affected or report.not_embedded):
-        typer.echo("\nRe-run with --commit to embed from cache (back up data/embeddings/ first).")
+        typer.echo("\nRe-run with --commit to embed from cache (back up the Chroma store first).")
 
 
 @safe_clt
