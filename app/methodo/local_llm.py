@@ -9,6 +9,9 @@ from ollama import Client
 from app.methodo.ollama import OLLAMA_BASE_URL
 
 LOCAL_LLM_MODEL = SETTINGS.ollama.chat_model
+# Verdicts carry ~30 verbatim passages (~12k tokens, #101): 32k leaves room for the answer.
+# Chat runs on the rented GPU only; an 8 GB Mac can't hold this context.
+CHAT_NUM_CTX = int(getattr(SETTINGS.ollama, "chat_num_ctx", 32768))
 
 
 def get_local_llm_client() -> Client:
@@ -33,8 +36,7 @@ def chat_completion(
         # which slows generation and can leak into the JSON we parse below.
         think=False,
         # Ollama's default num_ctx (2048-4096) truncates prompts stuffing several
-        # document summaries together (e.g. reranking 7 laws at once), which can
-        # leave no budget left to generate a response at all.
-        options={"num_ctx": 16384},
+        # documents together, which can leave no budget to generate a response at all.
+        options={"num_ctx": CHAT_NUM_CTX},
     )
     return response["message"]["content"]
