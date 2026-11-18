@@ -31,6 +31,19 @@ ONH_MIN_CHUNK_WORDS = 50
 
 COALITION_PDF = DOWNLOADS_DIR / "accord_coalition_2023_2028.pdf"
 COALITION_CACHE_KEY = "coalition:accord_coalition_2023_2028"
+# Chapters from the agreement's table of contents (SOMMAIRE, p. 2). The parser misses a
+# chapter whose title it reads as a subheader: Education (pp. 114-135) came out under
+# "Sécurité intérieure" (pp. 111-113), #102.
+COALITION_CHAPTERS = frozenset({
+    "État moderne", "Politique européenne et étrangère", "Coopération au développement",
+    "Défense", "Finances publiques et fiscalité", "Logement",
+    "Environnement, biodiversité, climat et énergies renouvelables", "Famille et solidarité",
+    "Santé", "Sécurité sociale", "Justice", "Sécurité intérieure",
+    "Education, enfance et jeunesse, enseignement supérieur et recherche",
+    "Agriculture et viticulture", "Économie", "Énergie", "Tourisme", "Travail", "Culture",
+    "Migration", "Vivre-ensemble interculturel", "Égalité des chances",
+    "Planification du développement du territoire", "Sports",
+})
 
 
 def onh_pipeline(session: Session,
@@ -95,10 +108,32 @@ def coalition_agreement_pipeline(pdf_path: Path,
     else:
         log.info("   → read from the parse cache")
     log.info(f"   → {len(chunks)} chunks")
+    chunks = relabel_coalition_chapters(chunks)
     vectorstore = get_create_chroma_vectorstore(model=embedding_model)
     _delete_coalition_chunks(vectorstore)
     embed_and_store_in_chroma(chunks, vectorstore)
     log.info("Coalition agreement embedded successfully.")
+
+
+def relabel_coalition_chapters(chunks: list[dict]) -> list[dict]:
+    """
+    Fix chapter headers after parsing (not in the parser, so the parse cache stays valid): a
+    subheader that is a chapter title starts that chapter, which runs until the parser's
+    own header changes. Chunks must be in reading order.
+    """
+    relabelled = []
+    parser_header, chapter = None, None
+    for chunk in chunks:
+        meta = chunk["metadata"]
+        if meta.get("header") != parser_header:
+            parser_header, chapter = meta.get("header"), meta.get("header")
+        subheader = meta.get("subheader")
+        if subheader in COALITION_CHAPTERS and subheader != chapter:
+            chapter, subheader = subheader, None
+        heading_path = " > ".join(h for h in (chapter, subheader) if h) or None
+        relabelled.append({**chunk, "metadata": {**meta, "header": chapter, "subheader": subheader,
+                                                 "heading_path": heading_path}})
+    return relabelled
 
 
 def _delete_coalition_chunks(vectorstore: Chroma) -> None:
