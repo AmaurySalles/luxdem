@@ -22,6 +22,8 @@ SUMMARY_FOCUS_QUERY = ("politique du logement : logements abordables, terrains �
                        "aménagement du territoire, aides au logement, loyers et "
                        "fiscalité immobilière")
 _CITATION = re.compile(r"\[([^\[\]]*#\d+[^\[\]]*)\]")
+_SENTENCE_END = re.compile(r"(?<=[.!?\]])\s+(?=[A-ZÀ-Ý«\"])")
+MAX_IDS_PER_SENTENCE = 3  # more is "citation dumping": unreviewable (#103 round 1)
 
 
 class DocType(Enum):
@@ -82,3 +84,9 @@ def find_citations(text: str) -> list[str]:
     """Passage ids cited as `[id]` or `[id1; id2]` in `text`, in order of appearance."""
     return [part.strip() for group in _CITATION.findall(text)
             for part in re.split(r"[;,]", group) if "#" in part]
+
+
+def find_overcited_sentences(text: str, max_ids: int = MAX_IDS_PER_SENTENCE) -> list[str]:
+    """Sentences of `text` citing more than `max_ids` passage ids."""
+    return [sentence for sentence in _SENTENCE_END.split(text)
+            if len(find_citations(sentence)) > max_ids]

@@ -10,6 +10,8 @@ Living record of architectural and operational choices for this project. Each en
 
 **Decision**: the verdict (`analyzer.generate_analysis`) gets, besides each law's and ONH report's summary, its top 4 verbatim passages, plus the coalition excerpts, each prefixed with an id (`dossier/8589#42`, `onh/note-38.pdf#3`, `coalition#120`, from `evidence.py`). The prompt requires every commitment, gap and analysis paragraph to cite ids, and to drop claims no passage supports. After generation, `TopicAnalysisResult` stores the passages seen, `unknown_citations` (ids not given) and `uncited_items`. Search is grouped by document: 100 chunks per doc type, keeping the top N distinct docs. With 10 chunks, one long law (8082) took every slot. Summaries stay cached per document but read its 30 chunks most relevant to the housing scope (`SUMMARY_FOCUS_QUERY`) in reading order, not its first 30. `ollama.chat_num_ctx` defaults to 32k (verdict prompts are ~12k tokens), which only fits on the rented GPU.
 
+**Update (#103)**: verdicts are written in French (the sources and the Luxembourg testers are French-speaking), whatever the source language. Each claim sentence cites at most 3 ids, of passages that state the claim; `overcited_sentences` flags more (`find_overcited_sentences`), after round 1 showed mistral-small3.2 ending paragraphs with 10–15 ids. An empty verdict is retried once.
+
 **Why**: a verdict built on summaries passes their errors on unchecked, and reviewers (Darius, Amaury) need to check each claim against its source quickly. Verdicts must be reproducible, so the passages are stored with them.
 
 ---
