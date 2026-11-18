@@ -11,7 +11,7 @@ from ecodev_core import logger_get
 from ollama import Client
 from pydantic import BaseModel
 
-from app.methodo.evidence import find_citations, Passage
+from app.methodo.evidence import find_citations, find_overcited_sentences, Passage
 from app.methodo.local_llm import chat_completion
 from app.methodo.reranker import RankedLaw, RankedOnh
 
@@ -31,6 +31,7 @@ class TopicAnalysisResult(BaseModel):
     passages: list[Passage] = []
     unknown_citations: list[str] = []
     uncited_items: list[str] = []
+    overcited_sentences: list[str] = []
 
 
 @dataclass(frozen=True)
@@ -56,9 +57,13 @@ You will receive:
 Every excerpt and passage starts with an id in square brackets, e.g. [dossier/8589#42].
 Citation rules:
 - Base every claim on the verbatim passages, not on the summaries.
-- End every commitment, every gap and every paragraph of the analysis with the ids of the
-  passages that support it, e.g. "... [dossier/8589#42; onh/note-38.pdf#3]".
+- End every sentence that makes a claim with the ids of the passages that support it,
+  e.g. "... [dossier/8589#42; onh/note-38.pdf#3]".
+- Cite at most 3 ids per sentence: only passages that state the claim itself, not passages
+  on the same subject or a bill's title.
 - Only cite ids you were given. If no passage supports a claim, leave the claim out.
+
+Write every field in French, whatever the language of the sources.
 
 Text wrapped in ~~double tildes~~ is struck through in the source: wording a bill deletes.
 Read the unmarked text as the current version.
@@ -89,6 +94,11 @@ def generate_analysis(
 
     raw = chat_completion(client, _ANALYSIS_SYSTEM_PROMPT, user_msg, json_mode=True)
     parsed = _parse_analysis_json(raw)
+    if not parsed.get("analysis_text"):
+        # gemma3:12b returned an empty verdict once in 3 (#103 round 1); sampling may differ
+        log.warning(f"Empty verdict for '{topic}', retrying once")
+        raw = chat_completion(client, _ANALYSIS_SYSTEM_PROMPT, user_msg, json_mode=True)
+        parsed = _parse_analysis_json(raw)
     commitments = parsed.get("coalition_commitments", [])
     analysis_text = parsed.get("analysis_text", raw)
     gaps = parsed.get("gaps_identified", [])
@@ -110,10 +120,13 @@ def generate_analysis(
         unknown_citations=sorted(set(cited) - known),
         uncited_items=[item for item in [*commitments, *paragraphs, *gaps]
                        if not find_citations(item)],
+        overcited_sentences=[sentence for item in [*commitments, *paragraphs, *gaps, conclusion]
+                             for sentence in find_overcited_sentences(item)],
     )
-    if result.unknown_citations or result.uncited_items:
+    if result.unknown_citations or result.uncited_items or result.overcited_sentences:
         log.warning(f"Verdict for '{topic}': {len(result.unknown_citations)} unknown citations, "
-                    f"{len(result.uncited_items)} uncited items")
+                    f"{len(result.uncited_items)} uncited items, "
+                    f"{len(result.overcited_sentences)} sentences citing over 3 ids")
     return result
 
 
