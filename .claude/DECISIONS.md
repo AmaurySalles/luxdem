@@ -10,6 +10,8 @@ Living record of architectural and operational choices for this project. Each en
 
 **Decision**: summaries, rerank and verdicts use `mistral-small3.2:24b` at digest `5a408ab55df5` (`ollama.chat_model`, `ollama.chat_model_digest`). `get_local_llm_client` checks the chat host's digest and raises `ChatModelMismatchError` otherwise. Chat goes to `ollama.chat_base_url` (the rented GPU through an SSH tunnel, set in secrets), embedding stays on `base_url` (the Mac). Summaries store `model_used` as `<model>@<digest>`; a summary from any other model or digest is stale and regenerated in place by `summarize-laws-command` / `summarize-onh-command`.
 
+Summaries are written in French, like verdicts (#98): the site and its testers are French-speaking, and the language must be set before the 776 summaries are regenerated.
+
 **Why**: in round 2 (French prompt, at most 3 ids per sentence) mistral gave 0 unknown citations and 1 uncited claim over 3 verdicts; qwen3:14b invented ids and left 10 claims uncited; gemma3:12b looped on one topic in two runs. `qwen3.5:latest` had moved to new weights since the old summaries were written, so a tag alone doesn't make verdicts reproducible.
 
 ---
