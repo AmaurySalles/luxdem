@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -14,6 +15,6 @@ class DossierSummary(SQLModel, table=True):
     dossier_id: int = Field(foreign_key="dossier.id", unique=True, index=True)
     summary: str
     model_used: str = Field(default="claude-sonnet-4-6")
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     dossier: Optional["Dossier"] = Relationship(back_populates="ai_summary")

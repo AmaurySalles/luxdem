@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 
 from sqlmodel import Session, select
 
@@ -38,7 +39,7 @@ def persist_onh_summary(session: Session, onh_id: int, summary: str, model_used:
     record = retrieve_onh_summary(session, onh_id) or OnhSummary(onh_id=onh_id)
     record.summary = summary
     record.model_used = model_used
-    record.generated_at = datetime.utcnow()
+    record.generated_at = datetime.now(timezone.utc)
     session.add(record)
     session.commit()
     session.refresh(record)
