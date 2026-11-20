@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 
 from sqlmodel import Session, select
 
@@ -21,7 +22,7 @@ def persist_dossier_summary(session: Session, dossier_id: int, summary: str, mod
     record = retrieve_dossier_summary(session, dossier_id) or DossierSummary(dossier_id=dossier_id)
     record.summary = summary
     record.model_used = model_used
-    record.generated_at = datetime.utcnow()
+    record.generated_at = datetime.now(timezone.utc)
     session.add(record)
     session.commit()
     session.refresh(record)

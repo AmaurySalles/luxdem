@@ -3,6 +3,8 @@ Module with typer commands
 """
 import json
 from collections.abc import Callable
+from concurrent.futures import as_completed
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from time import time
 from typing import TYPE_CHECKING
@@ -24,7 +26,6 @@ import logging
 if TYPE_CHECKING:
     from langchain_chroma import Chroma
     from ollama import Client
-    from sqlmodel.sql.expression import SelectOfScalar
 
 logging.getLogger('docling').setLevel(logging.WARNING)
 logging.getLogger('httpcore').setLevel(logging.WARNING)
@@ -316,6 +317,7 @@ def cleanup_stale_chunks_command(
 @typer_app.command()
 def summarize_laws_command(
     limit: int = typer.Option(None, help="Max number of dossiers to summarize"),
+    workers: int = typer.Option(1, help="Summaries generated at once (pod: OLLAMA_NUM_PARALLEL)"),
 ) -> None:
     """
     Generate summaries for all dossiers lacking one from the pinned chat model (#98).
@@ -324,42 +326,72 @@ def summarize_laws_command(
     from app.db_model.tables.dossier import Dossier
     from app.methodo.summarizer import get_or_generate_law_summary
 
-    _summarize_all(select(Dossier), get_or_generate_law_summary, lambda d: f"#{d.number}", limit)
+    _summarize_all(Dossier, get_or_generate_law_summary, lambda d: f"#{d.number}", limit, workers)
 
 
 @safe_clt
 @typer_app.command()
 def summarize_onh_command(
     limit: int = typer.Option(None, help="Max number of ONH publications to summarize"),
+    workers: int = typer.Option(1, help="Summaries generated at once (pod: OLLAMA_NUM_PARALLEL)"),
 ) -> None:
     """Generate summaries for all ONH publications lacking one from the pinned chat model (#98)."""
     from app.db_model.tables.onh_publication import OnhPublication
     from app.methodo.summarizer import get_or_generate_onh_summary
 
-    _summarize_all(select(OnhPublication), get_or_generate_onh_summary, lambda p: p.title[:60], limit)
+    _summarize_all(OnhPublication, get_or_generate_onh_summary, lambda p: p.title[:60], limit, workers)
 
 
-def _summarize_all(query: "SelectOfScalar",
+class SummariesFailedError(Exception):
+    """Documents whose summary failed; the others were saved, so a rerun only redoes these."""
+
+    def __init__(self, failed: dict[str, str]) -> None:
+        self.failed = failed  # label -> error
+        lines = "\n".join(f"  {label}: {error}" for label, error in failed.items())
+        super().__init__(f"{len(failed)} summaries failed:\n{lines}")
+
+
+def _summarize_all(model: type[SQLModel],
                    generate: Callable[[Session, "Chroma", "Client", SQLModel], str],
                    label: Callable[[SQLModel], str],
                    limit: int | None,
+                   workers: int,
                    ) -> None:
     """
-    Summarize every document `query` returns; cached summaries from the pinned model are kept.
+    Summarize every `model` row (dossiers or ONH publications); cached summaries from the pinned model are kept.
 
     Purpose: shared loop of summarize_laws_command and summarize_onh_command.
+
+    NOTE: `workers` requests run at once; the chat host's Ollama needs OLLAMA_NUM_PARALLEL
+    of at least that, or they queue (#98). Each worker uses its own DB session.
+
+    Raises:
+        SummariesFailedError: after the run, if any document failed.
     """
     from app.methodo.chroma import get_create_chroma_vectorstore
     from app.methodo.local_llm import CHAT_MODEL_ID, get_local_llm_client
 
     client = get_local_llm_client()
+    vectorstore = get_create_chroma_vectorstore(model=OLLAMA_EMBEDDING_MODEL)
     with Session(engine) as session:
-        vectorstore = get_create_chroma_vectorstore(model=OLLAMA_EMBEDDING_MODEL)
-        docs = list(session.exec(query.limit(limit) if limit else query).all())
-        typer.echo(f"Summarizing {len(docs)} documents with {CHAT_MODEL_ID}...")
-        for i, doc in enumerate(docs, 1):
-            summary = generate(session, vectorstore, client, doc)
-            typer.echo(f"[{i}/{len(docs)}] {label(doc)}: {len(summary)} chars")
+        docs = {doc.id: label(doc) for doc in session.exec(select(model).limit(limit))}
+
+    def summarize(doc_id: int) -> int:
+        with Session(engine) as worker_session:
+            return len(generate(worker_session, vectorstore, client, worker_session.get(model, doc_id)))
+
+    typer.echo(f"Summarizing {len(docs)} documents with {CHAT_MODEL_ID}, {workers} at once...")
+    failed: dict[str, str] = {}
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {pool.submit(summarize, doc_id): doc_label for doc_id, doc_label in docs.items()}
+        for i, future in enumerate(as_completed(futures), 1):
+            try:
+                typer.echo(f"[{i}/{len(docs)}] {futures[future]}: {future.result()} chars")
+            except Exception as error:  # noqa: BLE001 — one bad doc must not stop a 3 h GPU run
+                log.exception(f"Summary failed for {futures[future]}")
+                failed[futures[future]] = repr(error)
+    if failed:
+        raise SummariesFailedError(failed)
 
 
 @safe_clt

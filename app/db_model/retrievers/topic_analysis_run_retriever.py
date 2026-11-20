@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 
 from sqlmodel import Session
 
@@ -46,6 +47,6 @@ def _update_run(
         record.result_json = result_json
     if error is not None:
         record.error = error
-    record.updated_at = datetime.utcnow()
+    record.updated_at = datetime.now(timezone.utc)
     session.add(record)
     session.commit()

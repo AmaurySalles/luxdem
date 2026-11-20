@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
@@ -14,5 +15,5 @@ class TopicAnalysisRun(SQLModel, table=True):
     status: TopicAnalysisRunStatus = Field(default=TopicAnalysisRunStatus.Pending)
     result_json: Optional[str] = Field(default=None)
     error: Optional[str] = Field(default=None)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

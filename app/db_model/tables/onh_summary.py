@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timezone
 from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -14,6 +15,6 @@ class OnhSummary(SQLModel, table=True):
     onh_id: int = Field(foreign_key="onh_publication.id", unique=True, index=True)
     summary: str
     model_used: str = Field(default="claude-sonnet-4-6")
-    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     publication: Optional["OnhPublication"] = Relationship(back_populates="ai_summary")
