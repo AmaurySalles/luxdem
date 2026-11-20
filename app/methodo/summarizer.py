@@ -15,7 +15,7 @@ from app.db_model.retrievers.onh_retriever import persist_onh_summary, retrieve_
 from app.db_model.tables.dossier import Dossier
 from app.db_model.tables.onh_publication import OnhPublication
 from app.methodo.evidence import SUMMARY_FOCUS_QUERY
-from app.methodo.local_llm import LOCAL_LLM_MODEL, chat_completion
+from app.methodo.local_llm import CHAT_MODEL_ID, chat_completion
 
 log = logger_get(__name__)
 
@@ -84,7 +84,7 @@ def get_or_generate_law_summary(
     dossier: Dossier,
 ) -> str:
     cached = retrieve_dossier_summary(session, dossier.id)
-    if cached:
+    if cached and cached.model_used == CHAT_MODEL_ID:
         log.info(f"Using cached summary for dossier #{dossier.number}")
         return cached.summary
 
@@ -95,7 +95,7 @@ def get_or_generate_law_summary(
         chunks = [dossier.title]
 
     summary = summarize_law(client, dossier.number, dossier.title, chunks)
-    persist_dossier_summary(session, dossier.id, summary, LOCAL_LLM_MODEL)
+    persist_dossier_summary(session, dossier.id, summary, CHAT_MODEL_ID)
     return summary
 
 
@@ -106,7 +106,7 @@ def get_or_generate_onh_summary(
     publication: OnhPublication,
 ) -> str:
     cached = retrieve_onh_summary(session, publication.id)
-    if cached:
+    if cached and cached.model_used == CHAT_MODEL_ID:
         log.info(f"Using cached summary for ONH publication: {publication.title}")
         return cached.summary
 
@@ -117,5 +117,5 @@ def get_or_generate_onh_summary(
         chunks = [publication.title]
 
     summary = summarize_onh_publication(client, publication.title, chunks)
-    persist_onh_summary(session, publication.id, summary, LOCAL_LLM_MODEL)
+    persist_onh_summary(session, publication.id, summary, CHAT_MODEL_ID)
     return summary

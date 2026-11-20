@@ -2,20 +2,30 @@
 Module with typer commands
 """
 import json
+from collections.abc import Callable
 from pathlib import Path
 from time import time
+from typing import TYPE_CHECKING
 
 import typer
 from ecodev_core import engine
 from ecodev_core import logger_get
 from ecodev_core import safe_clt
 from sqlmodel import Session
+from sqlmodel import SQLModel
+from sqlmodel import select
 
 from app.methodo.scraper import BASE_URL, scrape_chd_lu_for_dossiers, scrape_dossier
 from app.methodo.main_pipeline import dossier_pipeline, OLLAMA_EMBEDDING_MODEL
 from app.constants import DATA_DIR
 
 import logging
+
+if TYPE_CHECKING:
+    from langchain_chroma import Chroma
+    from ollama import Client
+    from sqlmodel.sql.expression import SelectOfScalar
+
 logging.getLogger('docling').setLevel(logging.WARNING)
 logging.getLogger('httpcore').setLevel(logging.WARNING)
 
@@ -308,26 +318,48 @@ def summarize_laws_command(
     limit: int = typer.Option(None, help="Max number of dossiers to summarize"),
 ) -> None:
     """
-    Pre-generate and cache local-LLM summaries for all dossiers that don't have one yet.
+    Generate summaries for all dossiers lacking one from the pinned chat model (#98).
     Run this before analyze_topic_command to avoid on-demand generation delays.
     """
-    from app.methodo.chroma import get_create_chroma_vectorstore
-    from app.methodo.local_llm import get_local_llm_client
-    from app.methodo.summarizer import get_or_generate_law_summary
     from app.db_model.tables.dossier import Dossier
-    from sqlmodel import select
+    from app.methodo.summarizer import get_or_generate_law_summary
+
+    _summarize_all(select(Dossier), get_or_generate_law_summary, lambda d: f"#{d.number}", limit)
+
+
+@safe_clt
+@typer_app.command()
+def summarize_onh_command(
+    limit: int = typer.Option(None, help="Max number of ONH publications to summarize"),
+) -> None:
+    """Generate summaries for all ONH publications lacking one from the pinned chat model (#98)."""
+    from app.db_model.tables.onh_publication import OnhPublication
+    from app.methodo.summarizer import get_or_generate_onh_summary
+
+    _summarize_all(select(OnhPublication), get_or_generate_onh_summary, lambda p: p.title[:60], limit)
+
+
+def _summarize_all(query: "SelectOfScalar",
+                   generate: Callable[[Session, "Chroma", "Client", SQLModel], str],
+                   label: Callable[[SQLModel], str],
+                   limit: int | None,
+                   ) -> None:
+    """
+    Summarize every document `query` returns; cached summaries from the pinned model are kept.
+
+    Purpose: shared loop of summarize_laws_command and summarize_onh_command.
+    """
+    from app.methodo.chroma import get_create_chroma_vectorstore
+    from app.methodo.local_llm import CHAT_MODEL_ID, get_local_llm_client
 
     client = get_local_llm_client()
     with Session(engine) as session:
         vectorstore = get_create_chroma_vectorstore(model=OLLAMA_EMBEDDING_MODEL)
-        query = select(Dossier)
-        if limit:
-            query = query.limit(limit)
-        dossiers = list(session.exec(query).all())
-        typer.echo(f"Summarizing {len(dossiers)} dossiers...")
-        for i, dossier in enumerate(dossiers, 1):
-            summary = get_or_generate_law_summary(session, vectorstore, client, dossier)
-            typer.echo(f"[{i}/{len(dossiers)}] #{dossier.number}: {len(summary)} chars")
+        docs = list(session.exec(query.limit(limit) if limit else query).all())
+        typer.echo(f"Summarizing {len(docs)} documents with {CHAT_MODEL_ID}...")
+        for i, doc in enumerate(docs, 1):
+            summary = generate(session, vectorstore, client, doc)
+            typer.echo(f"[{i}/{len(docs)}] {label(doc)}: {len(summary)} chars")
 
 
 @safe_clt
