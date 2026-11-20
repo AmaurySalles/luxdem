@@ -27,7 +27,7 @@ Summarize the provided law/proposal in 250-350 words. Cover:
 4. Implementation mechanisms
 Text wrapped in ~~double tildes~~ is struck through in the source: wording the bill deletes.
 Read the unmarked text as the current version; mention deletions only as changes.
-Write in English. Be precise and factual. Do not speculate."""
+Write in French, whatever the language of the source. Be precise and factual. Do not speculate."""
 
 _ONH_SYSTEM_PROMPT = """You are a housing policy researcher specializing in Luxembourg.
 Summarize the provided Observatoire National de l'Habitat (ONH) publication in 250-350 words. Cover:
@@ -35,7 +35,7 @@ Summarize the provided Observatoire National de l'Habitat (ONH) publication in 2
 2. Housing market trends identified
 3. Policy recommendations made
 4. Time period and data sources referenced
-Write in English. Be precise and factual."""
+Write in French, whatever the language of the source. Be precise and factual."""
 
 
 def retrieve_chunks_for_doc(vectorstore: Chroma, where_filter: dict, max_chunks: int = 30) -> list[str]:
