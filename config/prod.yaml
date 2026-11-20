@@ -28,7 +28,9 @@ api_keys:
 
 ollama:
   embedding_model: snowflake-arctic-embed2  # #52, digest 30685f… on Ollama 0.40.13
-  chat_model: qwen3.5:latest 
+  chat_model: mistral-small3.2:24b  # #103 round 2
+  chat_model_digest: 5a408ab55df5  # checked by get_local_llm_client; stored as model_used
+  chat_base_url: null  # rented GPU via SSH tunnel (secrets); null = base_url
   chat_num_ctx: 32768  # verdict passages ~12k tokens (#101); GPU only
   base_url: http://127.0.0.1:11434
   embedding_keep_alive: 30m  # how long Ollama keeps the embedder loaded; -1 = forever (bulk runs)

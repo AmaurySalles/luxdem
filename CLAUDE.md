@@ -2,7 +2,7 @@
 
 Luxembourg housing-policy analysis. Scrapes chd.lu dossiers and ONH publications, embeds them in Chroma, and has a local LLM compare laws against coalition-agreement commitments.
 
-The pipeline is open-source only (Docling, `snowflake-arctic-embed2`, `qwen3.5` via Ollama). No Anthropic API calls: `app/methodo/claude.py`, the `anthropic` requirement and `api_keys.claude` are dead leftovers. A hook blocks new `anthropic` imports.
+The pipeline is open-source only (Docling, `snowflake-arctic-embed2`, `mistral-small3.2:24b` via Ollama, pinned by digest). No Anthropic API calls: `app/methodo/claude.py`, the `anthropic` requirement and `api_keys.claude` are dead leftovers. A hook blocks new `anthropic` imports.
 
 ## Pipeline
 
@@ -18,7 +18,7 @@ Everything runs in Docker (`docker compose up -d`). See `Makefile` and `python3 
 ## Gotchas
 
 - Real secrets go in `secrets/local.yaml` (gitignored), layered over `config/`.
-- Locally the chat model runs on native Ollama.app (`127.0.0.1:11434`), not the `luxdem_ollama` container.
+- The chat model needs the rented GPU (`ollama.chat_base_url`, an SSH tunnel on 11435); embedding runs on the Mac's Ollama.app. `get_local_llm_client` refuses a host without the pinned digest.
 
 ## Read when relevant
 

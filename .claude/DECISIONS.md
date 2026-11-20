@@ -4,6 +4,16 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Chat model: mistral-small3.2:24b, pinned by digest
+
+**Issues**: [#103](https://github.com/AmaurySalles/luxdem/issues/103) (comparison), [#98](https://github.com/AmaurySalles/luxdem/issues/98) (summaries)
+
+**Decision**: summaries, rerank and verdicts use `mistral-small3.2:24b` at digest `5a408ab55df5` (`ollama.chat_model`, `ollama.chat_model_digest`). `get_local_llm_client` checks the chat host's digest and raises `ChatModelMismatchError` otherwise. Chat goes to `ollama.chat_base_url` (the rented GPU through an SSH tunnel, set in secrets), embedding stays on `base_url` (the Mac). Summaries store `model_used` as `<model>@<digest>`; a summary from any other model or digest is stale and regenerated in place by `summarize-laws-command` / `summarize-onh-command`.
+
+**Why**: in round 2 (French prompt, at most 3 ids per sentence) mistral gave 0 unknown citations and 1 uncited claim over 3 verdicts; qwen3:14b invented ids and left 10 claims uncited; gemma3:12b looped on one topic in two runs. `qwen3.5:latest` had moved to new weights since the old summaries were written, so a tag alone doesn't make verdicts reproducible.
+
+---
+
 ## 2026-11 — Verdicts cite verbatim passages
 
 **Issues**: [#101](https://github.com/AmaurySalles/luxdem/issues/101) (decided in the grilling on map [#109](https://github.com/AmaurySalles/luxdem/issues/109))

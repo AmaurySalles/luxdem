@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlmodel import Session, select
 
 from app.db_model.tables.onh_publication import OnhPublication
@@ -32,7 +34,11 @@ def retrieve_onh_summary(session: Session, onh_id: int) -> OnhSummary | None:
 
 
 def persist_onh_summary(session: Session, onh_id: int, summary: str, model_used: str) -> OnhSummary:
-    record = OnhSummary(onh_id=onh_id, summary=summary, model_used=model_used)
+    # Replaces a stale summary (other model or digest): one row per document.
+    record = retrieve_onh_summary(session, onh_id) or OnhSummary(onh_id=onh_id)
+    record.summary = summary
+    record.model_used = model_used
+    record.generated_at = datetime.utcnow()
     session.add(record)
     session.commit()
     session.refresh(record)

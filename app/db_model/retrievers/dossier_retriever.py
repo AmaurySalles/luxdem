@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlmodel import Session, select
 
 from app.db_model.tables.dossier import Dossier
@@ -15,7 +17,11 @@ def retrieve_dossier_summary(session: Session, dossier_id: int) -> DossierSummar
 
 
 def persist_dossier_summary(session: Session, dossier_id: int, summary: str, model_used: str) -> DossierSummary:
-    record = DossierSummary(dossier_id=dossier_id, summary=summary, model_used=model_used)
+    # Replaces a stale summary (other model or digest): one row per document.
+    record = retrieve_dossier_summary(session, dossier_id) or DossierSummary(dossier_id=dossier_id)
+    record.summary = summary
+    record.model_used = model_used
+    record.generated_at = datetime.utcnow()
     session.add(record)
     session.commit()
     session.refresh(record)
