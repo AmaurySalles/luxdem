@@ -48,6 +48,14 @@ _Avoid_: Sentiment, vote (a vote is one source of a Stance)
 A deputy voting against the majority of their own party on a Dossier.
 _Avoid_: Rebellion, defection
 
+**Ballot**:
+One plenary vote on a Dossier, an amendment, a motion or a résolution; 60 seats.
+_Avoid_: Scrutin, poll
+
+**Proxy**:
+A vote an absent deputy delegates to a colleague (procuration); it counts as the absent deputy's vote. A deputy holds at most one.
+_Avoid_: Delegation
+
 ### Analysis
 
 **Dossier profile**:

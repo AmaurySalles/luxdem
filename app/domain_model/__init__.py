@@ -5,6 +5,10 @@ You should put here all domain models components not meant to inherit from SQLMo
 models.
 """
 from app.domain_model.plotly_theme import PLOTLY_TOOLS
+from app.domain_model.ballot import BallotKind
+from app.domain_model.ballot import PoliticalGroupType
+from app.domain_model.ballot import VoteChoice
+from app.domain_model.ballot import VoteStage
 from app.domain_model.doc_type import DocType
 from app.domain_model.dossier_status import DossierStatus
 from app.domain_model.dossier_type import DossierType
@@ -12,8 +16,12 @@ from app.domain_model.topic_analysis_run_status import TopicAnalysisRunStatus
 
 __all__ = [
     'PLOTLY_TOOLS'
+    "BallotKind",
     "DocType",
     "DossierStatus",
     "DossierType",
+    "PoliticalGroupType",
     "TopicAnalysisRunStatus",
+    "VoteChoice",
+    "VoteStage",
 ]

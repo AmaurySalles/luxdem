@@ -449,5 +449,30 @@ def analyze_topic_command(
     typer.echo(f"\nCONCLUSION:\n{result.conclusion}")
 
 
+@safe_clt
+@typer_app.command()
+def import_chd_opendata_command() -> None:
+    """
+    Import CHD open data (votes, commission memberships) from data.public.lu, replacing the
+    previous import, then report what could not be linked (#119).
+    """
+    from collections import Counter
+
+    from app.db_model import Dossier
+    from app.methodo.chd_opendata import import_chd_opendata
+
+    with Session(engine) as session:
+        ballots, memberships = import_chd_opendata(session)
+        our_numbers = set(session.exec(select(Dossier.number)).all())
+    voted = {n for b in ballots if not b.is_ambiguous for n in b.dossier_numbers}
+    seats = [s for b in ballots if not b.is_ambiguous for s in b.seats]
+    typer.echo(f"Ballots: {len(ballots)} {dict(Counter(b.kind.value for b in ballots))}")
+    typer.echo(f"Ambiguous (left out of records): {[b.label for b in ballots if b.is_ambiguous]}")
+    typer.echo(f"Seats: {len(seats)}, proxy-holder seats awaiting minutes: "
+               f"{sum(not s.is_own_vote for s in seats)}")
+    typer.echo(f"Our dossiers with a ballot: {len(our_numbers & voted)}/{len(our_numbers)}")
+    typer.echo(f"Commission memberships: {len(memberships)}")
+
+
 if __name__ == '__main__':
     typer_app()

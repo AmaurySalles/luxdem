@@ -8,6 +8,8 @@ services:
       - ./.env
     environment:
       TZ: Europe/Paris
+      # certifi fails the HARICA chain of *.public.lu and chd.lu; the system bundle verifies it
+      REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
     labels:
       # Enable Traefik for this specific "backend" service
       - traefik.enable=true
