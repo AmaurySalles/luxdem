@@ -59,8 +59,27 @@ def retrieve_chunks_for_doc(vectorstore: Chroma, where_filter: dict, max_chunks:
     return [doc for doc, _ in ordered]
 
 
+# Ollama silently drops the start of a prompt over num_ctx, system prompt included: table-heavy
+# 8751 (128k chars, digits cost a token each) came back in English, not as a summary.
+# 50k chars stays under 32k tokens even when half of it is digits.
+MAX_INPUT_CHARS = 50_000
+_CHUNK_SEPARATOR = "\n\n---\n\n"
+
+
+def join_chunks(chunks: list[str], max_chars: int = MAX_INPUT_CHARS) -> str:
+    """Whole chunks in order, stopping before the one that would exceed `max_chars`."""
+    kept: list[str] = []
+    total = 0
+    for chunk in chunks:
+        total += len(chunk) + len(_CHUNK_SEPARATOR)
+        if kept and total > max_chars:
+            break
+        kept.append(chunk[:max_chars])
+    return _CHUNK_SEPARATOR.join(kept)
+
+
 def summarize_law(client: Client, dossier_number: str, dossier_title: str, chunks: list[str]) -> str:
-    chunks_text = "\n\n---\n\n".join(chunks)
+    chunks_text = join_chunks(chunks)
     return chat_completion(
         client,
         _LAW_SYSTEM_PROMPT,
@@ -69,7 +88,7 @@ def summarize_law(client: Client, dossier_number: str, dossier_title: str, chunk
 
 
 def summarize_onh_publication(client: Client, title: str, chunks: list[str]) -> str:
-    chunks_text = "\n\n---\n\n".join(chunks)
+    chunks_text = join_chunks(chunks)
     return chat_completion(
         client,
         _ONH_SYSTEM_PROMPT,
