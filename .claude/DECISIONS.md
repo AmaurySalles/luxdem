@@ -4,6 +4,18 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Proxy seats resolved from vote bulletins, all-or-nothing per ballot
+
+**Issue**: [#119](https://github.com/AmaurySalles/luxdem/issues/119)
+
+**Decision**: `scrape-dossier-pages-command` stores each dossier page's commissions, rapporteurs and "Bulletin de Vote (Vote Public)" PDF links; `resolve-proxies-command` reads each bulletin ('Arendt Nancy Oui (Adehm Diane)': Adehm cast Arendt's vote) and sets `seat_vote.on_behalf_of_id` for every seat of its ballot. A bulletin is matched to the ballot held at the same second; its label, often cut short, only separates ballots held at the same second. Any disagreement with open data (unknown name, missing seat, choice, owner set by an earlier run) leaves the whole ballot unresolved and is reported. Rows are rebuilt from text positions: since Oct 2026 the PDF text runs column-wise.
+
+Left unresolved: 2022 bulletins that are OCR'd scans ('Ficher Fmile'), ballots where open data and bulletin count different seats, bulletins newer than the last open data refresh, and motions (their bulletins are not on dossier pages).
+
+**Why**: bulletins are the only public source naming whose vote a proxy seat was. Scans and mismatches would mean guessing.
+
+---
+
 ## 2026-11 — Votes and commissions from CHD open data, proxies kept unresolved
 
 **Issue**: [#119](https://github.com/AmaurySalles/luxdem/issues/119)

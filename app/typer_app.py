@@ -464,14 +464,54 @@ def import_chd_opendata_command() -> None:
     with Session(engine) as session:
         ballots, memberships = import_chd_opendata(session)
         our_numbers = set(session.exec(select(Dossier.number)).all())
-    voted = {n for b in ballots if not b.is_ambiguous for n in b.dossier_numbers}
-    seats = [s for b in ballots if not b.is_ambiguous for s in b.seats]
-    typer.echo(f"Ballots: {len(ballots)} {dict(Counter(b.kind.value for b in ballots))}")
-    typer.echo(f"Ambiguous (left out of records): {[b.label for b in ballots if b.is_ambiguous]}")
-    typer.echo(f"Seats: {len(seats)}, proxy-holder seats awaiting minutes: "
-               f"{sum(not s.is_own_vote for s in seats)}")
-    typer.echo(f"Our dossiers with a ballot: {len(our_numbers & voted)}/{len(our_numbers)}")
-    typer.echo(f"Commission memberships: {len(memberships)}")
+        voted = {n for b in ballots if not b.is_ambiguous for n in b.dossier_numbers}
+        seats = [s for b in ballots if not b.is_ambiguous for s in b.seats]
+        typer.echo(f"Ballots: {len(ballots)} {dict(Counter(b.kind.value for b in ballots))}")
+        typer.echo(f"Ambiguous (left out of records): "
+                   f"{[b.label for b in ballots if b.is_ambiguous]}")
+        typer.echo(f"Seats: {len(seats)}, proxy-holder seats awaiting bulletins: "
+                   f"{sum(not s.is_own_vote for s in seats)}")
+        typer.echo(f"Our dossiers with a ballot: {len(our_numbers & voted)}/{len(our_numbers)}")
+        typer.echo(f"Commission memberships: {len(memberships)}")
+        _report_proxies(session)
+
+
+def _report_proxies(session: Session) -> None:
+    from app.methodo.chd_accountability import resolve_proxies
+
+    report = resolve_proxies(session)
+    typer.echo(f"Bulletins resolved: {len(report.resolved)}, "
+               f"seats attributed: {report.seats_attributed}")
+    typer.echo(f"Bulletins without a matching ballot: {report.no_ballot}")
+    typer.echo(f"Bulletins failed: {report.failed}")
+
+
+@safe_clt
+@typer_app.command()
+def scrape_dossier_pages_command(
+    limit: int = typer.Option(None, help="Max number of dossiers (default: all)"),
+) -> None:
+    """
+    Scrape commissions, rapporteurs and vote bulletin links from our dossiers' chd.lu pages,
+    then attribute proxy seats from the bulletins (#119).
+    """
+    from app.db_model import Dossier
+    from app.methodo.chd_accountability import scrape_dossier_pages
+
+    with Session(engine) as session:
+        dossiers = list(session.exec(select(Dossier).order_by(Dossier.number).limit(limit)).all())
+        failed = scrape_dossier_pages(session, dossiers)
+        typer.echo(f"Pages scraped: {len(dossiers) - len(failed)}/{len(dossiers)}, "
+                   f"failed: {failed}")
+        _report_proxies(session)
+
+
+@safe_clt
+@typer_app.command()
+def resolve_proxies_command() -> None:
+    """Attribute proxy seats from the vote bulletins already scraped (#119)."""
+    with Session(engine) as session:
+        _report_proxies(session)
 
 
 if __name__ == '__main__':
