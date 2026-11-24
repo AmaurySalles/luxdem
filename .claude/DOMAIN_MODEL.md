@@ -33,7 +33,7 @@ _Avoid_: Formal objection, CE veto
 ### Actors
 
 **Actor**:
-Anyone who authors, amends, advises on or votes on a Dossier: a Person, party, Government, ministry, Committee, the Conseil d'État, a professional chamber or another body.
+Anyone who authors, amends, advises on or votes on a Dossier: a Person, party, Government, ministry, Commission, the Conseil d'État, a professional chamber or another body.
 _Avoid_: Stakeholder, participant
 
 **Person**:
@@ -41,20 +41,20 @@ An Actor who is one human, independent of the Mandates they hold over time.
 _Avoid_: Deputy, minister (as identities; those are Mandates)
 
 **Mandate**:
-A dated role a Person holds: deputy in a legislature, minister of a ministry, Committee member.
+A dated role a Person holds: deputy in a legislature, minister of a ministry, Commission member.
 _Avoid_: Position (that is a Stance)
 
 **Affiliation**:
-A dated membership of one Actor in another: Person in party or Committee, ministry in Government. Mandates are Affiliations.
+A dated membership of one Actor in another: Person in party or Commission, ministry in Government. Mandates are Affiliations.
 _Avoid_: Membership snapshot
 
 **Government**:
 One cabinet in office (e.g. Frieden–Bettel), with its coalition parties.
 _Avoid_: Executive, the state
 
-**Committee**:
-A commission of the Chambre that examines a Dossier, adopts amendments and issues the rapport.
-_Avoid_: Commission (ambiguous with the European Commission)
+**Commission**:
+A commission of the Chambre that examines a Dossier, adopts amendments and issues the rapport. Named as on chd.lu and in CHD open data.
+_Avoid_: Committee
 
 **Unresolved actor**:
 An Actor created from a name that matched no known Actor; kept under its raw name until merged.
