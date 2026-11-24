@@ -4,6 +4,32 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Proxy seats resolved from vote bulletins, all-or-nothing per ballot
+
+**Issue**: [#119](https://github.com/AmaurySalles/luxdem/issues/119)
+
+**Decision**: `scrape-dossier-pages-command` stores each dossier page's commissions, rapporteurs and "Bulletin de Vote (Vote Public)" PDF links; `resolve-proxies-command` reads each bulletin ('Arendt Nancy Oui (Adehm Diane)': Adehm cast Arendt's vote) and sets `seat_vote.on_behalf_of_id` for every seat of its ballot. A bulletin is matched to the ballot held at the same second; its label, often cut short, only separates ballots held at the same second. Any disagreement with open data (unknown name, missing seat, choice, owner set by an earlier run) leaves the whole ballot unresolved and is reported. Rows are rebuilt from text positions: since Oct 2026 the PDF text runs column-wise.
+
+Left unresolved: 2022 bulletins that are OCR'd scans ('Ficher Fmile'), ballots where open data and bulletin count different seats, bulletins newer than the last open data refresh, and motions (their bulletins are not on dossier pages).
+
+**Why**: bulletins are the only public source naming whose vote a proxy seat was. Scans and mismatches would mean guessing.
+
+---
+
+## 2026-11 — Votes and commissions from CHD open data, proxies kept unresolved
+
+**Issue**: [#119](https://github.com/AmaurySalles/luxdem/issues/119)
+
+**Decision**: `import-chd-opendata` mirrors CHD datasets 109 (per-seat plenary votes, 07/2021 on) and 104 (commission memberships) from data.public.lu into `ballot`, `ballot_dossier`, `seat_vote`, `commission_membership`, replacing the previous import and logging it in `open_data_import` (CC licence: shown with the data). `deputy` rows are kept across imports so ids stay stable. Contact details in dataset 105 are never imported.
+
+Dataset 109 lists the deputy who cast each seat's vote, not whose vote it is: a proxy holder appears twice, the absent deputy not at all. `seat_vote.on_behalf_of_id` is set only when certain (deputy listed once) and left empty for both seats of a proxy holder until the session minutes resolve them. Ballots the export repeated whole (180 rows, each row 3 times) are collapsed; labels merging distinct ballots (a deputy listed 3+ times, 4 debates in 2021-2023) are `is_ambiguous` and left out of individual records.
+
+The backend container sets `REQUESTS_CA_BUNDLE` to the system bundle: certifi fails the HARICA chain of data.public.lu and chd.lu, the system bundle verifies it. Verification stays on.
+
+**Why**: who supported what must never be guessed. Pairing proxies by party would misattribute cross-party proxies; the minutes name them.
+
+---
+
 ## 2026-11 — Chat model: mistral-small3.2:24b, pinned by digest
 
 **Issues**: [#103](https://github.com/AmaurySalles/luxdem/issues/103) (comparison), [#98](https://github.com/AmaurySalles/luxdem/issues/98) (summaries)
