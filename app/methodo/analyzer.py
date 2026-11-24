@@ -18,11 +18,9 @@ from app.methodo.reranker import RankedLaw, RankedOnh
 log = logger_get(__name__)
 
 
-class TopicAnalysisResult(BaseModel):
-    topic: str
+class CitedVerdict(BaseModel):
+    """A verdict on coalition commitments, with the passages it saw and its citation checks."""
     coalition_commitments: list[str]
-    matched_laws: list[RankedLaw]
-    matched_onh_reports: list[RankedOnh]
     analysis_text: str
     gaps_identified: list[str]
     conclusion: str
@@ -32,6 +30,25 @@ class TopicAnalysisResult(BaseModel):
     unknown_citations: list[str] = []
     uncited_items: list[str] = []
     overcited_sentences: list[str] = []
+
+
+class TopicAnalysisResult(CitedVerdict):
+    topic: str
+    matched_laws: list[RankedLaw]
+    matched_onh_reports: list[RankedOnh]
+
+
+@dataclass(frozen=True)
+class LawUnderReview:
+    number: str
+    title: str
+    status: str
+    summary: str
+
+
+class LawVerdict(CitedVerdict):
+    """Which coalition commitments one law delivers on (demo of 2026-11-27)."""
+    dossier_number: str
 
 
 @dataclass(frozen=True)
@@ -46,15 +63,7 @@ class VerdictEvidence:
                 *(p for ps in self.onh.values() for p in ps)]
 
 
-_ANALYSIS_SYSTEM_PROMPT = """You are an expert in Luxembourg housing policy and legislative analysis.
-You will receive:
-1. A topic/issue to analyze
-2. Excerpts from the coalition agreement 2023-2028 (government promises / KPIs)
-3. Relevant laws and legislative proposals (with their status: enacted, in progress, or rejected):
-   a summary for orientation, then verbatim passages
-4. ONH (Observatoire National de l'Habitat) research reports: a summary, then verbatim passages
-
-Every excerpt and passage starts with an id in square brackets, e.g. [dossier/8589#42].
+_SOURCE_RULES = """Every excerpt and passage starts with an id in square brackets, e.g. [dossier/8589#42].
 Citation rules:
 - Base every claim on the verbatim passages, not on the summaries.
 - End every sentence that makes a claim with the ids of the passages that support it,
@@ -66,7 +75,25 @@ Citation rules:
 Write every field in French, whatever the language of the sources.
 
 Text wrapped in ~~double tildes~~ is struck through in the source: wording a bill deletes.
-Read the unmarked text as the current version.
+Read the unmarked text as the current version."""
+
+_JSON_FIELDS = """Return ONLY a valid JSON object with these exact fields:
+{
+  "coalition_commitments": ["commitment 1 [coalition#...]", ...],
+  "analysis_text": "multi-paragraph prose analysis, each paragraph ending with its citations",
+  "gaps_identified": ["gap 1 [ids]", ...],
+  "conclusion": "2-3 sentence judgment on track/partially/failing"
+}"""
+
+_ANALYSIS_SYSTEM_PROMPT = f"""You are an expert in Luxembourg housing policy and legislative analysis.
+You will receive:
+1. A topic/issue to analyze
+2. Excerpts from the coalition agreement 2023-2028 (government promises / KPIs)
+3. Relevant laws and legislative proposals (with their status: enacted, in progress, or rejected):
+   a summary for orientation, then verbatim passages
+4. ONH (Observatoire National de l'Habitat) research reports: a summary, then verbatim passages
+
+{_SOURCE_RULES}
 
 Your task: assess whether the government's legislative response is delivering on its coalition commitments for this topic.
 
@@ -74,13 +101,26 @@ Your task: assess whether the government's legislative response is delivering on
 - For laws in progress: note them as pending intent
 - For rejected/withdrawn laws: treat as failed attempts and flag the gap
 
-Return ONLY a valid JSON object with these exact fields:
-{
-  "coalition_commitments": ["commitment 1 [coalition#...]", ...],
-  "analysis_text": "multi-paragraph prose analysis, each paragraph ending with its citations",
-  "gaps_identified": ["gap 1 [ids]", ...],
-  "conclusion": "2-3 sentence judgment on track/partially/failing"
-}"""
+{_JSON_FIELDS}"""
+
+_DOSSIER_SYSTEM_PROMPT = f"""You are an expert in Luxembourg housing policy and
+legislative analysis.
+You will receive:
+1. One law or legislative proposal, with its status: a summary for orientation, then verbatim
+   passages
+2. Excerpts from the coalition agreement 2023-2028 (government promises / KPIs)
+3. ONH (Observatoire National de l'Habitat) research reports: verbatim passages
+
+{_SOURCE_RULES}
+
+Your task: assess which coalition commitments this law delivers on, how far, and what those
+commitments still need that this law leaves out.
+
+- List only the commitments this law acts on; if it acts on none of the excerpts, say so.
+- For an enacted law: assess its impact against ONH data
+- For a law in progress: treat it as pending intent
+
+{_JSON_FIELDS}"""
 
 
 def generate_analysis(
@@ -91,28 +131,46 @@ def generate_analysis(
     ranked_onh: list[RankedOnh],
 ) -> TopicAnalysisResult:
     user_msg = _build_analysis_prompt(topic, evidence, ranked_laws, ranked_onh)
+    verdict = _generate_cited_verdict(client, _ANALYSIS_SYSTEM_PROMPT, user_msg,
+                                      evidence.all_passages(), label=f"'{topic}'")
+    return TopicAnalysisResult(topic=topic, matched_laws=ranked_laws,
+                               matched_onh_reports=ranked_onh, **verdict.model_dump())
 
-    raw = chat_completion(client, _ANALYSIS_SYSTEM_PROMPT, user_msg, json_mode=True)
+
+def generate_dossier_verdict(client: Client, law: LawUnderReview, coalition: list[Passage],
+                             law_passages: list[Passage], onh: list[Passage]) -> LawVerdict:
+    """Verdict on one law against the coalition excerpts closest to it."""
+    user_msg = "\n\n".join([
+        f"## Law\n### #{law.number} — {law.title}\n**Status**: {law.status}\n\n"
+        f"Summary: {law.summary}\n\nPassages:\n{_format_passages(law_passages)}",
+        f"## Coalition Agreement 2023–2028 (relevant excerpts)\n{_format_passages(coalition)}",
+        f"## ONH Research Reports\n{_format_passages(onh)}",
+    ])
+    verdict = _generate_cited_verdict(client, _DOSSIER_SYSTEM_PROMPT, user_msg,
+                                      [*coalition, *law_passages, *onh],
+                                      label=f"#{law.number}")
+    return LawVerdict(dossier_number=law.number, **verdict.model_dump())
+
+
+def _generate_cited_verdict(client: Client, system_prompt: str, user_msg: str,
+                            passages: list[Passage], label: str) -> CitedVerdict:
+    raw = chat_completion(client, system_prompt, user_msg, json_mode=True)
     parsed = _parse_analysis_json(raw)
     if not parsed.get("analysis_text"):
         # gemma3:12b returned an empty verdict once in 3 (#103 round 1); sampling may differ
-        log.warning(f"Empty verdict for '{topic}', retrying once")
-        raw = chat_completion(client, _ANALYSIS_SYSTEM_PROMPT, user_msg, json_mode=True)
+        log.warning(f"Empty verdict for {label}, retrying once")
+        raw = chat_completion(client, system_prompt, user_msg, json_mode=True)
         parsed = _parse_analysis_json(raw)
     commitments = parsed.get("coalition_commitments", [])
     analysis_text = parsed.get("analysis_text", raw)
     gaps = parsed.get("gaps_identified", [])
     conclusion = parsed.get("conclusion", "")
 
-    passages = evidence.all_passages()
     known = {p.id for p in passages}
     cited = find_citations("\n".join([*commitments, analysis_text, *gaps, conclusion]))
     paragraphs = [p for p in analysis_text.split("\n\n") if p.strip()]
-    result = TopicAnalysisResult(
-        topic=topic,
+    result = CitedVerdict(
         coalition_commitments=commitments,
-        matched_laws=ranked_laws,
-        matched_onh_reports=ranked_onh,
         analysis_text=analysis_text,
         gaps_identified=gaps,
         conclusion=conclusion,
@@ -124,7 +182,7 @@ def generate_analysis(
                              for sentence in find_overcited_sentences(item)],
     )
     if result.unknown_citations or result.uncited_items or result.overcited_sentences:
-        log.warning(f"Verdict for '{topic}': {len(result.unknown_citations)} unknown citations, "
+        log.warning(f"Verdict for {label}: {len(result.unknown_citations)} unknown citations, "
                     f"{len(result.uncited_items)} uncited items, "
                     f"{len(result.overcited_sentences)} sentences citing over 3 ids")
     return result

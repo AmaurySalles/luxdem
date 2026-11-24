@@ -76,7 +76,19 @@ def retrieve_documents(vectorstore: Chroma, query: str, doc_type: DocType, n_doc
 
 
 def retrieve_passages(vectorstore: Chroma, query: str, doc_type: DocType, k: int) -> list[Passage]:
-    hits = vectorstore.similarity_search(query, k=k, filter={"doc_type": doc_type.value})
+    return _search_passages(vectorstore, query, {"doc_type": doc_type.value}, k)
+
+
+def retrieve_dossier_passages(vectorstore: Chroma, query: str, dossier_number: str,
+                              k: int) -> list[Passage]:
+    """The `k` passages of one dossier closest to `query`."""
+    where = {"$and": [{"doc_type": DocType.DOSSIER.value}, {"number": dossier_number}]}
+    return _search_passages(vectorstore, query, where, k)
+
+
+def _search_passages(vectorstore: Chroma, query: str, where: dict[str, Any],
+                     k: int) -> list[Passage]:
+    hits = vectorstore.similarity_search(query, k=k, filter=where)
     return [to_passage(hit.page_content, hit.metadata) for hit in hits]
 
 

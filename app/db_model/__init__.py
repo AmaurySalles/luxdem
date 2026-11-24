@@ -18,6 +18,7 @@ from app.db_model.tables.dossier_page import DossierCommission
 from app.db_model.tables.dossier_page import DossierRapporteur
 from app.db_model.tables.dossier_page import VoteBulletin
 from app.db_model.tables.dossier_summary import DossierSummary
+from app.db_model.tables.dossier_verdict import DossierVerdict
 from app.db_model.tables.onh_publication import OnhPublication
 from app.db_model.tables.onh_summary import OnhSummary
 from app.db_model.tables.resource import Resource
@@ -36,6 +37,7 @@ __all__ = [
     'DossierCommission',
     'DossierRapporteur',
     'DossierSummary',
+    'DossierVerdict',
     'OnhPublication',
     'OnhSummary',
     'OpenDataImport',

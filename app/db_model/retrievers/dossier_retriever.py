@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 
 from app.db_model.tables.dossier import Dossier
 from app.db_model.tables.dossier_summary import DossierSummary
+from app.db_model.tables.dossier_verdict import DossierVerdict
 
 
 def retrieve_dossiers_by_numbers(session: Session, numbers: list[str]) -> list[Dossier]:
@@ -21,6 +22,24 @@ def persist_dossier_summary(session: Session, dossier_id: int, summary: str, mod
     # Replaces a stale summary (other model or digest): one row per document.
     record = retrieve_dossier_summary(session, dossier_id) or DossierSummary(dossier_id=dossier_id)
     record.summary = summary
+    record.model_used = model_used
+    record.generated_at = datetime.now(timezone.utc)
+    session.add(record)
+    session.commit()
+    session.refresh(record)
+    return record
+
+
+def retrieve_dossier_verdict(session: Session, dossier_id: int) -> DossierVerdict | None:
+    query = select(DossierVerdict).where(DossierVerdict.dossier_id == dossier_id)
+    return session.exec(query).first()
+
+
+def persist_dossier_verdict(session: Session, dossier_id: int, result_json: str,
+                            model_used: str) -> DossierVerdict:
+    # Replaces an earlier verdict: one row per dossier.
+    record = retrieve_dossier_verdict(session, dossier_id) or DossierVerdict(dossier_id=dossier_id)
+    record.result_json = result_json
     record.model_used = model_used
     record.generated_at = datetime.now(timezone.utc)
     session.add(record)
