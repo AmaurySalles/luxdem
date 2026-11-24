@@ -396,6 +396,26 @@ def _summarize_all(model: type[SQLModel],
 
 @safe_clt
 @typer_app.command()
+def analyze_dossiers_command(
+    numbers: list[str] = typer.Argument(..., help="Dossier numbers, e.g. 8357 8358"),
+) -> None:
+    """
+    Per-law verdicts on coalition commitments, stored for the dossier pages.
+    """
+    from app.db_model.retrievers.dossier_retriever import retrieve_dossiers_by_numbers
+    from app.methodo.dossier_verdict_pipeline import dossier_verdict_pipeline
+
+    with Session(engine) as session:
+        dossiers = retrieve_dossiers_by_numbers(session, numbers)
+        missing = set(numbers) - {d.number for d in dossiers}
+        if missing:
+            typer.echo(f"Unknown dossiers: {sorted(missing)}")
+            return
+        dossier_verdict_pipeline(session, dossiers)
+
+
+@safe_clt
+@typer_app.command()
 def analyze_topic_command(
     topic: str = typer.Argument(..., help="Topic to analyze, e.g. 'logement abordable'"),
     k_laws: int = typer.Option(5, help="Number of top laws to include"),

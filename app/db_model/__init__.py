@@ -9,6 +9,7 @@ from ecodev_core import AppUser
 
 from app.db_model.tables.dossier import Dossier
 from app.db_model.tables.dossier_summary import DossierSummary
+from app.db_model.tables.dossier_verdict import DossierVerdict
 from app.db_model.tables.onh_publication import OnhPublication
 from app.db_model.tables.onh_summary import OnhSummary
 from app.db_model.tables.resource import Resource
@@ -21,6 +22,7 @@ __all__ = [
     'AppActivity',
     'Dossier',
     'DossierSummary',
+    'DossierVerdict',
     'OnhPublication',
     'OnhSummary',
     'Resource',
