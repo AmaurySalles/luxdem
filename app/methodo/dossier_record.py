@@ -14,6 +14,7 @@ from sqlmodel import Session
 
 from app.db_model.retrievers.chd_opendata_retriever import retrieve_ballots_for_dossier
 from app.db_model.retrievers.chd_opendata_retriever import retrieve_deputies
+from app.db_model.retrievers.chd_opendata_retriever import retrieve_dossier_activities
 from app.db_model.retrievers.chd_opendata_retriever import retrieve_dossier_commissions
 from app.db_model.retrievers.chd_opendata_retriever import retrieve_dossier_rapporteurs
 from app.db_model.retrievers.dossier_retriever import retrieve_dossier_verdict
@@ -26,12 +27,15 @@ from app.domain_model import VoteStage
 from app.methodo.analyzer import LawVerdict
 from app.methodo.authors import author_profile
 from app.methodo.authors import AuthorProfile
+from app.methodo.legislative_trail import legislative_trail
+from app.methodo.legislative_trail import LegislativeTrail
 
 CHD_DOSSIER_URL = "https://www.chd.lu/fr/dossier/{number}"
 
 
 @dataclass(frozen=True)
 class SeatRecord:
+    deputy_id: int
     deputy: str  # whose vote it is; the caster when the bulletin was not resolved
     political_group: str
     choice: VoteChoice
@@ -66,6 +70,7 @@ class DossierRecord:
     commissions: list[str]
     rapporteurs: list[str]
     ballots: list[BallotRecord]
+    trail: LegislativeTrail
 
 
 def dossier_record(session: Session, dossier: Dossier) -> DossierRecord:
@@ -86,6 +91,7 @@ def dossier_record(session: Session, dossier: Dossier) -> DossierRecord:
         ballots=[_ballot_record(session, ballot, names)
                  for ballot in retrieve_ballots_for_dossier(session, dossier.number)
                  if not ballot.is_ambiguous],
+        trail=legislative_trail(retrieve_dossier_activities(session, dossier.id), date.today()),
     )
 
 
@@ -96,14 +102,15 @@ def _ballot_record(session: Session, ballot: Ballot,
         caster = names[seat.cast_by_id]
         owner_id = seat.on_behalf_of_id
         if owner_id is None or owner_id == seat.cast_by_id:
-            seats.append(SeatRecord(_full_name(caster), seat.political_group, seat.choice,
+            seats.append(SeatRecord(seat.cast_by_id, _full_name(caster), seat.political_group,
+                                    seat.choice,
                                     proxy_holder=None, owner_known=owner_id is not None))
             continue
         owner = names[owner_id]
         # the seat row carries the holder's group; the absent deputy's is their own
         group = (retrieve_commission_group_on(session, *owner, ballot.held_at.date())
                  or seat.political_group)
-        seats.append(SeatRecord(_full_name(owner), group, seat.choice,
+        seats.append(SeatRecord(owner_id, _full_name(owner), group, seat.choice,
                                 proxy_holder=_full_name(caster), owner_known=True))
     by_group: dict[str, Counter[VoteChoice]] = defaultdict(Counter)
     for seat in seats:

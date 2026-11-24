@@ -8,6 +8,25 @@ from app.domain_model import LawAssessment
 from app.domain_model import VoteChoice
 from app.methodo.dossier_record import BallotRecord
 
+# Paths of the demo pages, here so pages can link to each other without importing each other
+DOSSIER_PATH = '/dossier'
+DEPUTY_PATH = '/depute'
+MINISTER_PATH = '/ministre'
+HOUSING_COMMISSION = 'Commission du Logement'
+
+
+def dossier_url(number: str) -> str:
+    return f'{DOSSIER_PATH}?numero={number}'
+
+
+def deputy_url(deputy_id: int) -> str:
+    return f'{DEPUTY_PATH}?id={deputy_id}'
+
+
+def minister_url(name: str) -> str:
+    return f'{MINISTER_PATH}?nom={name}'
+
+
 _ASSESSMENT_COLOR = {LawAssessment.Delivers: 'green', LawAssessment.Partial: 'yellow',
                      LawAssessment.Unrelated: 'gray'}
 _CHOICE_COLOR = {VoteChoice.Oui: 'green', VoteChoice.Non: 'red', VoteChoice.Abstention: 'yellow',
@@ -19,7 +38,8 @@ def assessment_badge(assessment: LawAssessment | None) -> dmc.Badge:
     if assessment is None:
         return dmc.Badge('pas de verdict', color='gray', variant='outline')
     return dmc.Badge(assessment.value, color=_ASSESSMENT_COLOR[assessment], variant='light',
-                     style={'overflow': 'visible'}, miw='fit-content')
+                     styles={'root': {'maxWidth': 'none', 'overflow': 'visible'},
+                             'label': {'overflow': 'visible', 'textOverflow': 'clip'}})
 
 
 def tally(ballot: BallotRecord) -> dmc.Group:

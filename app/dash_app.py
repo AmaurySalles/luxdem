@@ -25,6 +25,7 @@ from app.pages.modules import MODULES
 from app.pages.page_forbidden.page_forbidden_403 import PAGE_403
 from app.pages.page_main.page_main import PAGE_MAIN
 from app.pages.page_not_found.page_not_found_404 import PAGE_404
+from app.pages.page_depute.page_depute import PAGE_DEPUTE
 from app.pages.page_dossier.page_dossier import PAGE_DOSSIER
 from app.pages.page_ministre.page_ministre import PAGE_MINISTRE
 from app.pages.page_topic_analysis.page_topic_analysis import PAGE_TOPIC_ANALYSIS
@@ -87,6 +88,7 @@ def _register_dash_pages() -> None:
         PAGE_TOPIC_ANALYSIS,
         PAGE_MINISTRE,
         PAGE_DOSSIER,
+        PAGE_DEPUTE,
     ] + [page for module in MODULES for page in module.pages]
 
     # Add pages and modules to registry

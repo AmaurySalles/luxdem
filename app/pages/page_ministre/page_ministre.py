@@ -34,9 +34,18 @@ from app.methodo.dossier_record import DossierRecord
 from app.pages.common import display_app_header
 from app.pages.common import main_footer
 from app.pages.common.c_accountability import assessment_badge
+from app.pages.common.c_accountability import dossier_url
+from app.pages.common.c_accountability import HOUSING_COMMISSION
+from app.pages.common.c_accountability import MINISTER_PATH
 from app.pages.common.c_accountability import sources_line
 from app.pages.common.c_accountability import tally
-from app.pages.page_dossier.page_dossier import dossier_url
+from app.methodo.legislative_trail import HOLDER_RULES
+from app.pages.common.c_trail import HOLDER_COLORS
+from app.pages.common.c_trail import holder_days_table
+from app.pages.common.c_trail import holder_segments
+from app.pages.common.c_trail import PHASE_COLORS
+from app.pages.common.c_trail import phase_segments
+from app.pages.common.c_trail import timeline_chart
 
 PAGE_MINISTRE = Page(
     module=__name__,
@@ -49,11 +58,7 @@ PAGE_MINISTRE = Page(
 
 NAME_PARAM = 'nom'
 DEFAULT_MINISTER = 'Claude Meisch'
-HOUSING_COMMISSION = 'Commission du Logement'
-
-
-def minister_url(name: str) -> str:
-    return f'{PAGE_MINISTRE.url}?{NAME_PARAM}={name}'
+assert PAGE_MINISTRE.url == MINISTER_PATH
 
 
 def _final_law_vote(record: DossierRecord) -> BallotRecord | None:
@@ -99,6 +104,23 @@ def _layout(profile: AuthorProfile, records: list[DossierRecord]) -> dmc.Stack:
                  "l'Aménagement du territoire.", fz=13, c='dimmed'),
         dmc.Table([head, dmc.TableTbody([_law_row(r) for r in records])],
                   highlightOnHover=True, withTableBorder=True, verticalSpacing='sm'),
+        dmc.Title('Parcours législatif', order=4, mt='lg'),
+        dmc.Text("Du dépôt à l'avis du Conseil d'État, au rapport de commission, au vote et à "
+                 'la publication au Mémorial. Survolez une barre pour les dates.',
+                 fz=13, c='dimmed'),
+        timeline_chart([s for r in records for s in phase_segments(r.number, r.trail)],
+                       PHASE_COLORS),
+        dmc.Title('Qui tient le projet ?', order=4, mt='lg'),
+        dmc.Text("Le temps passé en attente du Conseil d'État, de la Chambre ou du Gouvernement.",
+                 fz=13, c='dimmed'),
+        timeline_chart(holders := [s for r in records for s in holder_segments(r.number, r.trail)],
+                       HOLDER_COLORS),
+        holder_days_table(holders),
+        dmc.Accordion([dmc.AccordionItem([
+            dmc.AccordionControl("Règles d'attribution", fz=13),
+            dmc.AccordionPanel(dmc.List([dmc.ListItem(rule, fz=12) for rule in HOLDER_RULES]))],
+            value='regles')]),
+        sources_line('activités datées des dossiers sur chd.lu'),
     ], gap='xs')
 
 
