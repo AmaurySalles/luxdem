@@ -6,10 +6,13 @@ Generates a structured policy analysis using a local LLM, cross-referencing:
 """
 import json
 from dataclasses import dataclass
+from typing import Any  # the model's JSON
 
 from ecodev_core import logger_get
 from ollama import Client
 from pydantic import BaseModel
+
+from app.domain_model import LawAssessment
 
 from app.methodo.evidence import find_citations, find_overcited_sentences, Passage
 from app.methodo.local_llm import chat_completion
@@ -49,6 +52,7 @@ class LawUnderReview:
 class LawVerdict(CitedVerdict):
     """Which coalition commitments one law delivers on (demo of 2026-11-27)."""
     dossier_number: str
+    assessment: LawAssessment | None = None  # None: the model gave none of the three
 
 
 @dataclass(frozen=True)
@@ -103,6 +107,8 @@ Your task: assess whether the government's legislative response is delivering on
 
 {_JSON_FIELDS}"""
 
+# Bumped with each change to the per-law prompt, so stored verdicts are regenerated
+LAW_VERDICT_PROMPT_VERSION = 2
 _DOSSIER_SYSTEM_PROMPT = f"""You are an expert in Luxembourg housing policy and
 legislative analysis.
 You will receive:
@@ -119,8 +125,23 @@ commitments still need that this law leaves out.
 - List only the commitments this law acts on; if it acts on none of the excerpts, say so.
 - For an enacted law: assess its impact against ONH data
 - For a law in progress: treat it as pending intent
+- Call the coalition agreement "l'accord de coalition 2023-2028"; write no English words.
 
-{_JSON_FIELDS}"""
+Choose one assessment, by these definitions:
+- "{LawAssessment.Delivers.value}": the law does what the commitments it acts on promise.
+- "{LawAssessment.Partial.value}": the law acts on a commitment but leaves out a specific part
+  of it; name that part as a gap, with the citation of the commitment.
+- "{LawAssessment.Unrelated.value}": the law acts on none of the commitments given.
+A law that does what it set out to do is not partial because other commitments remain open.
+
+Return ONLY a valid JSON object with these exact fields:
+{{
+  "assessment": "one of the three assessments above",
+  "coalition_commitments": ["commitment 1 [coalition#...]", ...],
+  "analysis_text": "multi-paragraph prose analysis, each paragraph ending with its citations",
+  "gaps_identified": ["gap 1 [ids]", ...],
+  "conclusion": "2-3 sentence judgment explaining the assessment"
+}}"""
 
 
 def generate_analysis(
@@ -131,8 +152,8 @@ def generate_analysis(
     ranked_onh: list[RankedOnh],
 ) -> TopicAnalysisResult:
     user_msg = _build_analysis_prompt(topic, evidence, ranked_laws, ranked_onh)
-    verdict = _generate_cited_verdict(client, _ANALYSIS_SYSTEM_PROMPT, user_msg,
-                                      evidence.all_passages(), label=f"'{topic}'")
+    verdict, _ = _generate_cited_verdict(client, _ANALYSIS_SYSTEM_PROMPT, user_msg,
+                                         evidence.all_passages(), label=f"'{topic}'")
     return TopicAnalysisResult(topic=topic, matched_laws=ranked_laws,
                                matched_onh_reports=ranked_onh, **verdict.model_dump())
 
@@ -146,14 +167,20 @@ def generate_dossier_verdict(client: Client, law: LawUnderReview, coalition: lis
         f"## Coalition Agreement 2023–2028 (relevant excerpts)\n{_format_passages(coalition)}",
         f"## ONH Research Reports\n{_format_passages(onh)}",
     ])
-    verdict = _generate_cited_verdict(client, _DOSSIER_SYSTEM_PROMPT, user_msg,
-                                      [*coalition, *law_passages, *onh],
-                                      label=f"#{law.number}")
-    return LawVerdict(dossier_number=law.number, **verdict.model_dump())
+    verdict, parsed = _generate_cited_verdict(client, _DOSSIER_SYSTEM_PROMPT, user_msg,
+                                              [*coalition, *law_passages, *onh],
+                                              label=f"#{law.number}")
+    assessments = {a.value: a for a in LawAssessment}
+    assessment = assessments.get(parsed.get("assessment", ""))
+    if assessment is None:
+        log.warning(f"Verdict for #{law.number}: no valid assessment {parsed.get('assessment')!r}")
+    return LawVerdict(dossier_number=law.number, assessment=assessment, **verdict.model_dump())
 
 
 def _generate_cited_verdict(client: Client, system_prompt: str, user_msg: str,
-                            passages: list[Passage], label: str) -> CitedVerdict:
+                            passages: list[Passage], label: str,
+                            ) -> tuple[CitedVerdict, dict[str, Any]]:
+    """The verdict with its citation checks, and the model's raw JSON for mode-specific fields."""
     raw = chat_completion(client, system_prompt, user_msg, json_mode=True)
     parsed = _parse_analysis_json(raw)
     if not parsed.get("analysis_text"):
@@ -185,7 +212,7 @@ def _generate_cited_verdict(client: Client, system_prompt: str, user_msg: str,
         log.warning(f"Verdict for {label}: {len(result.unknown_citations)} unknown citations, "
                     f"{len(result.uncited_items)} uncited items, "
                     f"{len(result.overcited_sentences)} sentences citing over 3 ids")
-    return result
+    return result, parsed
 
 
 def _format_passages(passages: list[Passage]) -> str:
