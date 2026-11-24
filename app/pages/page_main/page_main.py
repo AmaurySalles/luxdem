@@ -17,6 +17,8 @@ from ecodev_front import URL
 from app.constants import MAIN_PAGE_URL
 from app.pages.common import display_app_header
 from app.pages.common import main_footer
+from app.pages.page_ministre.page_ministre import DEFAULT_MINISTER
+from app.pages.page_ministre.page_ministre import minister_url
 from app.pages.page_topic_analysis.page_topic_analysis import PAGE_TOPIC_ANALYSIS
 
 
@@ -44,6 +46,8 @@ def get_main_page(url_pathname: str, href: str) -> tuple[list[dmc.Box], list[dmc
 
     page = dmc.Stack([
         dmc.Text("""Hello World""", ta='center', fz=13, mb=10, fs='italic', c='green.4'),
+        dmc.Center(dmc.Anchor(f'{DEFAULT_MINISTER} : projets de loi sur le logement',
+                              href=minister_url(DEFAULT_MINISTER), fw=600)),
         dmc.Center(dmc.Anchor('Topic analysis', href=PAGE_TOPIC_ANALYSIS.url, fw=600)),
     ])
     return page, display_app_header(), main_footer()
