@@ -4,6 +4,16 @@ Living record of architectural and operational choices for this project. Each en
 
 ---
 
+## 2026-11 — Government members and author parties from gouvernement.lu, with sources
+
+**Issue**: [#119](https://github.com/AmaurySalles/luxdem/issues/119)
+
+**Decision**: `import-government-command` scrapes every government mandate since 1999 with its dates from gouvernement.lu's "Anciens membres du gouvernement" page (current members included), and the party current members' biographies state ("Membre du DP depuis 1994"). An author's party at the date of an act comes from that biography quote, else from the political group of their latest CHD commission role (dataset 104), else stays unknown; every party shown carries its source. Open mandates of people no longer in government (a source error: Mutsch "depuis le 18.12.2015") are left out and logged. A minister's laws in one policy area are those the matching commission examined (Meisch's housing laws: Commission du Logement), a fact from chd.lu rather than a model's classification.
+
+**Why**: who supported what must be sourced. gouvernement.lu does not list parties, and several biographies do not state one (Backes, Roth); guessing from the coalition would be wrong for independents and party changes (Polidori: Piraten, then LSAP).
+
+---
+
 ## 2026-11 — Proxy seats resolved from vote bulletins, all-or-nothing per ballot
 
 **Issue**: [#119](https://github.com/AmaurySalles/luxdem/issues/119)
