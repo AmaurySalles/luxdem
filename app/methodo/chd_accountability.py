@@ -17,6 +17,7 @@ from app.db_model.retrievers.chd_opendata_retriever import retrieve_deputies
 from app.db_model.retrievers.chd_opendata_retriever import retrieve_vote_bulletins
 from app.db_model.tables.chd_opendata import Ballot
 from app.db_model.tables.dossier import Dossier
+from app.db_model.tables.dossier_page import DossierActivity
 from app.db_model.tables.dossier_page import DossierCommission
 from app.db_model.tables.dossier_page import DossierRapporteur
 from app.db_model.tables.dossier_page import VoteBulletin
@@ -81,6 +82,9 @@ def scrape_dossier_pages(session: Session, dossiers: list[Dossier]) -> dict[str,
                                            deputy_id=_deputy_id(n, deputies))
                          for n in facts.rapporteur_names],
             bulletins=[VoteBulletin(dossier_id=dossier.id, url=u) for u in facts.bulletin_urls],
+            activities=[DossierActivity(dossier_id=dossier.id, day=a.day,
+                                        description=a.description, actor=a.actor)
+                        for a in facts.activities],
         )
     return failed
 

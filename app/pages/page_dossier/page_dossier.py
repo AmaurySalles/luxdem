@@ -30,9 +30,13 @@ from app.pages.common import display_app_header
 from app.pages.common import main_footer
 from app.pages.common.c_accountability import assessment_badge
 from app.pages.common.c_accountability import choice_text
+from app.pages.common.c_accountability import deputy_url
+from app.pages.common.c_accountability import DOSSIER_PATH
 from app.pages.common.c_accountability import party_table
 from app.pages.common.c_accountability import sources_line
 from app.pages.common.c_accountability import tally
+from app.pages.common.c_trail import trail_chart
+from app.pages.common.c_trail import TrailRow
 
 PAGE_DOSSIER = Page(
     module=__name__,
@@ -44,10 +48,7 @@ PAGE_DOSSIER = Page(
 )
 
 NUMBER_PARAM = 'numero'
-
-
-def dossier_url(number: str) -> str:
-    return f'{PAGE_DOSSIER.url}?{NUMBER_PARAM}={number}'
+assert PAGE_DOSSIER.url == DOSSIER_PATH
 
 
 def _author_block(record: DossierRecord) -> dmc.Stack:
@@ -104,7 +105,8 @@ def _ballot_block(ballot: BallotRecord) -> dmc.AccordionItem:
         dmc.TableThead(dmc.TableTr([dmc.TableTh(h) for h in ('Député(e)', 'Parti', 'Vote',
                                                              'Procuration')])),
         dmc.TableTbody([dmc.TableTr([
-            dmc.TableTd(seat.deputy), dmc.TableTd(seat.political_group),
+            dmc.TableTd(dmc.Anchor(seat.deputy, href=deputy_url(seat.deputy_id), fz=12)),
+            dmc.TableTd(seat.political_group),
             dmc.TableTd(choice_text(seat.choice)),
             dmc.TableTd(f'votée par {seat.proxy_holder}' if seat.proxy_holder
                         else 'non résolue' if not seat.owner_known else ''),
@@ -123,6 +125,29 @@ def _ballot_block(ballot: BallotRecord) -> dmc.AccordionItem:
     ], value=f'{ballot.label}{ballot.held_at}')
 
 
+def _trail_block(record: DossierRecord) -> dmc.Stack:
+    trail = record.trail
+    if not trail.phases:
+        return dmc.Stack([dmc.Text('Parcours non disponible.', c='dimmed', fz=13)])
+    milestones = dmc.Group([
+        dmc.Stack([dmc.Text(step.value, fz=11, c='dimmed'),
+                   dmc.Text(f'{day:%d.%m.%Y}', fw=600, fz=13)], gap=0)
+        for step, day in trail.milestones.items()], gap='xl')
+    steps = dmc.Table(dmc.TableTbody([dmc.TableTr([
+        dmc.TableTd(f'{a.day:%d.%m.%Y}', style={'whiteSpace': 'nowrap'}),
+        dmc.TableTd(a.description), dmc.TableTd(a.actor, c='dimmed')])
+        for a in trail.activities]), fz=12, striped=True)
+    return dmc.Stack([
+        milestones,
+        dmc.Text(f'{trail.total_days} jours depuis le dépôt'
+                 + (' (en cours)' if trail.phases[-1].is_open else ''), fz=13),
+        trail_chart([TrailRow(record.number, trail)]),
+        dmc.Accordion([dmc.AccordionItem([
+            dmc.AccordionControl(f'Toutes les étapes ({len(trail.activities)})'),
+            dmc.AccordionPanel(steps)], value='etapes')]),
+    ], gap='xs')
+
+
 def _layout(record: DossierRecord, votes_source: str) -> dmc.Stack:
     return dmc.Stack([
         dmc.Anchor(f'Dossier parlementaire n° {record.number} sur chd.lu', href=record.chd_url,
@@ -136,6 +161,8 @@ def _layout(record: DossierRecord, votes_source: str) -> dmc.Stack:
         dmc.Text([dmc.Text('Rapporteur : ', fw=600, span=True),
                   ' ; '.join(record.rapporteurs) or 'pas encore désigné']),
         _verdict_block(record),
+        dmc.Title('Parcours législatif', order=4, mt='md'),
+        _trail_block(record),
         dmc.Title('Votes à la Chambre', order=4, mt='md'),
         dmc.Accordion([_ballot_block(b) for b in record.ballots], multiple=True,
                       variant='separated')

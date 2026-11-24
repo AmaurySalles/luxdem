@@ -11,6 +11,7 @@ from app.db_model.tables.chd_opendata import CommissionMembership
 from app.db_model.tables.chd_opendata import Deputy
 from app.db_model.tables.chd_opendata import OpenDataImport
 from app.db_model.tables.chd_opendata import SeatVote
+from app.db_model.tables.dossier_page import DossierActivity
 from app.db_model.tables.dossier_page import DossierCommission
 from app.db_model.tables.dossier_page import DossierRapporteur
 from app.db_model.tables.dossier_page import VoteBulletin
@@ -52,11 +53,12 @@ def replace_dossier_page_facts(session: Session,
                                commissions: list[DossierCommission],
                                rapporteurs: list[DossierRapporteur],
                                bulletins: list[VoteBulletin],
+                               activities: list[DossierActivity],
                                ) -> None:
-    """Replace one dossier's scraped commissions, rapporteurs and bulletin links."""
-    for table in (DossierCommission, DossierRapporteur, VoteBulletin):
+    """Replace one dossier's scraped commissions, rapporteurs, bulletin links and activities."""
+    for table in (DossierCommission, DossierRapporteur, VoteBulletin, DossierActivity):
         session.exec(delete(table).where(table.dossier_id == dossier_id))
-    session.add_all([*commissions, *rapporteurs, *bulletins])
+    session.add_all([*commissions, *rapporteurs, *bulletins, *activities])
     session.commit()
 
 

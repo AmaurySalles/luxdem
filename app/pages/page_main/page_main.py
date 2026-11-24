@@ -17,8 +17,8 @@ from ecodev_front import URL
 from app.constants import MAIN_PAGE_URL
 from app.pages.common import display_app_header
 from app.pages.common import main_footer
+from app.pages.common.c_accountability import minister_url
 from app.pages.page_ministre.page_ministre import DEFAULT_MINISTER
-from app.pages.page_ministre.page_ministre import minister_url
 from app.pages.page_topic_analysis.page_topic_analysis import PAGE_TOPIC_ANALYSIS
 
 

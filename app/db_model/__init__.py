@@ -14,6 +14,7 @@ from app.db_model.tables.chd_opendata import Deputy
 from app.db_model.tables.chd_opendata import OpenDataImport
 from app.db_model.tables.chd_opendata import SeatVote
 from app.db_model.tables.dossier import Dossier
+from app.db_model.tables.dossier_page import DossierActivity
 from app.db_model.tables.dossier_page import DossierCommission
 from app.db_model.tables.dossier_page import DossierRapporteur
 from app.db_model.tables.dossier_page import VoteBulletin
@@ -36,6 +37,7 @@ __all__ = [
     'CommissionMembership',
     'Deputy',
     'Dossier',
+    'DossierActivity',
     'DossierCommission',
     'DossierRapporteur',
     'DossierSummary',
