@@ -471,6 +471,19 @@ def analyze_topic_command(
 
 @safe_clt
 @typer_app.command()
+def import_government_command() -> None:
+    """
+    Import government mandates and party statements from gouvernement.lu (#119).
+    """
+    from app.methodo.government import import_government
+
+    with Session(engine) as session:
+        mandates, statements = import_government(session)
+    typer.echo(f"Mandates: {mandates}, party statements: {statements}")
+
+
+@safe_clt
+@typer_app.command()
 def import_chd_opendata_command() -> None:
     """
     Import CHD open data (votes, commission memberships) from data.public.lu, replacing the
