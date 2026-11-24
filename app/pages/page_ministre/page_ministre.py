@@ -39,8 +39,13 @@ from app.pages.common.c_accountability import HOUSING_COMMISSION
 from app.pages.common.c_accountability import MINISTER_PATH
 from app.pages.common.c_accountability import sources_line
 from app.pages.common.c_accountability import tally
-from app.pages.common.c_trail import trail_chart
-from app.pages.common.c_trail import TrailRow
+from app.methodo.legislative_trail import HOLDER_RULES
+from app.pages.common.c_trail import HOLDER_COLORS
+from app.pages.common.c_trail import holder_days_table
+from app.pages.common.c_trail import holder_segments
+from app.pages.common.c_trail import PHASE_COLORS
+from app.pages.common.c_trail import phase_segments
+from app.pages.common.c_trail import timeline_chart
 
 PAGE_MINISTRE = Page(
     module=__name__,
@@ -103,7 +108,18 @@ def _layout(profile: AuthorProfile, records: list[DossierRecord]) -> dmc.Stack:
         dmc.Text("Du dépôt à l'avis du Conseil d'État, au rapport de commission, au vote et à "
                  'la publication au Mémorial. Survolez une barre pour les dates.',
                  fz=13, c='dimmed'),
-        trail_chart([TrailRow(r.number, r.trail) for r in records]),
+        timeline_chart([s for r in records for s in phase_segments(r.number, r.trail)],
+                       PHASE_COLORS),
+        dmc.Title('Qui tient le projet ?', order=4, mt='lg'),
+        dmc.Text("Le temps passé en attente du Conseil d'État, de la Chambre ou du Gouvernement.",
+                 fz=13, c='dimmed'),
+        timeline_chart(holders := [s for r in records for s in holder_segments(r.number, r.trail)],
+                       HOLDER_COLORS),
+        holder_days_table(holders),
+        dmc.Accordion([dmc.AccordionItem([
+            dmc.AccordionControl("Règles d'attribution", fz=13),
+            dmc.AccordionPanel(dmc.List([dmc.ListItem(rule, fz=12) for rule in HOLDER_RULES]))],
+            value='regles')]),
         sources_line('activités datées des dossiers sur chd.lu'),
     ], gap='xs')
 

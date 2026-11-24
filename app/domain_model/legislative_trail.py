@@ -16,3 +16,10 @@ class TrailPhase(str, Enum):
     InCommission = "En commission, après l'avis"
     AwaitingVote = "Du rapport au vote"
     AwaitingPublication = "Du vote à la publication"
+
+
+class BillHolder(str, Enum):
+    """Whose move a bill is waiting on."""
+    Government = "Gouvernement"
+    Council = "Conseil d'État"
+    Chamber = "Chambre des Députés"

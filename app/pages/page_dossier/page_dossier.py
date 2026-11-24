@@ -35,8 +35,13 @@ from app.pages.common.c_accountability import DOSSIER_PATH
 from app.pages.common.c_accountability import party_table
 from app.pages.common.c_accountability import sources_line
 from app.pages.common.c_accountability import tally
-from app.pages.common.c_trail import trail_chart
-from app.pages.common.c_trail import TrailRow
+from app.methodo.legislative_trail import HOLDER_RULES
+from app.pages.common.c_trail import HOLDER_COLORS
+from app.pages.common.c_trail import holder_days_table
+from app.pages.common.c_trail import holder_segments
+from app.pages.common.c_trail import PHASE_COLORS
+from app.pages.common.c_trail import phase_segments
+from app.pages.common.c_trail import timeline_chart
 
 PAGE_DOSSIER = Page(
     module=__name__,
@@ -141,10 +146,18 @@ def _trail_block(record: DossierRecord) -> dmc.Stack:
         milestones,
         dmc.Text(f'{trail.total_days} jours depuis le dépôt'
                  + (' (en cours)' if trail.phases[-1].is_open else ''), fz=13),
-        trail_chart([TrailRow(record.number, trail)]),
-        dmc.Accordion([dmc.AccordionItem([
-            dmc.AccordionControl(f'Toutes les étapes ({len(trail.activities)})'),
-            dmc.AccordionPanel(steps)], value='etapes')]),
+        timeline_chart(phase_segments(record.number, trail), PHASE_COLORS),
+        dmc.Title('Qui tient le projet ?', order=6, mt='sm'),
+        timeline_chart(holders := holder_segments(record.number, trail), HOLDER_COLORS),
+        holder_days_table(holders),
+        dmc.Accordion([
+            dmc.AccordionItem([dmc.AccordionControl(f'Toutes les étapes ({len(trail.activities)})'),
+                               dmc.AccordionPanel(steps)], value='etapes'),
+            dmc.AccordionItem([dmc.AccordionControl("Règles d'attribution"),
+                               dmc.AccordionPanel(dmc.List([dmc.ListItem(rule, fz=12)
+                                                            for rule in HOLDER_RULES]))],
+                              value='regles'),
+        ], multiple=True),
     ], gap='xs')
 
 

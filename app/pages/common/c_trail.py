@@ -1,66 +1,85 @@
 """
-Legislative trail chart (#119, demo of 2026-11-27): one row per bill, one bar segment per
-phase between milestones, on a shared date axis. French only.
+Legislative trail charts (#119, demo of 2026-11-27): one row per bill on a shared date axis,
+one bar segment per period. French only.
 
-Phases are ordered, so they take an ordinal one-hue ramp (validated with the dataviz
-validator, --ordinal); a phase still under way is hatched, so 'open' is never color alone.
+- Phases between milestones are ordered: an ordinal one-hue ramp (dataviz validator, --ordinal).
+- Who holds the bill is identity: categorical hues (validator: pass; aqua under 3:1 on the
+  surface, so a days-per-holder table goes with the chart).
+A period still under way is hatched, so 'open' is never color alone.
 """
 from dataclasses import dataclass
+from datetime import date
+from enum import Enum
 
+import dash_mantine_components as dmc
 import plotly.graph_objects as go
 from dash import dcc
 
+from app.domain_model import BillHolder
 from app.domain_model import TrailPhase
 from app.methodo.legislative_trail import LegislativeTrail
 
-_PHASE_COLOR = {TrailPhase.AwaitingCouncil: '#86b6ef', TrailPhase.InCommission: '#3987e5',
+PHASE_COLORS = {TrailPhase.AwaitingCouncil: '#86b6ef', TrailPhase.InCommission: '#3987e5',
                 TrailPhase.AwaitingVote: '#1c5cab', TrailPhase.AwaitingPublication: '#0d366b'}
+HOLDER_COLORS = {BillHolder.Council: '#2a78d6', BillHolder.Chamber: '#eb6834',
+                 BillHolder.Government: '#1baf7a'}
 _SURFACE = '#ffffff'
 _MS_PER_DAY = 86_400_000
 _ROW_PX = 40
 
 
 @dataclass(frozen=True)
-class TrailRow:
-    label: str  # '8535'
-    trail: LegislativeTrail
+class Segment:
+    row: str  # '8535'
+    category: Enum  # a TrailPhase or a BillHolder
+    start: date
+    end: date
+    is_open: bool
+
+    @property
+    def days(self) -> int:
+        return (self.end - self.start).days
 
 
-def trail_chart(rows: list[TrailRow]) -> dcc.Graph:
-    """Bars of phase durations per bill; hover gives the phase, its dates and its length."""
+def phase_segments(row: str, trail: LegislativeTrail) -> list[Segment]:
+    return [Segment(row, p.phase, p.start, p.end, p.is_open) for p in trail.phases]
+
+
+def holder_segments(row: str, trail: LegislativeTrail) -> list[Segment]:
+    return [Segment(row, h.holder, h.start, h.end, h.is_open) for h in trail.holders]
+
+
+def timeline_chart(segments: list[Segment], colors: dict[Enum, str]) -> dcc.Graph:
+    """Bars of periods per bill; hover gives the period, its dates and its length."""
+    rows = list(dict.fromkeys(s.row for s in segments))
     figure = go.Figure()
-    for phase, color in _PHASE_COLOR.items():
-        spans = [(row.label, span) for row in rows for span in row.trail.phases
-                 if span.phase == phase]
+    for category, color in colors.items():
+        spans = [s for s in segments if s.category == category]
         if not spans:
             continue
         figure.add_trace(go.Bar(
-            name=phase.value, orientation='h',
-            y=[label for label, _ in spans],
-            base=[span.start.isoformat() for _, span in spans],
-            x=[max(span.days, 1) * _MS_PER_DAY for _, span in spans],
+            name=category.value, orientation='h',
+            y=[s.row for s in spans], base=[s.start.isoformat() for s in spans],
+            x=[max(s.days, 1) * _MS_PER_DAY for s in spans],
             marker={'color': color, 'line': {'color': _SURFACE, 'width': 2},
-                    'pattern': {'shape': ['/' if span.is_open else '' for _, span in spans],
+                    'pattern': {'shape': ['/' if s.is_open else '' for s in spans],
                                 'bgcolor': color, 'fgcolor': _SURFACE, 'solidity': 0.3},
                     'cornerradius': 4},
-            text=[f'{span.days} j' for _, span in spans],
-            textposition='inside', insidetextanchor='middle', textangle=0,
-            textfont={'color': _SURFACE},
-            customdata=[[span.start.strftime('%d.%m.%Y'),
-                         "aujourd'hui (en cours)" if span.is_open
-                         else span.end.strftime('%d.%m.%Y'), span.days] for _, span in spans],
-            hovertemplate=(f'<b>%{{y}}</b> — {phase.value}<br>'
+            text=[f'{s.days} j' for s in spans], textposition='inside',
+            insidetextanchor='middle', textangle=0, textfont={'color': _SURFACE},
+            customdata=[[s.start.strftime('%d.%m.%Y'),
+                         "aujourd'hui (en cours)" if s.is_open else s.end.strftime('%d.%m.%Y'),
+                         s.days] for s in spans],
+            hovertemplate=(f'<b>%{{y}}</b> — {category.value}<br>'
                            '%{customdata[0]} → %{customdata[1]}<br>'
                            '%{customdata[2]} jours<extra></extra>'),
         ))
     height_px = _ROW_PX * len(rows) + 120
     figure.update_layout(
-        barmode='overlay', height=height_px,
-        margin={'l': 10, 'r': 10, 't': 60, 'b': 30},
+        barmode='overlay', height=height_px, margin={'l': 10, 'r': 10, 't': 60, 'b': 30},
         plot_bgcolor=_SURFACE, paper_bgcolor=_SURFACE,
         legend={'orientation': 'h', 'y': 1.0, 'yanchor': 'bottom', 'x': 0,
-                'title': {'text': 'Hachuré : phase en cours  '},
-                'font': {'textcase': 'normal'}},
+                'title': {'text': 'Hachuré : en cours  '}, 'font': {'textcase': 'normal'}},
         uniformtext={'mode': 'hide', 'minsize': 10},
         xaxis={'type': 'date', 'showgrid': True, 'gridcolor': '#ececec', 'tickformat': '%m.%Y'},
         yaxis={'autorange': 'reversed', 'type': 'category'},
@@ -68,3 +87,18 @@ def trail_chart(rows: list[TrailRow]) -> dcc.Graph:
     )
     return dcc.Graph(figure=figure, config={'displayModeBar': False},
                      style={'height': f'{height_px}px'})
+
+
+def holder_days_table(segments: list[Segment]) -> dmc.Table:
+    """Days per bill and holder: the chart's numbers as text."""
+    rows = list(dict.fromkeys(s.row for s in segments))
+    days = {(s.row, s.category): 0 for s in segments}
+    for s in segments:
+        days[(s.row, s.category)] += s.days
+    head = dmc.TableThead(dmc.TableTr([dmc.TableTh('Dossier')]
+                                      + [dmc.TableTh(h.value) for h in HOLDER_COLORS]))
+    body = dmc.TableTbody([dmc.TableTr(
+        [dmc.TableTd(row, fw=600)]
+        + [dmc.TableTd(f'{days[(row, h)]} j' if (row, h) in days else '–') for h in HOLDER_COLORS])
+        for row in rows])
+    return dmc.Table([head, body], fz=12, striped=True, withTableBorder=True)
