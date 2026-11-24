@@ -8,6 +8,7 @@ from dataclasses import field
 
 import requests
 from ecodev_core import logger_get
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session
 
 from app.db_model.inserters.chd_opendata_inserters import replace_dossier_page_facts
@@ -22,6 +23,7 @@ from app.db_model.tables.dossier_page import DossierCommission
 from app.db_model.tables.dossier_page import DossierRapporteur
 from app.db_model.tables.dossier_page import VoteBulletin
 from app.domain_model.deputy_names import is_same_person
+from app.methodo.dossier_page import DossierPageFacts
 from app.methodo.dossier_page import scrape_dossier_page
 from app.methodo.parsing.download import download_pdf
 from app.methodo.proxy_resolution import BulletinMismatchError
@@ -58,7 +60,7 @@ def _deputy_id(name: str, deputies: list[KnownDeputy]) -> int | None:
 
 def scrape_dossier_pages(session: Session, dossiers: list[Dossier]) -> dict[str, str]:
     """
-    Store commissions, rapporteurs and bulletin links of each dossier's page.
+    Store commissions, rapporteurs, bulletin links and activities of each dossier's page.
 
     Returns:
         Error per dossier number for pages that could not be read.
@@ -74,19 +76,30 @@ def scrape_dossier_pages(session: Session, dossiers: list[Dossier]) -> dict[str,
             continue
         finally:
             time.sleep(_DELAY_S)
-        replace_dossier_page_facts(
-            session, dossier.id,
-            commissions=[DossierCommission(dossier_id=dossier.id, commission_title=t)
-                         for t in facts.commission_titles],
-            rapporteurs=[DossierRapporteur(dossier_id=dossier.id, name=n,
-                                           deputy_id=_deputy_id(n, deputies))
-                         for n in facts.rapporteur_names],
-            bulletins=[VoteBulletin(dossier_id=dossier.id, url=u) for u in facts.bulletin_urls],
-            activities=[DossierActivity(dossier_id=dossier.id, day=a.day,
-                                        description=a.description, actor=a.actor)
-                        for a in facts.activities],
-        )
+        try:
+            _store_page_facts(session, dossier, facts, deputies)
+        except IntegrityError as error:
+            # seen once mid-batch (duplicate commission row), not when re-run alone
+            session.rollback()
+            log.warning(f"Dossier {dossier.number}: {error.orig}")
+            failed[dossier.number] = str(error.orig)
     return failed
+
+
+def _store_page_facts(session: Session, dossier: Dossier, facts: DossierPageFacts,
+                      deputies: list[KnownDeputy]) -> None:
+    replace_dossier_page_facts(
+        session, dossier.id,
+        commissions=[DossierCommission(dossier_id=dossier.id, commission_title=t)
+                     for t in facts.commission_titles],
+        rapporteurs=[DossierRapporteur(dossier_id=dossier.id, name=n,
+                                       deputy_id=_deputy_id(n, deputies))
+                     for n in facts.rapporteur_names],
+        bulletins=[VoteBulletin(dossier_id=dossier.id, url=u) for u in facts.bulletin_urls],
+        activities=[DossierActivity(dossier_id=dossier.id, day=a.day,
+                                    description=a.description, actor=a.actor)
+                    for a in facts.activities],
+    )
 
 
 def _described_ballot(ballots_at_same_second: list[Ballot], bulletin_label: str) -> Ballot | None:
