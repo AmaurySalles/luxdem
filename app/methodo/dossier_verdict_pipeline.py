@@ -11,6 +11,7 @@ from app.db_model.retrievers.dossier_retriever import persist_dossier_verdict
 from app.db_model.retrievers.dossier_retriever import retrieve_dossier_verdict
 from app.db_model.tables.dossier import Dossier
 from app.methodo.analyzer import generate_dossier_verdict
+from app.methodo.analyzer import LAW_VERDICT_PROMPT_VERSION
 from app.methodo.analyzer import LawUnderReview
 from app.methodo.chroma import get_create_chroma_vectorstore
 from app.methodo.evidence import DocType
@@ -28,6 +29,8 @@ log = logger_get(__name__)
 K_LAW_PASSAGES = 8
 K_COALITION = 6
 N_ONH_REPORTS = 2
+# Stored as the verdict's model_used: a new model or a new prompt regenerates it
+VERDICT_VERSION = f"{CHAT_MODEL_ID}/law-prompt-{LAW_VERDICT_PROMPT_VERSION}"
 
 
 def dossier_verdict_pipeline(session: Session, dossiers: list[Dossier]) -> None:
@@ -36,7 +39,7 @@ def dossier_verdict_pipeline(session: Session, dossiers: list[Dossier]) -> None:
     vectorstore = get_create_chroma_vectorstore(model=OLLAMA_EMBEDDING_MODEL)
     for dossier in dossiers:
         cached = retrieve_dossier_verdict(session, dossier.id)
-        if cached and cached.model_used == CHAT_MODEL_ID:
+        if cached and cached.model_used == VERDICT_VERSION:
             log.info(f"Using cached verdict for dossier #{dossier.number}")
             continue
         log.info(f"Generating verdict for dossier #{dossier.number}")
@@ -51,4 +54,4 @@ def dossier_verdict_pipeline(session: Session, dossiers: list[Dossier]) -> None:
                                                    dossier.number, K_LAW_PASSAGES),
             onh=[passage for doc in onh_docs for passage in doc.passages],
         )
-        persist_dossier_verdict(session, dossier.id, verdict.model_dump_json(), CHAT_MODEL_ID)
+        persist_dossier_verdict(session, dossier.id, verdict.model_dump_json(), VERDICT_VERSION)
