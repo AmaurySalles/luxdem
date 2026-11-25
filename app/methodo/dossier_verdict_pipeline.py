@@ -28,7 +28,7 @@ log = logger_get(__name__)
 
 K_LAW_PASSAGES = 8
 K_COALITION = 6
-N_ONH_REPORTS = 2
+N_ONH_REPORTS = 3
 # Stored as the verdict's model_used: a new model or a new prompt regenerates it
 VERDICT_VERSION = f"{CHAT_MODEL_ID}/law-prompt-{LAW_VERDICT_PROMPT_VERSION}"
 

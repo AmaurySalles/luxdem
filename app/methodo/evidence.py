@@ -18,6 +18,9 @@ FETCH_K = 100  # chunks per doc type before grouping: 50 gave only 5 laws for bu
 PASSAGES_PER_DOC = 4
 # Summaries are cached once per document, so they focus on the beta's scope (housing, #100)
 # rather than on one topic.
+# Cover infographics of 'Le logement en chiffres' (#57): numbers stripped of their charts, one
+# chunk per issue. Left out of evidence until #74 drops them at parse time.
+_SKIPPED_HEADING = "LE LOGEMENT en chiffres"
 SUMMARY_FOCUS_QUERY = ("politique du logement : logements abordables, terrains à bâtir et "
                        "aménagement du territoire, aides au logement, loyers et "
                        "fiscalité immobilière")
@@ -65,6 +68,8 @@ def retrieve_documents(vectorstore: Chroma, query: str, doc_type: DocType, n_doc
     hits = vectorstore.similarity_search(query, k=fetch_k, filter={"doc_type": doc_type.value})
     docs: dict[str, DocEvidence] = {}
     for hit in hits:
+        if _SKIPPED_HEADING in (hit.metadata.get("heading_path") or ""):
+            continue
         key = doc_key(hit.metadata)
         if key not in docs:
             if len(docs) == n_docs:

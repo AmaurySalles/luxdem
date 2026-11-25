@@ -34,6 +34,7 @@ from app.pages.common.c_accountability import deputy_url
 from app.pages.common.c_accountability import DOSSIER_PATH
 from app.pages.common.c_accountability import party_table
 from app.pages.common.c_accountability import sources_line
+from app.pages.common.c_accountability import stance_badge
 from app.pages.common.c_accountability import tally
 from app.methodo.legislative_trail import HOLDER_RULES
 from app.pages.common.c_trail import HOLDER_COLORS
@@ -76,11 +77,12 @@ def _verdict_block(record: DossierRecord) -> dmc.Card:
         return dmc.Card(dmc.Text('Pas encore de verdict pour ce dossier.', c='dimmed'),
                         withBorder=True, radius='md', p='md')
     cited = {pid for text in [verdict.analysis_text, verdict.conclusion,
-                              *verdict.coalition_commitments, *verdict.gaps_identified]
+                              *verdict.coalition_commitments, *verdict.gaps_identified,
+                              *(f.finding for f in verdict.onh_findings), verdict.onh_conclusion]
              for pid in find_citations(text)}
     passages = [p for p in verdict.passages if p.id in cited]
     return dmc.Card([
-        dmc.Group([dmc.Title("Tient-il les engagements de l'accord de coalition ?", order=4),
+        dmc.Group([dmc.Title("Accord de coalition et études de l'ONH", order=4),
                    assessment_badge(verdict.assessment)], justify='space-between'),
         dmc.Text(verdict.conclusion, mt='sm', fw=500),
         dmc.Title('Engagements concernés', order=6, mt='md'),
@@ -89,6 +91,7 @@ def _verdict_block(record: DossierRecord) -> dmc.Card:
         dmc.Title('Lacunes', order=6, mt='md'),
         dmc.List([dmc.ListItem(g, fz=13) for g in verdict.gaps_identified]
                  or [dmc.ListItem('Aucune relevée', fz=13)]),
+        _onh_block(record),
         dmc.Accordion([
             dmc.AccordionItem([dmc.AccordionControl('Analyse détaillée'),
                                dmc.AccordionPanel(dcc.Markdown(verdict.analysis_text))],
@@ -103,6 +106,25 @@ def _verdict_block(record: DossierRecord) -> dmc.Card:
                  'des seuls passages cités ; chaque phrase renvoie à ses sources.',
                  fz=11, c='dimmed', mt='sm'),
     ], withBorder=True, radius='md', p='md')
+
+
+def _onh_block(record: DossierRecord) -> dmc.Stack:
+    """The ONH leg: each finding or recommendation, how the law relates to it, its report."""
+    verdict = record.verdict
+    findings = [dmc.Group([
+        stance_badge(f.stance),
+        dmc.Stack([dmc.Text(f.finding, fz=13),
+                   dmc.Text(' ; '.join(dict.fromkeys(
+                       record.onh_titles.get(pid.split('#')[0], pid.split('#')[0])
+                       for pid in find_citations(f.finding))), fz=11, c='dimmed')], gap=0,
+                  style={'flex': 1}),
+    ], align='flex-start', wrap='nowrap') for f in verdict.onh_findings]
+    return dmc.Stack([
+        dmc.Title("Ce que disent les études de l'Observatoire de l'habitat", order=6, mt='md'),
+        dmc.Text(verdict.onh_conclusion, fz=13, fw=500) if verdict.onh_conclusion else dmc.Box(),
+        dmc.Stack(findings, gap='xs') if findings
+        else dmc.Text("Aucune conclusion de l'ONH ne porte sur ce texte.", fz=13, c='dimmed'),
+    ], gap=4)
 
 
 def _ballot_block(ballot: BallotRecord) -> dmc.AccordionItem:

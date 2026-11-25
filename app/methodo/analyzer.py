@@ -13,6 +13,7 @@ from ollama import Client
 from pydantic import BaseModel
 
 from app.domain_model import LawAssessment
+from app.domain_model import OnhStance
 
 from app.methodo.evidence import find_citations, find_overcited_sentences, Passage
 from app.methodo.local_llm import chat_completion
@@ -49,10 +50,21 @@ class LawUnderReview:
     summary: str
 
 
+class OnhFinding(BaseModel):
+    finding: str  # an ONH finding or recommendation, with its citation
+    stance: OnhStance | None = None  # None: the model gave none of the three
+
+
 class LawVerdict(CitedVerdict):
-    """Which coalition commitments one law delivers on (demo of 2026-11-27)."""
+    """
+    One law against the coalition agreement and against ONH research (demo of 2026-11-27).
+
+    Defaults keep verdicts stored before the ONH leg (prompt version 2) loadable.
+    """
     dossier_number: str
     assessment: LawAssessment | None = None  # None: the model gave none of the three
+    onh_findings: list[OnhFinding] = []
+    onh_conclusion: str = ""
 
 
 @dataclass(frozen=True)
@@ -108,18 +120,21 @@ Your task: assess whether the government's legislative response is delivering on
 {_JSON_FIELDS}"""
 
 # Bumped with each change to the per-law prompt, so stored verdicts are regenerated
-LAW_VERDICT_PROMPT_VERSION = 2
+LAW_VERDICT_PROMPT_VERSION = 3
 _DOSSIER_SYSTEM_PROMPT = f"""You are an expert in Luxembourg housing policy and
 legislative analysis.
 You will receive:
 1. One law or legislative proposal, with its status: a summary for orientation, then verbatim
    passages
 2. Excerpts from the coalition agreement 2023-2028 (government promises / KPIs)
-3. ONH (Observatoire National de l'Habitat) research reports: verbatim passages
+3. ONH (Observatoire National de l'Habitat) research reports: verbatim passages with their
+   findings and recommendations
 
 {_SOURCE_RULES}
 
-Your task: assess which coalition commitments this law delivers on, how far, and what those
+Your task has two parts.
+
+Part 1: assess which coalition commitments this law delivers on, how far, and what those
 commitments still need that this law leaves out.
 
 - List only the commitments this law acts on; if it acts on none of the excerpts, say so.
@@ -134,13 +149,23 @@ Choose one assessment, by these definitions:
 - "{LawAssessment.Unrelated.value}": the law acts on none of the commitments given.
 A law that does what it set out to do is not partial because other commitments remain open.
 
+Part 2: compare the law with the ONH research. List each finding or recommendation of the ONH
+passages that bears on what this law does, with its citation, and whether the law:
+- "{OnhStance.Follows.value}": acts in the direction the finding or recommendation points to;
+- "{OnhStance.Contradicts.value}": acts against it;
+- "{OnhStance.NotAddressed.value}": leaves it aside although it concerns the law's subject.
+Only list what the ONH passages state; if none bears on the law, return an empty list.
+
 Return ONLY a valid JSON object with these exact fields:
 {{
   "assessment": "one of the three assessments above",
   "coalition_commitments": ["commitment 1 [coalition#...]", ...],
   "analysis_text": "multi-paragraph prose analysis, each paragraph ending with its citations",
   "gaps_identified": ["gap 1 [ids]", ...],
-  "conclusion": "2-3 sentence judgment explaining the assessment"
+  "conclusion": "2-3 sentence judgment explaining the assessment",
+  "onh_findings": [{{"finding": "finding or recommendation [onh/...#...]",
+                     "stance": "one of the three stances above"}}, ...],
+  "onh_conclusion": "1-2 sentences: does the law follow the ONH research, and where not"
 }}"""
 
 
@@ -174,7 +199,33 @@ def generate_dossier_verdict(client: Client, law: LawUnderReview, coalition: lis
     assessment = assessments.get(parsed.get("assessment", ""))
     if assessment is None:
         log.warning(f"Verdict for #{law.number}: no valid assessment {parsed.get('assessment')!r}")
-    return LawVerdict(dossier_number=law.number, assessment=assessment, **verdict.model_dump())
+    findings = _onh_findings(parsed.get("onh_findings", []))
+    onh_conclusion = parsed.get("onh_conclusion", "")
+    # the ONH leg goes through the same citation checks as the coalition leg
+    known = {p.id for p in verdict.passages}
+    onh_cited = find_citations("\n".join([*(f.finding for f in findings), onh_conclusion]))
+    checks = {
+        "unknown_citations": sorted(set(verdict.unknown_citations) | (set(onh_cited) - known)),
+        "uncited_items": [*verdict.uncited_items,
+                          *(f.finding for f in findings if not find_citations(f.finding))],
+        "overcited_sentences": [
+            *verdict.overcited_sentences,
+            *(s for f in findings for s in find_overcited_sentences(f.finding))],
+    }
+    return LawVerdict(dossier_number=law.number, assessment=assessment, onh_findings=findings,
+                      onh_conclusion=onh_conclusion, **(verdict.model_dump() | checks))
+
+
+def _onh_findings(raw: list[Any]) -> list[OnhFinding]:
+    """Findings from the model's JSON; malformed entries are dropped and logged."""
+    stances = {s.value: s for s in OnhStance}
+    findings = []
+    for item in raw:
+        if not (isinstance(item, dict) and isinstance(item.get("finding"), str)):
+            log.warning(f"Malformed ONH finding dropped: {item!r}")
+            continue
+        findings.append(OnhFinding(finding=item["finding"], stance=stances.get(item.get("stance"))))
+    return findings
 
 
 def _generate_cited_verdict(client: Client, system_prompt: str, user_msg: str,
