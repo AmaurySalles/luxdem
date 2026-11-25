@@ -5,6 +5,7 @@ badges, vote tallies per party and the sources line. French only.
 import dash_mantine_components as dmc
 
 from app.domain_model import LawAssessment
+from app.domain_model import OnhStance
 from app.domain_model import VoteChoice
 from app.methodo.dossier_record import BallotRecord
 
@@ -29,6 +30,8 @@ def minister_url(name: str) -> str:
 
 _ASSESSMENT_COLOR = {LawAssessment.Delivers: 'green', LawAssessment.Partial: 'yellow',
                      LawAssessment.Unrelated: 'gray'}
+_STANCE_COLOR = {OnhStance.Follows: 'green', OnhStance.Contradicts: 'red',
+                 OnhStance.NotAddressed: 'gray'}
 _CHOICE_COLOR = {VoteChoice.Oui: 'green', VoteChoice.Non: 'red', VoteChoice.Abstention: 'yellow',
                  VoteChoice.PasParticipe: 'gray'}
 _CHOICES = [VoteChoice.Oui, VoteChoice.Non, VoteChoice.Abstention, VoteChoice.PasParticipe]
@@ -40,6 +43,24 @@ def assessment_badge(assessment: LawAssessment | None) -> dmc.Badge:
     return dmc.Badge(assessment.value, color=_ASSESSMENT_COLOR[assessment], variant='light',
                      styles={'root': {'maxWidth': 'none', 'overflow': 'visible'},
                              'label': {'overflow': 'visible', 'textOverflow': 'clip'}})
+
+
+def stance_badge(stance: OnhStance | None) -> dmc.Badge:
+    if stance is None:
+        return dmc.Badge('non qualifié', color='gray', variant='outline', size='sm')
+    return dmc.Badge(stance.value, color=_STANCE_COLOR[stance], variant='light', size='sm',
+                     styles={'root': {'maxWidth': 'none', 'overflow': 'visible'},
+                             'label': {'overflow': 'visible', 'textOverflow': 'clip'}})
+
+
+def stance_counts(stances: list[OnhStance | None]) -> dmc.Group | dmc.Text:
+    """'suit 2 · non traité 1' as badges; 'aucune étude liée' when the ONH leg is empty."""
+    if not stances:
+        return dmc.Text('aucune étude liée', fz=12, c='dimmed')
+    counts = {stance: stances.count(stance) for stance in OnhStance if stance in stances}
+    return dmc.Group([dmc.Badge(f'{stance.value} {n}', color=_STANCE_COLOR[stance],
+                                variant='light', size='sm')
+                      for stance, n in counts.items()], gap=4)
 
 
 def tally(ballot: BallotRecord) -> dmc.Group:

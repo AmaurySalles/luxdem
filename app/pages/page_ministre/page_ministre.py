@@ -38,6 +38,7 @@ from app.pages.common.c_accountability import dossier_url
 from app.pages.common.c_accountability import HOUSING_COMMISSION
 from app.pages.common.c_accountability import MINISTER_PATH
 from app.pages.common.c_accountability import sources_line
+from app.pages.common.c_accountability import stance_counts
 from app.pages.common.c_accountability import tally
 from app.methodo.legislative_trail import HOLDER_RULES
 from app.pages.common.c_trail import HOLDER_COLORS
@@ -85,6 +86,8 @@ def _law_row(record: DossierRecord) -> dmc.TableTr:
         dmc.TableTd(f'{record.deposit_date:%d.%m.%Y}' if record.deposit_date else ''),
         dmc.TableTd(assessment_badge(record.verdict.assessment if record.verdict else None),
                     style={'whiteSpace': 'nowrap'}),
+        dmc.TableTd(stance_counts([f.stance for f in record.verdict.onh_findings]
+                                  if record.verdict else [])),
         dmc.TableTd(dmc.Stack([dmc.Text(f'{vote.held_at:%d.%m.%Y}', fz=12), tally(vote),
                                _party_positions(vote)], gap=2)
                     if vote else dmc.Text('pas encore voté', fz=12, c='dimmed')),
@@ -94,7 +97,8 @@ def _law_row(record: DossierRecord) -> dmc.TableTr:
 def _layout(profile: AuthorProfile, records: list[DossierRecord]) -> dmc.Stack:
     sources = [s for s in (profile.functions_source, profile.party_source) if s]
     head = dmc.TableThead(dmc.TableTr([dmc.TableTh(h) for h in (
-        'N°', 'Projet', 'Dépôt', "Accord de coalition", 'Vote final à la Chambre')]))
+        'N°', 'Projet', 'Dépôt', 'Accord de coalition', 'Études ONH',
+        'Vote final à la Chambre')]))
     return dmc.Stack([
         dmc.Title(f'{profile.name} ({profile.party or "parti non renseigné"})', order=2),
         dmc.List([dmc.ListItem(f) for f in profile.functions]),

@@ -9,6 +9,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date
 from datetime import datetime
+from pathlib import Path
 
 from sqlmodel import Session
 
@@ -19,6 +20,7 @@ from app.db_model.retrievers.chd_opendata_retriever import retrieve_dossier_comm
 from app.db_model.retrievers.chd_opendata_retriever import retrieve_dossier_rapporteurs
 from app.db_model.retrievers.dossier_retriever import retrieve_dossier_verdict
 from app.db_model.retrievers.government_retriever import retrieve_commission_group_on
+from app.db_model.retrievers.onh_retriever import retrieve_onh_publications
 from app.db_model.tables.chd_opendata import Ballot
 from app.db_model.tables.dossier import Dossier
 from app.domain_model import BallotKind
@@ -71,6 +73,7 @@ class DossierRecord:
     rapporteurs: list[str]
     ballots: list[BallotRecord]
     trail: LegislativeTrail
+    onh_titles: dict[str, str]  # 'onh/note-36.pdf' -> 'ONH — Note 36 (2025)', for citations
 
 
 def dossier_record(session: Session, dossier: Dossier) -> DossierRecord:
@@ -92,7 +95,15 @@ def dossier_record(session: Session, dossier: Dossier) -> DossierRecord:
                  for ballot in retrieve_ballots_for_dossier(session, dossier.number)
                  if not ballot.is_ambiguous],
         trail=legislative_trail(retrieve_dossier_activities(session, dossier.id), date.today()),
+        onh_titles=_onh_titles(session),
     )
+
+
+def _onh_titles(session: Session) -> dict[str, str]:
+    """Readable name per ONH document key, as passage ids cite it ('onh/<file>')."""
+    return {f"onh/{Path(p.url).name}": f"ONH — {p.title}"
+            + (f" ({p.published_date:%Y})" if p.published_date else "")
+            for p in retrieve_onh_publications(session)}
 
 
 def _ballot_record(session: Session, ballot: Ballot,
