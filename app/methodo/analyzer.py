@@ -120,7 +120,7 @@ Your task: assess whether the government's legislative response is delivering on
 {_JSON_FIELDS}"""
 
 # Bumped with each change to the per-law prompt, so stored verdicts are regenerated
-LAW_VERDICT_PROMPT_VERSION = 3
+LAW_VERDICT_PROMPT_VERSION = 4
 _DOSSIER_SYSTEM_PROMPT = f"""You are an expert in Luxembourg housing policy and
 legislative analysis.
 You will receive:
@@ -149,12 +149,19 @@ Choose one assessment, by these definitions:
 - "{LawAssessment.Unrelated.value}": the law acts on none of the commitments given.
 A law that does what it set out to do is not partial because other commitments remain open.
 
-Part 2: compare the law with the ONH research. List each finding or recommendation of the ONH
-passages that bears on what this law does, with its citation, and whether the law:
-- "{OnhStance.Follows.value}": acts in the direction the finding or recommendation points to;
+Part 2: compare the law with the ONH research. List each constat or recommendation of the ONH
+passages that bears on what this law does, with its citation. Only these count:
+- a constat: a measured result, figure or observed trend (prices, shortages, who is excluded,
+  how an aid is used);
+- a recommendation: what the ONH says should be done.
+Never list a description of a law, a policy, its history, a survey or its method: that is
+context, not a constat. If no constat or recommendation bears on the law, return an empty list.
+For each, say whether the law:
+- "{OnhStance.Follows.value}": acts in the direction it points to;
 - "{OnhStance.Contradicts.value}": acts against it;
-- "{OnhStance.NotAddressed.value}": leaves it aside although it concerns the law's subject.
-Only list what the ONH passages state; if none bears on the law, return an empty list.
+- "{OnhStance.NotAddressed.value}": leaves aside a recommendation on the law's own subject
+  (use it for recommendations only, never for a plain constat).
+Write « constat », never "finding".
 
 Return ONLY a valid JSON object with these exact fields:
 {{
@@ -163,7 +170,7 @@ Return ONLY a valid JSON object with these exact fields:
   "analysis_text": "multi-paragraph prose analysis, each paragraph ending with its citations",
   "gaps_identified": ["gap 1 [ids]", ...],
   "conclusion": "2-3 sentence judgment explaining the assessment",
-  "onh_findings": [{{"finding": "finding or recommendation [onh/...#...]",
+  "onh_findings": [{{"finding": "constat or recommendation [onh/...#...]",
                      "stance": "one of the three stances above"}}, ...],
   "onh_conclusion": "1-2 sentences: does the law follow the ONH research, and where not"
 }}"""
